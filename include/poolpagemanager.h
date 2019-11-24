@@ -1,0 +1,10 @@
+
+class PoolPageManager {
+public:
+	
+    PoolPageManager();
+
+};
+
+
+
