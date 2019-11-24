@@ -1,7 +1,6 @@
+#include "gameactor.h"
 
-#include "gamephysrig.h"
-
-GamePhysRig::GamePhysRig(
+GameActor::GameActor(
     Singleton* _singleton,
     int _geId,
     btDynamicsWorld* ownerWorld,
@@ -17,7 +16,7 @@ GamePhysRig::GamePhysRig(
     //uid = _uid;
 
     origOffset=positionOffset;// - btVector3(0.0f,0.0f,16.0f);
-
+    float actorScale=1.0f;
 
     baseOrg=singleton->gem->gameOrgs[
         singleton->gem->gameObjects[geId].orgId
@@ -32,18 +31,18 @@ GamePhysRig::GamePhysRig(
 
 }
 
-~GamePhysRig::GamePhysRig()
+virtual	GameActor::~GameActor()
 {
     removeAllBodies();
 }
 
-void GamePhysRig::updatePivot(int jointId)
+void GameActor::updatePivot(int jointId)
 {
 
 
 
-    RigJointStruct* curJoint=&(rigJoints[jointId]);
-    RigJointStruct* parJoint;
+    ActorJointStruct* curJoint=&(actorJoints[jointId]);
+    ActorJointStruct* parJoint;
 
     curJoint->isFixed=(baseEnt->entType==E_ENTTYPE_WEAPON);
 
@@ -73,7 +72,7 @@ void GamePhysRig::updatePivot(int jointId)
     }
     else
     {
-        parJoint=&(rigJoints[curJoint->parentId]);
+        parJoint=&(actorJoints[curJoint->parentId]);
         pivotA=btVector3(-parJoint->length*0.5f, 0.0, 0.0);
         pivotB=btVector3(curJoint->length*0.5f, 0.0, 0.0);
 
@@ -115,7 +114,7 @@ void GamePhysRig::updatePivot(int jointId)
     }
 }
 
-int GamePhysRig::addJoint(
+int GameActor::addJoint(
     int nodeName,
     int parentId,
     int jointType,
@@ -180,12 +179,12 @@ int GamePhysRig::addJoint(
 
     btTransform localA, localB, localC;
 
-    rigJoints.push_back(RigJointStruct());
-    int curId=rigJoints.size()-1;
+    actorJoints.push_back(ActorJointStruct());
+    int curId=actorJoints.size()-1;
 
-    RigJointStruct* curJoint=&(rigJoints.back());
-    RigJointStruct* parJoint;
-    //RigJointStruct* grdJoint;
+    ActorJointStruct* curJoint=&(actorJoints.back());
+    ActorJointStruct* parJoint;
+    //ActorJointStruct* grdJoint;
 
     curJoint->boneId=nodeName;
     curJoint->jointType=jointType;
@@ -343,7 +342,7 @@ int GamePhysRig::addJoint(
 
 
 
-void GamePhysRig::initFromOrg(
+void GameActor::initFromOrg(
     GameOrgNode* curNode,
     int curParent
 )
@@ -395,7 +394,7 @@ void GamePhysRig::initFromOrg(
 
 
 
-void GamePhysRig::reinit()
+void GameActor::reinit()
 {
     removeAllBodies();
     initFromOrg(
@@ -407,38 +406,39 @@ void GamePhysRig::reinit()
 
 
 
-void GamePhysRig::removeAllBodies()
+void GameActor::removeAllBodies()
 {
     int i;
 
     // Remove all constraints
-    for(i=0; i<rigJoints.size(); ++i)
+    for(i=0; i<actorJoints.size(); ++i)
     {
-        if(rigJoints[i].joint==NULL)
+        if(actorJoints[i].joint==NULL)
         {
 
         }
         else
         {
-            m_ownerWorld->removeConstraint(rigJoints[i].joint);
-            delete rigJoints[i].joint;
-            rigJoints[i].joint=NULL;
+            m_ownerWorld->removeConstraint(actorJoints[i].joint);
+            delete actorJoints[i].joint;
+            actorJoints[i].joint=NULL;
         }
     }
 
-    for(i=0; i<rigJoints.size(); ++i)
+    for(i=0; i<actorJoints.size(); ++i)
     {
-        m_ownerWorld->removeRigidBody(rigJoints[i].body);
+        m_ownerWorld->removeRigidBody(actorJoints[i].body);
 
-        delete rigJoints[i].body->getMotionState();
-        delete rigJoints[i].body;
-        rigJoints[i].body=NULL;
-        delete rigJoints[i].shape;
-        rigJoints[i].shape=NULL;
+        delete actorJoints[i].body->getMotionState();
+        delete actorJoints[i].body;
+        actorJoints[i].body=NULL;
+        delete actorJoints[i].shape;
+        actorJoints[i].shape=NULL;
     }
 
-    rigJoints.clear();
+    actorJoints.clear();
 }
+
 
 
 

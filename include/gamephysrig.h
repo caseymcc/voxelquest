@@ -3,6 +3,12 @@
 class GamePhysRig
 {
 public:
+    GamePhysRig(
+        Singleton* _singleton,
+        int _geId,
+        btDynamicsWorld* ownerWorld,
+        const btVector3& positionOffset
+    );
     virtual	~GamePhysRig();
 
     void updatePivot(int jointId);
@@ -24,16 +30,7 @@ public:
     );
 
 
-
     void reinit();
-
-    GamePhysRig(
-        Singleton* _singleton,
-        int _geId,
-        btDynamicsWorld* ownerWorld,
-        const btVector3& positionOffset
-    );
-
 
     void removeAllBodies();
 
