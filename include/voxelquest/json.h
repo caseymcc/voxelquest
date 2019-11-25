@@ -1,6 +1,9 @@
 #ifndef _voxelquest_json_h_
 #define _voxelquest_json_h_
 
+#include <vector>
+#include <map>
+#include <string>
 
 enum JSONType { JSONType_Null, JSONType_String, JSONType_Bool, JSONType_Number, JSONType_Array, JSONType_Object };
 
@@ -44,10 +47,10 @@ class JSONValue
 		bool HasChild(const char* name) const;
 		JSONValue *Child(const char* name);
 		
-		bool HasChild(string name) const;
-		JSONValue *Child(string name);
+		bool HasChild(std::string name) const;
+		JSONValue *Child(std::string name);
 		
-		void RemoveChild(string name);
+		void RemoveChild(std::string name);
 
 		std::string Stringify(int curLev) const;
 
@@ -63,7 +66,7 @@ class JSONValue
 		double number_value;
 		JSONArray array_value;
 		JSONObject object_value;
-		string lastKey;
+        std::string lastKey;
 };
 
 

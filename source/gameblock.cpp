@@ -1,4 +1,4 @@
-#include "gameblock.h"
+#include "voxelquest/gameblock.h"
 
 GameBlock::GameBlock()
 {

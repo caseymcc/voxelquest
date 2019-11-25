@@ -1,6 +1,7 @@
 #ifndef _voxelquest_gameplantnode_h_
 #define _voxelquest_gameplantnode_h_
 
+#include "voxelquest/vectors.h"
 
 // class GamePlantNode {
 

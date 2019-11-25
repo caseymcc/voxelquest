@@ -1,17 +1,31 @@
 #ifndef _voxelquest_gameorgnode_h_
 #define _voxelquest_gameorgnode_h_
 
+#include "voxelquest/vectors.h"
 
+#include <LinearMath/btVector3.h>
+
+// do not reorder
+enum E_ORG_VECS
+{
+    E_OV_TANGENT,
+    E_OV_BITANGENT,
+    E_OV_NORMAL,
+    E_OV_TBNRAD0,
+    E_OV_TBNRAD1,
+    E_OV_THETAPHIRHO,
+    E_OV_TPRORIG,
+    E_OV_MATPARAMS,
+    E_OV_TBNOFFSET,
+    E_OV_POWVALS, // x: lerpValP0toP1, y: lerpValBit, z: lerpValTan
+    E_OV_LENGTH
+};
 
 /////////////////////////
-
-
 //   IMPORTANT: SPECIFY ZERO VECTOR FOR BASE ROTATION
 //   (TWO VECTORS TOTAL FOR ROTATION AND ORIENTATION)
-
-
 /////////////////////////
-
+class Singleton;
 
 class GameOrgNode
 {
@@ -101,7 +115,7 @@ private:
 
 
     FIVector4 tempFI;
-    btVector3tbnOffset;
+    btVector3 tbnOffset;
     btVector3 tempOffset;
 
     // computed results

@@ -1,4 +1,4 @@
-#include "gamevoxelwrap.h"
+#include "voxelquest/gamevoxelwrap.h"
 
 GameVoxelWrap::GameVoxelWrap()
 {
@@ -58,13 +58,13 @@ void GameVoxelWrap::fillVec()
     float fVPC=voxelsPerCell;
     fVPC=1.0f/fVPC;
 
-    ivec3 voxOffset;
-    ivec3 voxOffset2;
-    ivec3 cellOffset;
-    ivec3 localVoxOffset;
+    glm::ivec3 voxOffset;
+    glm::ivec3 voxOffset2;
+    glm::ivec3 cellOffset;
+    glm::ivec3 localVoxOffset;
 
     //vec3 fLocalVoxOffset;
-    vec3 fVO;
+    glm::vec3 fVO;
 
 
     int ii;
@@ -98,13 +98,13 @@ void GameVoxelWrap::fillVec()
 
     float normLength;
 
-    vec3 curNorm;
-    vec3 curNorm2;
-    vec3 totNorm;
-    vec3 tempPos;
-    vec3 tempPos2;
-    vec3 tempPos3;
-    vec3 zeroVec=vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 curNorm;
+    glm::vec3 curNorm2;
+    glm::vec3 totNorm;
+    glm::vec3 tempPos;
+    glm::vec3 tempPos2;
+    glm::vec3 tempPos3;
+    glm::vec3 zeroVec=glm::vec3(0.0f, 0.0f, 0.0f);
 
     float weight;
     float weight2;
@@ -331,7 +331,7 @@ void GameVoxelWrap::fillVec()
                         }
                         else
                         {
-                            totNorm=vec3(0.0f, 0.0f, 1.0f);
+                            totNorm=glm::vec3(0.0f, 0.0f, 1.0f);
                         }
 
                         voxelBuffer->voxelList[p].normal=totNorm;
@@ -675,8 +675,8 @@ void GameVoxelWrap::fillVec()
 
 void GameVoxelWrap::process(GamePageHolder* _gph)
 {
-    ivec3 cellCoord;
-    ivec3 voxResult;
+    glm::ivec3 cellCoord;
+    glm::ivec3 voxResult;
 
     gph=_gph;
 
@@ -690,7 +690,7 @@ void GameVoxelWrap::process(GamePageHolder* _gph)
 
     offsetInVoxels=offsetInCells-paddingInCells;
     offsetInVoxels*=voxelsPerCell;
-    fOffsetInVoxels=vec3(offsetInVoxels.x, offsetInVoxels.y, offsetInVoxels.z);
+    fOffsetInVoxels=glm::vec3(offsetInVoxels.x, offsetInVoxels.y, offsetInVoxels.z);
 
     basePD=(&singleton->pdPool[curPD]);
     baseData=singleton->pdPool[curPD].data;
@@ -719,7 +719,7 @@ DONE_WITH_IT:
 
 
 
-bool GameVoxelWrap::findNextCoord(ivec3* voxResult)
+bool GameVoxelWrap::findNextCoord(glm::ivec3* voxResult)
 {
     int i;
     int j;
@@ -736,8 +736,8 @@ bool GameVoxelWrap::findNextCoord(ivec3* voxResult)
     int kk;
     int ikk;
 
-    ivec3 curVoxel;
-    ivec3 localOffset;
+    glm::ivec3 curVoxel;
+    glm::ivec3 localOffset;
 
 
     int minv=0;// + paddingInCells;
@@ -927,11 +927,11 @@ NEXT_FILL_STEP:
     return false;
 }
 
-bool GameVoxelWrap::inBounds(ivec3* pos, int minB, int maxB)
+bool GameVoxelWrap::inBounds(glm::ivec3* pos, int minB, int maxB)
 {
 
-    // ivec3 minB = offsetInVoxels - octOffsetInVoxels;
-    // ivec3 maxB = offsetInVoxels + octOffsetInVoxels;
+    // glm::ivec3 minB = offsetInVoxels - octOffsetInVoxels;
+    // glm::ivec3 maxB = offsetInVoxels + octOffsetInVoxels;
 
     // minB += (0);
     // maxB += (dimInVoxels - 0);
@@ -947,18 +947,18 @@ bool GameVoxelWrap::inBounds(ivec3* pos, int minB, int maxB)
 }
 
 
-int GameVoxelWrap::getNode(ivec3* pos)
+int GameVoxelWrap::getNode(glm::ivec3* pos)
 {
     return pos->x+pos->y*voxelsPerHolderPad+pos->z*voxelsPerHolderPad*voxelsPerHolderPad;
 }
 
-void GameVoxelWrap::floodFill(ivec3 startVox)
+void GameVoxelWrap::floodFill(glm::ivec3 startVox)
 {
     basePD->fillStack.clear();
     basePD->fillStack.push_back(startVox);
 
-    ivec3 curVox;
-    ivec3 tempVox;
+    glm::ivec3 curVox;
+    glm::ivec3 tempVox;
     int curNode;
     int tempNode;
 
@@ -1028,10 +1028,10 @@ void GameVoxelWrap::floodFill(ivec3 startVox)
 
 
 
-bool GameVoxelWrap::isInvSurfaceVoxel(ivec3* pos, int ignorePtr, int &curPtr, bool checkVisited)
+bool GameVoxelWrap::isInvSurfaceVoxel(glm::ivec3* pos, int ignorePtr, int &curPtr, bool checkVisited)
 {
     int q;
-    ivec3 tempVox;
+    glm::ivec3 tempVox;
 
     curPtr=getVoxelAtCoord(pos);
     if(curPtr<0)
@@ -1082,10 +1082,10 @@ bool GameVoxelWrap::isInvSurfaceVoxel(ivec3* pos, int ignorePtr, int &curPtr, bo
     return false;
 }
 
-bool GameVoxelWrap::isSurfaceVoxel(ivec3* pos, int &curPtr, bool checkVisited)
+bool GameVoxelWrap::isSurfaceVoxel(glm::ivec3* pos, int &curPtr, bool checkVisited)
 {
     int q;
-    ivec3 tempVox;
+    glm::ivec3 tempVox;
 
     curPtr=getVoxelAtCoord(pos);
     if(curPtr<0)
@@ -1147,7 +1147,7 @@ bool GameVoxelWrap::isSurfaceVoxel(ivec3* pos, int &curPtr, bool checkVisited)
     return isSurface||isOnEdge;
 }
 
-int GameVoxelWrap::getVoxelAtCoord(ivec3* pos)
+int GameVoxelWrap::getVoxelAtCoord(glm::ivec3* pos)
 {
 
     int VLIndex;
@@ -1183,7 +1183,7 @@ int GameVoxelWrap::getVoxelAtCoord(ivec3* pos)
 // get rid of DONE_WITH_IT
 // should be able to check 6 faces of this holder instead for starting surface point?
 
-float GameVoxelWrap::sampLinear(vec3* pos, vec3 offset)
+float GameVoxelWrap::sampLinear(glm::vec3* pos, glm::vec3 offset)
 {
     int q;
     int i;
@@ -1192,7 +1192,7 @@ float GameVoxelWrap::sampLinear(vec3* pos, vec3 offset)
 
     float res[8];
 
-    vec3 newPos=((*pos)+offset);
+    glm::vec3 newPos=((*pos)+offset);
 
     int xv=newPos.x/voxelsPerCell;
     int yv=newPos.y/voxelsPerCell;
@@ -1282,17 +1282,17 @@ PaddedDataEntry* GameVoxelWrap::getPadData(int ii, int jj, int kk)
 
 
 
-float GameVoxelWrap::rand2D(vec3 co)
+float GameVoxelWrap::rand2D(glm::vec3 co)
 {
-    vec3 myres=co;
+    glm::vec3 myres=co;
     myres.z=0.1725f;
     return fract(sin(myres.dot(crand0))*43758.8563f);
 }
 
-vec3 GameVoxelWrap::randPN(vec3 co)
+glm::vec3 GameVoxelWrap::randPN(glm::vec3 co)
 {
 
-    vec3 myres=vec3(
+    glm::vec3 myres=glm::vec3(
         co.dot(crand0),
         co.dot(crand1),
         co.dot(crand2)
@@ -1307,25 +1307,25 @@ vec3 GameVoxelWrap::randPN(vec3 co)
 
 
 
-void GameVoxelWrap::getVoro(vec3* worldPos, vec3* worldClosestCenter, vec3* otherData, float fSpacing)
+void GameVoxelWrap::getVoro(glm::vec3* worldPos, glm::vec3* worldClosestCenter, glm::vec3* otherData, float fSpacing)
 {
 
-    vec3 fWorldPos=(*worldPos)/fSpacing;
+    glm::vec3 fWorldPos=(*worldPos)/fSpacing;
 
-    vec3 fWorldCellPos=fWorldPos;
+    glm::vec3 fWorldCellPos=fWorldPos;
     fWorldCellPos.doFloor();
 
     fWorldPos-=fWorldCellPos;
 
     int i;
 
-    vec3 testPos;
+    glm::vec3 testPos;
     float testDis;
-    vec3 variance=vec3(0.5f);
+    glm::vec3 variance=vec3(0.5f);
 
 
-    vec3 bestPos=VORO_OFFSETS[0]+randPN(fWorldCellPos+VORO_OFFSETS[0])*variance;
-    vec3 nextBestPos=bestPos;
+    glm::vec3 bestPos=VORO_OFFSETS[0]+randPN(fWorldCellPos+VORO_OFFSETS[0])*variance;
+    glm::vec3 nextBestPos=bestPos;
 
     float bestDis=fWorldPos.distance(bestPos);
     float nextBestDis=999999.0f;
@@ -1369,24 +1369,24 @@ void GameVoxelWrap::getVoro(vec3* worldPos, vec3* worldClosestCenter, vec3* othe
 
 
 // should only be called when a new node is inserted!
-void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
+void GameVoxelWrap::calcVoxel(glm::ivec3* _pos, int octPtr, int VLIndex)
 {
 
 
-    vec3 pos=vec3(_pos->x, _pos->y, _pos->z);
+    glm::vec3 pos=glm::vec3(_pos->x, _pos->y, _pos->z);
 
     int i;
     int curInd;
     ObjectStruct* curObj;
 
-    vec3 worldPos=pos+fOffsetInVoxels;
+    glm::vec3 worldPos=pos+fOffsetInVoxels;
 
     //worldPos -= paddingInVoxels;
 
-    vec3 worldClosestCenter;// = worldPos;
-    vec3 localClosestCenter;
+    glm::vec3 worldClosestCenter;// = worldPos;
+    glm::vec3 localClosestCenter;
 
-    vec3 otherData;
+    glm::vec3 otherData;
 
     float voroSize=voxelsPerCell;
 
@@ -1394,16 +1394,16 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
 
     float fVPC=voxelsPerCell;
     fVPC=1.0f/fVPC;
-    vec3 worldPosCell=worldPos*fVPC;
-    vec3 cellClosestCenter=worldClosestCenter*fVPC;
+    glm::vec3 worldPosCell=worldPos*fVPC;
+    glm::vec3 cellClosestCenter=worldClosestCenter*fVPC;
 
     localClosestCenter=worldClosestCenter-fOffsetInVoxels;
     //localClosestCenter += paddingInVoxels;
 
 
     int vOff=8;
-    float terSampVoro=sampLinear(&localClosestCenter, vec3(0, 0, 0));
-    float terSampOrig=sampLinear(&pos, vec3(0, 0, 0));
+    float terSampVoro=sampLinear(&localClosestCenter, glm::vec3(0, 0, 0));
+    float terSampOrig=sampLinear(&pos, glm::vec3(0, 0, 0));
 
     bool isGrass=false;
     uint finalMat=TEX_NULL;
@@ -1421,10 +1421,10 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
     )*0.5f
     );
 
-    float terSampOrigX=sampLinear(&pos, vec3(vOff, 0, 0));
-    float terSampOrigY=sampLinear(&pos, vec3(0, vOff, 0));
-    float terSampOrigZ=sampLinear(&pos, vec3(0, 0, vOff));
-    vec3 terNorm=vec3(
+    float terSampOrigX=sampLinear(&pos, glm::vec3(vOff, 0, 0));
+    float terSampOrigY=sampLinear(&pos, glm::vec3(0, vOff, 0));
+    float terSampOrigZ=sampLinear(&pos, glm::vec3(0, 0, vOff));
+    glm::vec3 terNorm=glm::vec3(
         terSampOrigX-terSampOrig,
         terSampOrigY-terSampOrig,
         terSampOrigZ-terSampOrig
@@ -1436,7 +1436,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
     }
     else
     {
-        terNorm=vec3(0.0f, 0.0f, 1.0f);
+        terNorm=glm::vec3(0.0f, 0.0f, 1.0f);
     }
 
     // float divVal = singleton->conVals[E_CONST_DIV_VAL];
@@ -1449,7 +1449,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
 
 
 
-    vec3 absNorm=terNorm;
+    glm::vec3 absNorm=terNorm;
     absNorm.doAbs();
 
     float xv=worldPos.x;
@@ -1509,7 +1509,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
 
     //+hmMod
 
-    vec3 randOff=vec3(10.5232f, 20.323842, 33.0221);
+    glm::vec3 randOff=glm::vec3(10.5232f, 20.323842, 33.0221);
 
     //
 
@@ -1557,7 +1557,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
             randVal=rand2D(worldPos);
 
             int grassOff=randVal*clampfZO((terNorm.z-0.5f)*2.0f+hmSin)*fVoxelsPerCell*0.5f;
-            float terSampGrass=sampLinear(&pos, vec3(0, 0, -grassOff));
+            float terSampGrass=sampLinear(&pos, glm::vec3(0, 0, -grassOff));
 
             if(
                 (
@@ -1587,8 +1587,8 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
     float primRes;
     int bestInd=-1;
     float bestRes=999999.0f;
-    vec3 uvwCoords;
-    vec3 uvwTemp;
+    glm::vec3 uvwCoords;
+    glm::vec3 uvwTemp;
     float brickRes=0.0f;
     FIVector4* baseGeom;
 
@@ -1645,9 +1645,9 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
         curObj=&(gph->tempObjects[curInd]);
         baseGeom=singleton->getGeomRef(curObj->templateId, 0);
 
-        uvwCoords=getUVW(worldPosCell, curObj, baseGeom, vec3(1.0f), 1.0f, false);
+        uvwCoords=getUVW(worldPosCell, curObj, baseGeom, glm::vec3(1.0f), 1.0f, false);
         uvwCoords.z=bestRes;
-        brickRes=getBrick(uvwCoords*vec3(0.5f, 1.0f, 0.5f));
+        brickRes=getBrick(uvwCoords*glm::vec3(0.5f, 1.0f, 0.5f));
 
         // uvwTemp = uvwCoords;
         // uvwTemp.doFract();

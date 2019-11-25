@@ -1,4 +1,8 @@
-#include "fontwrapper.h"
+#include "voxelquest/fontwrapper.h"
+#include "voxelquest/fileio.h"
+#include "voxelquest/jsonhelpers.h"
+
+#include <iostream>
 
 FontWrapper::FontWrapper()
 {
@@ -7,10 +11,10 @@ FontWrapper::FontWrapper()
 
 void FontWrapper::init(
     Singleton* _singleton,
-    string fontName,
+    std::string fontName,
     bool _isIcons,
     float _fontScale,
-    float _additionalOffset=0.0f
+    float _additionalOffset
 )
 {
 
@@ -30,7 +34,7 @@ void FontWrapper::init(
     lastJSONBuffer.data=NULL;
     lastJSONBuffer.size=0;
 
-    cout<<"\n\n\nFONT LOAD\n\n\n";
+    std::cout<<"\n\n\nFONT LOAD\n\n\n";
 
     fontImage=loadBMP("..\\data\\fonts\\"+fontName+".bmp");
     if(isIcons)
@@ -54,16 +58,16 @@ void FontWrapper::init(
         fontHeight=16.0f;
 
 
-        for(j=0; j<fontImage->height/16; j++)
+        for(j=0; j<fontImage->getHeight()/16; j++)
         {
-            for(i=0; i<fontImage->width/16; i++)
+            for(i=0; i<fontImage->getWidth()/16; i++)
             {
                 charVals[counter].consumedW=16.0f;
                 charVals[counter].consumedH=16.0f;
                 charVals[counter].offsetX=0.0f;
                 charVals[counter].offsetY=0.0f;
-                charVals[counter].sampX=i*16;
-                charVals[counter].sampY=j*16;
+                charVals[counter].sampX=i*16.0f;
+                charVals[counter].sampY=j*16.0f;
                 charVals[counter].sampW=16.0f;
                 charVals[counter].sampH=16.0f;
 
@@ -74,14 +78,15 @@ void FontWrapper::init(
     }
     else
     {
-        if(singleton->loadFile("..\\data\\fonts\\"+fontName+".js", &lastJSONBuffer))
+        if(loadFile("..\\data\\fonts\\"+fontName+".js", &lastJSONBuffer))
         {
-            if(singleton->processJSON(&lastJSONBuffer, &(singleton->nullBuffer), &jsRoot))
+            charArr nullBuffer;
+            if(processJSON(&lastJSONBuffer, &(nullBuffer), &jsRoot))
             {
 
-                ascender=jsRoot->Child("metrics")->Child("ascender")->number_value;
-                descender=jsRoot->Child("metrics")->Child("descender")->number_value;
-                fontHeight=jsRoot->Child("metrics")->Child("height")->number_value;
+                ascender=(float)jsRoot->Child("metrics")->Child("ascender")->number_value;
+                descender=(float)jsRoot->Child("metrics")->Child("descender")->number_value;
+                fontHeight=(float)jsRoot->Child("metrics")->Child("height")->number_value;
 
                 cn=jsRoot->Child("chars");
 
@@ -92,15 +97,15 @@ void FontWrapper::init(
                     cc=cn->Child(ind);
 
                     charVals[i].consumedH=fontHeight;
-                    charVals[i].consumedW=cc->Child("width")->number_value;
+                    charVals[i].consumedW=(float)cc->Child("width")->number_value;
 
-                    charVals[i].offsetX=cc->Child("ox")->number_value;
-                    charVals[i].offsetY=cc->Child("oy")->number_value;
+                    charVals[i].offsetX=(float)cc->Child("ox")->number_value;
+                    charVals[i].offsetY=(float)cc->Child("oy")->number_value;
 
-                    charVals[i].sampX=cc->Child("x")->number_value;
-                    charVals[i].sampY=cc->Child("y")->number_value;
-                    charVals[i].sampW=cc->Child("w")->number_value;
-                    charVals[i].sampH=cc->Child("h")->number_value;
+                    charVals[i].sampX=(float)cc->Child("x")->number_value;
+                    charVals[i].sampY=(float)cc->Child("y")->number_value;
+                    charVals[i].sampW=(float)cc->Child("w")->number_value;
+                    charVals[i].sampH=(float)cc->Child("h")->number_value;
 
                     if(charVals[i].consumedW>maxWidth)
                     {

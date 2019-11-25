@@ -6,6 +6,17 @@
 
 using namespace gl;
 
+const static GLenum bufNames[]={
+    GL_COLOR_ATTACHMENT0_EXT,
+    GL_COLOR_ATTACHMENT1_EXT,
+    GL_COLOR_ATTACHMENT2_EXT,
+    GL_COLOR_ATTACHMENT3_EXT,
+    GL_COLOR_ATTACHMENT4_EXT,
+    GL_COLOR_ATTACHMENT5_EXT,
+    GL_COLOR_ATTACHMENT6_EXT,
+    GL_COLOR_ATTACHMENT7_EXT
+};
+
 class FBOWrapper
 {
 public:
@@ -16,9 +27,9 @@ public:
         int _width,
         int _height,
         int _bytesPerChannel,
-        int _slot,
-        int filterEnum,
-        int clampEnum,
+        GLenum _slot,
+        GLenum filterEnum,
+        GLenum clampEnum,
         bool isMultisample=false
     );
 
@@ -86,12 +97,14 @@ public:
 
     void getPixels(bool _hasMipMap=false);
 
+    GLuint getColorTex() { return color_tex; }
+
 private:
-    uint color_tex;
+    GLuint color_tex;
 
     //uint color_buf;
     //uint depth_buf;
-    uint slot;
+    GLenum slot;
     int width;
     int height;
     int bytesPerChannel;
@@ -100,7 +113,7 @@ private:
     //bool hasDepth;
 
     GLint numBytes;
-    GLint internalFormat;
+    GLenum internalFormat;
 
     uint *pixelsUINT;
     unsigned char *pixelsChar;
@@ -132,8 +145,8 @@ public:
         int _height,
         int _bytesPerChannel,
         bool _hasDepth,
-        int filterEnum=GL_NEAREST,
-        int clampEnum=GL_CLAMP_TO_EDGE,
+        GLenum filterEnum=GL_NEAREST,
+        GLenum clampEnum=GL_CLAMP_TO_EDGE,
         bool isMultisample=false
     );
     void bind(int doClear);

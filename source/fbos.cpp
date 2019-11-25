@@ -1,12 +1,15 @@
 #include "voxelquest/fbos.h"
+#include "voxelquest/helperfuncs.h"
+
+#include <algorithm>
 
 int FBOWrapper::init(
     int _width,
     int _height,
     int _bytesPerChannel,
-    int _slot,
-    int filterEnum,
-    int clampEnum,
+    GLenum _slot,
+    GLenum filterEnum,
+    GLenum clampEnum,
     bool isMultisample
 )
 {
@@ -386,8 +389,8 @@ float FBOWrapper::getPixelAtLinear(float xf, float yf, int channel)
     int x[2];
     int y[2];
 
-    x[0]=floor(xf);
-    y[0]=floor(yf);
+    x[0]=(int)floor(xf);
+    y[0]=(int)floor(yf);
     x[1]=x[0]+1;
     y[1]=y[0]+1;
 
@@ -436,9 +439,9 @@ int FBOWrapper::getMipVal(
     int mipLev,
     int channel,
     int minMaxAvg,
-    int val=-1,
-    int ox=0,
-    int oy=0
+    int val,
+    int ox,
+    int oy
 )
 {
 
@@ -448,9 +451,9 @@ int FBOWrapper::getMipVal(
     int xv;
     int yv;
 
-    float t1;
-    float t2;
-    float t3;
+//    float t1;
+//    float t2;
+//    float t3;
 
     xv=intDiv(x * curWidth, mipWidths[0])+ox;
     yv=intDiv(y * curWidth, mipWidths[0])+oy;
@@ -588,23 +591,23 @@ void FBOWrapper::updateMips()
                             pixelsCharMippedAvg[mRead][ind3]
                             )/4;
 
-                        pixelsCharMippedMin[mWrite][ind]=min(
-                            min(
+                        pixelsCharMippedMin[mWrite][ind]=std::min(
+                            std::min(
                             pixelsCharMippedMin[mRead][ind0],
                             pixelsCharMippedMin[mRead][ind1]
                         ),
-                            min(
+                            std::min(
                             pixelsCharMippedMin[mRead][ind2],
                             pixelsCharMippedMin[mRead][ind3]
                         )
                         );
 
-                        pixelsCharMippedMax[mWrite][ind]=max(
-                            max(
+                        pixelsCharMippedMax[mWrite][ind]=std::max(
+                            std::max(
                             pixelsCharMippedMax[mRead][ind0],
                             pixelsCharMippedMax[mRead][ind1]
                         ),
-                            max(
+                            std::max(
                             pixelsCharMippedMax[mRead][ind2],
                             pixelsCharMippedMax[mRead][ind3]
                         )
@@ -739,23 +742,23 @@ void FBOWrapper::updateMips3D(int basePitch)
 
                             pixelsCharMippedMax[mWrite][dest]=
 
-                                max(
-                                    max(
-                                    max(
+                                std::max(
+                                    std::max(
+                                    std::max(
                                     pixelsCharMippedMax[mRead][ind0],
                                     pixelsCharMippedMax[mRead][ind1]
                                 ),
-                                    max(
+                                    std::max(
                                     pixelsCharMippedMax[mRead][ind2],
                                     pixelsCharMippedMax[mRead][ind3]
                                 )
                                 ),
-                                    max(
-                                    max(
+                                    std::max(
+                                    std::max(
                                     pixelsCharMippedMax[mRead][ind4],
                                     pixelsCharMippedMax[mRead][ind5]
                                 ),
-                                    max(
+                                    std::max(
                                     pixelsCharMippedMax[mRead][ind6],
                                     pixelsCharMippedMax[mRead][ind7]
                                 )
@@ -822,8 +825,8 @@ void FBOWrapper::getPixelsFast()
 
 
     glBindTexture(GL_TEXTURE_2D, color_tex);
-    int totalWidth;
-    int curBytes;
+//    int totalWidth;
+//    int curBytes;
 
     numBytes=width*height;
 
@@ -842,8 +845,8 @@ void FBOWrapper::getPixelsFastRemote(uint* remoteBuffer)
 
 
     glBindTexture(GL_TEXTURE_2D, color_tex);
-    int totalWidth;
-    int curBytes;
+//    int totalWidth;
+//    int curBytes;
     numBytes=width*height;
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, remoteBuffer);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -851,11 +854,8 @@ void FBOWrapper::getPixelsFastRemote(uint* remoteBuffer)
 }
 
 
-void FBOWrapper::getPixels(bool _hasMipMap=false)
+void FBOWrapper::getPixels(bool _hasMipMap)
 {
-
-
-
     glBindTexture(GL_TEXTURE_2D, color_tex);
 
 
@@ -994,9 +994,9 @@ void FBOSet::init(
     int _height,
     int _bytesPerChannel,
     bool _hasDepth,
-    int filterEnum=GL_NEAREST,
-    int clampEnum=GL_CLAMP_TO_EDGE,
-    bool isMultisample=false
+    GLenum filterEnum,
+    GLenum clampEnum,
+    bool isMultisample
 )
 {
     int i;
@@ -1020,7 +1020,7 @@ void FBOSet::init(
 
     for(i=0; i<numBufs; i++)
     {
-        fbos[i].init(width, height, bytesPerChannel, i, filterEnum, clampEnum, isMultisample);
+        fbos[i].init(width, height, bytesPerChannel, (GLenum)i, filterEnum, clampEnum, isMultisample);
     }
 
 
@@ -1056,7 +1056,7 @@ void FBOSet::copyFromMem(int ind, unsigned char *dat)
 
     //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBO);
 
-    glBindTexture(GL_TEXTURE_2D, fbos[ind].color_tex);
+    glBindTexture(GL_TEXTURE_2D, fbos[ind].getColorTex());
 
     //glTexSubImage2D(GLenum target​, GLint level​, GLint xoffset​, GLint yoffset​, GLsizei width​, GLsizei height​, GLenum format​, GLenum type​, const GLvoid * data​);
 

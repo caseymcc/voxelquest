@@ -1,8 +1,8 @@
 #ifndef _voxelquest_enums_h_
 #define _voxelquest_enums_h_
 
-const int MAX_KEYS = 256;
-
+#define DO_DESCRIPTION(e)  #e,
+#define DO_ENUM(e)  e,
 
 enum eProgramState {
 	E_PS_MENU,

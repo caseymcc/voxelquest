@@ -55,10 +55,7 @@ struct HPClockData
 
 
 
-struct charArr {
-	long size;
-	char *data;
-};
+
 
 
 static inline int newcasecmp(const char *s1, const char *s2, size_t n)
@@ -134,7 +131,7 @@ struct membuf : std::streambuf
 
 bool PROG_ACTIVE = true;
 
-string SPACE_BUFFER[] = {" ", "  ", "   ", "    ", "     ", "      ", "       ", "        ", "         ", "          ", "           ", "            ", "             ", "              ", "               ", "                ", "                 ", "                  ", "                   ", "                    ", "                     ", "                      ", "                       ", "                        ", "                         ", "                          ", "                           ", "                            ", "                             ", "                              ", "                               ", "                                ", "                                 ", "                                  ", "                                   ", "                                    ", "                                     ", "                                      ", "                                       ", "                                        ", "                                         ", "                                          ", "                                           ", "                                            ", "                                             ", "                                              ", "                                               ", "                                                ", "                                                 ", "                                                  ", "                                                   ", "                                                    ", "                                                     ", "                                                      ", "                                                       ", "                                                        ", "                                                         ", "                                                          ", "                                                           ", "                                                            ", "                                                             ", "                                                              ", "                                                               ", "                                                                ", "                                                                 ", "                                                                  ", "                                                                   ", "                                                                    ", "                                                                     ", "                                                                      ", "                                                                       ", "                                                                        ", "                                                                         ", "                                                                          ", "                                                                           ", "                                                                            ", "                                                                             ", "                                                                              ", "                                                                               ", "                                                                                ", "                                                                                 ", "                                                                                  ", "                                                                                   ", "                                                                                    ", "                                                                                     ", "                                                                                      ", "                                                                                       ", "                                                                                        ", "                                                                                         ", "                                                                                          ", "                                                                                           ", "                                                                                            ", "                                                                                             ", "                                                                                              ", "                                                                                               ", "                                                                                                ", "                                                                                                 ", "                                                                                                  ", "                                                                                                   ", "                                                                                                    "};
+
 
 #define glError() { \
 		GLenum err = glGetError(); \
@@ -195,20 +192,6 @@ PFNGLUNMAPBUFFERARBPROC pglUnmapBufferARB = 0;                   // unmap VBO pr
 // wglSwapIntervalEXT = (PFNWGLSWAPINTERVALFARPROC)extgl_GetProcAddress( "wglSwapIntervalEXT" );
 // }
 
-
-
-
-
-const static GLenum bufNames[] = {
-	GL_COLOR_ATTACHMENT0_EXT,
-	GL_COLOR_ATTACHMENT1_EXT,
-	GL_COLOR_ATTACHMENT2_EXT,
-	GL_COLOR_ATTACHMENT3_EXT,
-	GL_COLOR_ATTACHMENT4_EXT,
-	GL_COLOR_ATTACHMENT5_EXT,
-	GL_COLOR_ATTACHMENT6_EXT,
-	GL_COLOR_ATTACHMENT7_EXT
-};
 
 
 

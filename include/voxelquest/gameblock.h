@@ -1,6 +1,61 @@
 #ifndef _voxelquest_gameblock_h_
 #define _voxelquest_gameblock_h_
 
+#include "voxelquest/gameplantnode.h"
+#include "voxelquest/gameent.h"
+
+enum E_BLOCK_GEN
+{
+    E_BG_ROADS_AND_BUILDINGS,
+    //E_BG_STAIRS,
+    //E_BG_REMOVE_REDUNDANT_Z_SEGMENTS,
+    E_BG_ROOFS,
+    //E_BG_BASEMENTS,
+    E_BG_WING_TIPS,
+    E_BG_DOORS,
+    E_BG_FILL_TERRAIN,
+    E_BG_LENGTH
+};
+
+enum E_CONNECTION_TYPE_CLASSES
+{
+    E_CTC_NOTHING,
+    E_CTC_ROAD,
+    E_CTC_ROOF,
+    E_CTC_ROOM,
+    E_CTC_STAIRS,
+    E_CTC_LANTERN,
+    E_CTC_LENGTH
+};
+
+enum E_CONNECTION_TYPES
+{
+    E_CT_NULL,
+    E_CT_CONNECTED,
+    E_CT_FOUNDATION,
+    E_CT_ROAD,
+    E_CT_DOCK,
+    E_CT_MAINHALL,
+    E_CT_WING,
+    E_CT_ROOF,
+    E_CT_WALKWAY_TOP,
+    E_CT_ROOM_BRICK,
+    E_CT_ROOM_TUDOR,
+    E_CT_WALKWAY,
+    E_CT_STAIRS,
+    E_CT_LANTERN,
+    E_CT_WINDOWFRAME,
+    E_CT_WINDOW,
+    E_CT_DOORWAY,
+    E_CT_DOOR,
+    E_CT_OBJECT,
+    E_CT_LINES,
+    E_CT_TREE,
+    E_CT_LENGTH
+};
+
+class Singleton;
+
 class GameBlock
 {
 public:

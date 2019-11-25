@@ -1,6 +1,90 @@
 #ifndef _voxelquest_baseobject_h_
 #define _voxelquest_baseobject_h_
 
+#include "voxelquest/enums.h"
+#include "voxelquest/vectors.h"
+#include "voxelquest/path.h"
+#include "voxelquest/rig.h"
+
+#include <vector>
+#include <string>
+#include <map>
+
+const static int MAX_STAT_VALUE=10;
+
+#define E_CHAR_STAT(DDD) \
+DDD(E_CS_STRENGTH) \
+DDD(E_CS_DEXTERITY) \
+DDD(E_CS_AGILITY) \
+DDD(E_CS_INTELLIGENCE) \
+DDD(E_CS_DISCIPLINE) \
+DDD(E_CS_CHARISMA) \
+DDD(E_CS_LENGTH)
+
+std::string E_CHAR_STAT_STRINGS[]={
+    E_CHAR_STAT(DO_DESCRIPTION)
+};
+
+enum E_CHAR_STAT_VALS
+{
+    E_CHAR_STAT(DO_ENUM)
+};
+
+#define E_CHAR_STATUS(DDD) \
+DDD(E_STATUS_HEALTH) \
+DDD(E_STATUS_STAMINA) \
+DDD(E_STATUS_MANA) \
+DDD(E_STATUS_FOCUS) \
+DDD(E_STATUS_SPIRIT) \
+DDD(E_STATUS_LENGTH)
+
+std::string E_CHAR_STATUS_STRINGS[]={
+    E_CHAR_STATUS(DO_DESCRIPTION)
+};
+
+enum E_CHAR_STATUS_VALS
+{
+    E_CHAR_STATUS(DO_ENUM)
+};
+
+enum E_POSETYPES
+{
+    E_POSETYPE_HUMAN,
+    E_POSETYPE_WEAPON,
+    E_POSETYPE_LENGTH
+};
+
+enum RLBN_FLAGS
+{
+    RLBN_FLAG_RIGHT=1,
+    RLBN_FLAG_LEFT=2,
+    RLBN_FLAG_BOTH=4,
+    RLBN_FLAG_NEITHER=8
+};
+
+// do not rearrange
+enum RLBN_ENUMS
+{
+    RLBN_RIGT,
+    RLBN_LEFT,
+    RLBN_BOTH,
+    RLBN_NEIT,
+    RLBN_LENGTH
+};
+// do not rearrange
+enum E_ACTION_STATES
+{
+    E_ACT_NULL,
+    E_ACT_ISHIT,
+    E_ACT_ISJUMPING,
+    E_ACT_ISWALKING,
+    E_ACT_ISSWINGING,
+    E_ACT_HASNOTHIT,
+    E_ACT_ISPICKINGUP,
+    E_ACT_LENGTH
+};
+
+
 typedef int BaseObjType;
 
 struct SkillCard {
@@ -59,7 +143,7 @@ public:
 	
 	BaseObjType uid;
 	BaseObjType parentUID;
-	vector<BaseObjType> children;
+	std::vector<BaseObjType> children;
 	btVector3 startPoint;
 	btVector3 skelOffset;
 	
@@ -230,6 +314,6 @@ public:
 	
 };
 
-typedef map<BaseObjType, BaseObj>::iterator itBaseObj;
+typedef std::map<BaseObjType, BaseObj>::iterator itBaseObj;
 
 #endif//_voxelquest__h_

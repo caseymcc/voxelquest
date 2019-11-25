@@ -15,22 +15,14 @@ find_package(glbinding CONFIG REQUIRED)
 hunter_add_package(glfw)
 find_package(glfw3 REQUIRED)
 
-#set(Boost_INCLUDE_DIR /usr/local/boost_1_53_0)
-#set(Boost_LIBRARY_DIR /usr/local/boost_1_53_0/stage/lib)
+hunter_add_package(glm)
+find_package(glm CONFIG REQUIRED)
+
 hunter_add_package(Boost COMPONENTS system filesystem)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
-#include_directories(${Boost_INCLUDE_DIR})
-#link_directories(${Boost_LIBRARY_DIR})
 
 hunter_add_package(PocoCpp)
 find_package(Poco REQUIRED Foundation Util Net CONFIG)
-
-#find_library(POCO_FOUNDATION PocoFoundation REQUIRED)
-#find_library(POCO_NET PocoNet REQUIRED)
-#find_library(POCO_UTIL PocoUtil REQUIRED)
-
-#include_directories ("${PROJECT_SOURCE_DIR}/CompiledSource")
-#add_subdirectory (CompiledSource)
 
 hunter_add_package(PNG)
 find_package(PNG CONFIG REQUIRED)
@@ -40,14 +32,17 @@ find_package(bullet CONFIG REQUIRED)
 
 set(voxelquest_include
     include/voxelquest/baseobject.h
+    include/voxelquest/bullethelpers.h
     include/voxelquest/classdefs.h
     include/voxelquest/constants.h
     include/voxelquest/dynbuffer.h
+    include/voxelquest/entenums.h
     include/voxelquest/enums.h
     include/voxelquest/fbos.h
+    include/voxelquest/fileio.h
     include/voxelquest/fontwrapper.h
-    include/voxelquest/gameactor.h
-    include/voxelquest/gameactorjoint.h
+#    include/voxelquest/gameactor.h #does not appear to be used
+#    include/voxelquest/gameactorjoint.h #does not appear to be used
     include/voxelquest/gameai.h
     include/voxelquest/gameblock.h
     include/voxelquest/gamecamera.h
@@ -87,6 +82,7 @@ set(voxelquest_include
     include/voxelquest/myglhelper.h
     include/voxelquest/myshapedrawer.h
     include/voxelquest/network.h
+    include/voxelquest/path.h
     include/voxelquest/pooledresource.h
     include/voxelquest/poolmanager.h
     include/voxelquest/poolpagemanager.h
@@ -94,6 +90,7 @@ set(voxelquest_include
     include/voxelquest/shader.h
     include/voxelquest/simplex.h
     include/voxelquest/singleton.h
+    include/voxelquest/spacebuffer.h
     include/voxelquest/tbos.h
     include/voxelquest/threadpoolwrapper.h
     include/voxelquest/threadwrapper.h
@@ -103,16 +100,19 @@ set(voxelquest_include
     include/voxelquest/vbos.h
     include/voxelquest/vectors.h
     include/voxelquest/volumewrapper.h
+    include/voxelquest/voxelbuffer.h
     include/voxelquest/wsrequesthandler.h
     include/voxelquest/wsserver.h
 )
 
 set(voxelquest_source
     source/baseobject.cpp
+    source/bullethelpers.cpp
     source/dynbuffer.cpp
     source/fbos.cpp
+    source/fileio.cpp
     source/fontwrapper.cpp
-    source/gameactor.cpp
+#    source/gameactor.cpp #does not appear to be used
     source/gameai.cpp
     source/gameblock.cpp
     source/gamecamera.cpp
@@ -165,6 +165,7 @@ set(voxelquest_source
     source/vbos.cpp
     source/vectors.cpp
     source/volumewrapper.cpp
+    source/voxelbuffer.cpp
     source/wsrequesthandler.cpp
     source/wsserver.cpp
 )
@@ -187,4 +188,5 @@ target_link_libraries(voxelquest
     bullet::BulletDynamics
     bullet::BulletSoftBody
     bullet::LinearMath
+    glm
 )

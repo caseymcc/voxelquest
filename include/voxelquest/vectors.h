@@ -4,8 +4,8 @@
 #include "voxelquest/types.h"
 #include "voxelquest/constants.h"
 
-#include <LinearMath/btVector3.h>
-#include <LinearMath/btMatrix3x3.h>
+//#include <LinearMath/btVector3.h>
+//#include <LinearMath/btMatrix3x3.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -166,8 +166,8 @@ public:
 	
     float getIndex(int ind);
 
-    btVector3 getBTV();
-    void setBTV(btVector3 myBTV);
+//    btVector3 getBTV();
+//    void setBTV(btVector3 myBTV);
 
     void setIXYZW(int x, int y, int z, int w);
     void setIXYZ(int x, int y, int z);
@@ -444,16 +444,7 @@ public:
 };
 AxisRotation axisRotationInstance;
 
-void safeNorm(btVector3 &normRef);
-
 float getShortestAngle(float begInRad, float endInRad, float amount);
-
-btVector3 roundBTV(btVector3 v);
-btVector3 floorBTV(btVector3 v);
-
-btVector3 multByOtherRot(btVector3 imp, btMatrix3x3 otherRot);
-
-btVector3 rotBTV2D(btVector3 source, float ang);
 
 struct SphereStruct {
 	FIVector4 position;
@@ -466,22 +457,8 @@ struct SphereStruct {
 inline float qSign(float x) {return (x >= 0.0f) ? +1.0f : -1.0f;}
 inline float qNorm(float a, float b, float c, float d) {return sqrt(a * a + b * b + c * c + d * d);}
 
-
-btQuaternion matToQuat(
-    float r11, float r12, float r13,
-    float r21, float r22, float r23,
-    float r31, float r32, float r33
-);
-
-btVector3 quatToEulerXYZ(const btQuaternion &quat);
-
-
-void moveToOrientation(
-    btRigidBody* myBody,
-    btVector3 tanAxis,
-    btVector3 bitAxis,
-    btVector3 norAxis,
-    float kv=0.5f
-);
+void doTraceVecND(std::string traceVal0, FIVector4 *fv);
+void doTraceVecND4(std::string traceVal0, FIVector4 *fv);
+void doTraceVec(std::string traceVal0, FIVector4 *fv);
 
 #endif//_voxelquest__h_

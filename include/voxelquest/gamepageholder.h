@@ -1,6 +1,14 @@
 #ifndef _voxelquest_gamepageholder_h_
 #define _voxelquest_gamepageholder_h_
 
+#include "voxelquest/path.h"
+#include "voxelquest/constants.h"
+
+#include "voxelquest/volumewrapper.h"
+#include "voxelquest/gamevoxelwrap.h"
+
+class Singleton;
+
 class GamePageHolder
 {
 private:
@@ -82,7 +90,7 @@ public:
 
     void getInfoReport(int pathDataIndex);
 
-    btVector3holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex);
+    btVector3 holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex);
 
 
 
@@ -138,7 +146,7 @@ private:
     int endMip[NUM_MIP_LEVELS_WITH_FIRST];
 
     //VBOWrapper vboWrapper;
-    vector<float> vertexVec;
+    std::vector<float> vertexVec;
 
     VolumeWrapper* terVW;
 

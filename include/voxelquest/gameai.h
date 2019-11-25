@@ -1,6 +1,8 @@
 #ifndef _voxelquest_gameai_h_
 #define _voxelquest_gameai_h_
 
+#include "voxelquest/types.h"
+#include "voxelquest/json.h"
 
 class VNode
 {
@@ -16,6 +18,15 @@ public:
 
 };
 
+struct VToken
+{
+    int index;
+    int type;
+    int maxParam;
+    float floatValue;
+    std::string stringValue;
+};
+
 struct AssignStruct
 {
     VNode* lastAssign;
@@ -23,6 +34,33 @@ struct AssignStruct
     int tokenIndex;
     int genIndex;
 };
+
+enum E_VOCAB
+{
+    E_VC_FLOAT,
+    E_VC_IFTHEN,
+    E_VC_ALL,
+    E_VC_ANY,
+    E_VC_NONE,
+    E_VC_LIST,
+    E_VC_EQUAL,
+    E_VC_NOTEQUAL,
+    E_VC_ISBETWEEN,
+    E_VC_LENGTH
+};
+
+enum E_VOCAB_TYPE
+{
+
+    E_VCT_FLOAT, // terminal
+    E_VCT_NOUN, // terminal
+    E_VCT_OPERATOR,
+    E_VCT_VARIABLE,
+    E_VCT_PREDICATE,
+    E_VCT_LENGTH
+};
+
+class Singleton;
 
 class GameAI
 {
@@ -32,7 +70,7 @@ public:
     void init(Singleton* _singleton);
 
 
-    string getResolvedString(VNode* tempNode);
+    std::string getResolvedString(VNode* tempNode);
 
     bool setEqualTo(VNode* destNodeFinal, VNode* srceNodeFinal, int curGen);
 
@@ -94,9 +132,9 @@ private:
     std::vector<VNode*> tokenIndexToVar;
     //std::vector<VNode*> goalList;
     std::vector<AssignStruct> assignStack;
-    map<string, int> stringToVTokenIndex;
+    std::map<std::string, int> stringToVTokenIndex;
 
-    string tempVarStr;
+    std::string tempVarStr;
 
     VNode* kbCompiled;
     VNode* qbCompiled;

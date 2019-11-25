@@ -1,6 +1,10 @@
 #ifndef _voxelquest_gameent_h_
 #define _voxelquest_gameent_h_
 
+#include "voxelquest/gamepageholder.h"
+#include "voxelquest/gameentnode.h"
+
+class Singleton;
 
 class GameEnt
 {
@@ -25,10 +29,6 @@ private:
     FIVector4 basePosition;
 
     float defVecLength;
-
-
-
-
 
 };
 

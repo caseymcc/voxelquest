@@ -694,36 +694,11 @@ public:
 
 
 
-    JSONValue* fetchJSONData(string dataFile, bool doClean, JSONValue* params=NULL);
-
-    bool processJSONFromString(
-        string* sourceBuffer,
-        JSONValue** destObj
-    );
-
-
-
-    void specialReplace(
-        string &allTextString,
-        string preDelim,
-        string pstDelim
-    );
-
-    void jsonPostProc();
-
-    bool processJSON(
-        charArr *sourceBuffer,
-        charArr *saveBuffer,
-        JSONValue** destObj
-    );
+    
 
     void doAlert();
 
-    bool loadJSON(
-        string path,
-        JSONValue** destObj
-    );
-
+    
 
     void setGUIText(
         string key,
@@ -780,12 +755,6 @@ public:
     void loadGUI();
 
 
-    string loadFileString(string fnString);
-
-
-    std::ifstream::pos_type filesize(const char* filename);
-
-
 
     // file layout
     // new folder for worldId / versionId
@@ -805,23 +774,7 @@ public:
 
     bool updateCurCacheLoc();
 
-    bool createFolder(string folderNameStr);
-
-    bool saveFloatArray(string fileName, float* data, int dataSizeInFloats);
-
-    bool loadFloatArray(string fileName, float* data, int dataSizeInFloats);
-
-    bool loadFile(string fnString, charArr *dest);
-
-
-    bool saveFileString(string fileName, string* source);
-
-
-    bool saveFile(char *fileName, charArr *source);
-
-
-
-
+    
     float getUnderWater();
 
     void updateAmbientSounds();

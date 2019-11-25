@@ -1,4 +1,6 @@
-#include "voxelwrapper.h"
+#include "voxelquest/volumewrapper.h"
+
+#include <iostream>
 
 VolumeWrapper::VolumeWrapper()
 {
@@ -46,7 +48,7 @@ void VolumeWrapper::init(int z, GLenum clampMethod, bool _isFloat, int filterTyp
         ty=4096;
         break;
     default:
-        cout<<"Invalid VolumeWrapper dim\n";
+        std::cout<<"Invalid VolumeWrapper dim\n";
         break;
     }
 
@@ -57,7 +59,7 @@ void VolumeWrapper::init(int z, GLenum clampMethod, bool _isFloat, int filterTyp
     isFloat=_isFloat;
 
 
-    terGenDim.setFXYZ(x, y, z); //4096.0f,4096.0f,256.0f
+    terGenDim.setFXYZ((float)x, (float)y, (float)z); //4096.0f,4096.0f,256.0f
 
     glGenTextures(1, &(volId));
 
@@ -127,9 +129,9 @@ void VolumeWrapper::copyFloatArr(float* floatArr)
         0,
         0,
 
-        terGenDim[2],
-        terGenDim[2],
-        terGenDim[2],
+        (GLsizei)terGenDim[2],
+        (GLsizei)terGenDim[2],
+        (GLsizei)terGenDim[2],
 
         GL_RGBA,
         GL_FLOAT, //GL_UNSIGNED_BYTE,
@@ -150,9 +152,9 @@ void VolumeWrapper::copyCharArr(unsigned char* charArr)
         0,
         0,
 
-        terGenDim[2],
-        terGenDim[2],
-        terGenDim[2],
+        (GLsizei)terGenDim[2],
+        (GLsizei)terGenDim[2],
+        (GLsizei)terGenDim[2],
 
         GL_RGBA,
         GL_UNSIGNED_BYTE, //GL_UNSIGNED_BYTE,

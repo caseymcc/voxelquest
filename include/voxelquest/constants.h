@@ -400,4 +400,8 @@ long long ENT_COUNTER=0;
 bool TRACE_ON=false;
 //#define DEBUG_MODE 1
 
+
+const static int NUM_MIP_LEVELS=4;
+const static int NUM_MIP_LEVELS_WITH_FIRST=NUM_MIP_LEVELS+1;
+
 #endif//_voxelquest_constants_h_

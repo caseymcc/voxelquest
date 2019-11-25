@@ -1,6 +1,10 @@
 #ifndef _voxelquest_imageloader_h_
 #define _voxelquest_imageloader_h_
 
+#include <fstream>
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
 
 //Converts a four-character array to an integer, using little-endian form
 int toInt(const char* bytes);
@@ -9,10 +13,10 @@ int toInt(const char* bytes);
 short toShort(const char* bytes);
 
 //Reads the next four bytes as an integer, using little-endian form
-int readInt(ifstream &input);
+int readInt(std::ifstream &input);
 
 //Reads the next two bytes as a short, using little-endian form
-short readShort(ifstream &input);
+short readShort(std::ifstream &input);
 
 
 
@@ -99,7 +103,7 @@ public:
 class Image
 {
 public:
-    Image(unsigned char* ps, int w, int h): pixels(ps), width(w), height(h);
+    Image(unsigned char* ps, int w, int h);
 
     ~Image();
 
@@ -110,6 +114,11 @@ public:
     void setAllValues(int c, int v);
 
     void getTextureId(GLenum filterType);
+
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+
+    unsigned char *getPixels() { return pixels; }
 
 private:
     /* An array of the form (R1, G1, B1, R2, G2, B2, ...) indicating the
@@ -127,7 +136,7 @@ private:
 };
 
 
-Image* loadBMP(string fnString);
+Image* loadBMP(std::string fnString);
 
 
 #endif//_voxelquest__h_

@@ -1,6 +1,8 @@
 #ifndef _voxelquest_volumewrapper_h_
 #define _voxelquest_volumewrapper_h_
 
+#include "voxelquest/fbos.h"
+
 class VolumeWrapper
 {
 public:

@@ -1,6 +1,9 @@
 #ifndef _voxelquest_gameactor_h_
 #define _voxelquest_gameactor_h_
 
+#include "voxelquest/gameorgnode.h"
+
+#include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 
 class GameActor {
 public:

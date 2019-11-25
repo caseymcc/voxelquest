@@ -1,4 +1,9 @@
 #include "voxelquest/gameai.h"
+#include "voxelquest/spacebuffer.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/jsonhelpers.h"
+
+#include <iostream>
 
 VNode::VNode(int _tokenIndex)
 {
@@ -30,7 +35,7 @@ void GameAI::init(Singleton* _singleton)
 
 
 
-string GameAI::getResolvedString(VNode* tempNode)
+std::string GameAI::getResolvedString(VNode* tempNode)
 {
     // if (tokenIndexToVar[tempNode->tokenIndex] == NULL) {
     // 	return intToVToken[tempNode->tokenIndex].stringValue;
@@ -48,7 +53,7 @@ bool GameAI::setEqualTo(VNode* destNodeFinal, VNode* srceNodeFinal, int curGen)
 
     bool notAssigned=false;
 
-    cout<<SPACE_BUFFER[curGen]<<"setEqualTo(): "<<getResolvedString(destNodeFinal)<<" = "<<
+    std::cout<<SPACE_BUFFER[curGen]<<"setEqualTo(): "<<getResolvedString(destNodeFinal)<<" = "<<
         getResolvedString(srceNodeFinal)<<"\n";
 
     // VNode* destNodeFinal = NULL;
@@ -100,13 +105,13 @@ bool GameAI::setEqualTo(VNode* destNodeFinal, VNode* srceNodeFinal, int curGen)
         if(tokenIndexToVar[destNodeFinal->tokenIndex]->tokenIndex==srceNodeFinal->tokenIndex)
         {
             // if set value matches, do nothing
-            cout<<SPACE_BUFFER[curGen]<<"Attempted to set variable to same value\n";
+            std::cout<<SPACE_BUFFER[curGen]<<"Attempted to set variable to same value\n";
             return true;
         }
         else
         {
             // attempted to set to different value
-            cout<<SPACE_BUFFER[curGen]<<"Variable is already assigned\n";
+            std::cout<<SPACE_BUFFER[curGen]<<"Variable is already assigned\n";
             return false;
         }
 
@@ -138,17 +143,17 @@ void GameAI::rollBack(int curGen)
                 // assignStack.back().genIndex = curGen;
                 // tokenIndexToVar[destNodeFinal->tokenIndex] = srceNodeFinal;
 
-                cout<<"Roll back; "<<intToVToken[
+                std::cout<<"Roll back; "<<intToVToken[
                     assignStack.back().tokenIndex
                 ].stringValue<<" = ";
 
                 if(assignStack.back().lastAssign==NULL)
                 {
-                    cout<<"NULL\n";
+                    std::cout<<"NULL\n";
                 }
                 else
                 {
-                    cout<<intToVToken[
+                    std::cout<<intToVToken[
                         assignStack.back().lastAssign->tokenIndex
                     ].stringValue<<"\n";
                 }
@@ -178,30 +183,30 @@ bool GameAI::attemptUnify(VNode* nodeToUnify, VNode* testNode, int curGen)
     bool isPredicate1=nodeToUnifyType==E_VCT_PREDICATE;
     bool isPredicate2=testNodeType==E_VCT_PREDICATE;
 
-    cout<<SPACE_BUFFER[curGen]<<"attemptUnify("<<getResolvedString(nodeToUnify);
+    std::cout<<SPACE_BUFFER[curGen]<<"attemptUnify("<<getResolvedString(nodeToUnify);
     if(isPredicate1)
     {
-        cout<<"[ ";
+        std::cout<<"[ ";
         for(i=0; i<nodeToUnify->children.size(); i++)
         {
-            cout<<getResolvedString(nodeToUnify->children[i])<<" ";
+            std::cout<<getResolvedString(nodeToUnify->children[i])<<" ";
         }
-        cout<<"]";
+        std::cout<<"]";
     }
 
-    cout<<", "<<getResolvedString(testNode);
+    std::cout<<", "<<getResolvedString(testNode);
 
     if(isPredicate2)
     {
-        cout<<"[ ";
+        std::cout<<"[ ";
         for(i=0; i<testNode->children.size(); i++)
         {
-            cout<<getResolvedString(testNode->children[i])<<" ";
+            std::cout<<getResolvedString(testNode->children[i])<<" ";
         }
-        cout<<"]";
+        std::cout<<"]";
     }
 
-    cout<<")\n";
+    std::cout<<")\n";
 
     bool res;
 
@@ -360,7 +365,7 @@ bool GameAI::testEqual(VNode* testNode)
 
     if(testNode->children.size()!=2)
     {
-        cout<<"Invalid number of arguments for testEqual()\n";
+        std::cout<<"Invalid number of arguments for testEqual()\n";
         return false;
     }
     else
@@ -375,7 +380,7 @@ bool GameAI::testEqual(VNode* testNode)
 
         res=(term1->tokenIndex==term2->tokenIndex);
 
-        cout<<"testEqual(): "<<res<<"\n";
+        std::cout<<"testEqual(): "<<res<<"\n";
 
         return res;
     }
@@ -384,7 +389,7 @@ bool GameAI::testEqual(VNode* testNode)
 bool GameAI::isBetween(VNode* testNode)
 {
 
-    cout<<"isBetween()\n";
+    std::cout<<"isBetween()\n";
 
     VNode* term0;
     VNode* term1;
@@ -396,7 +401,7 @@ bool GameAI::isBetween(VNode* testNode)
 
     if(testNode->children.size()!=3)
     {
-        cout<<"Invalid number of arguments for isBetween()\n";
+        std::cout<<"Invalid number of arguments for isBetween()\n";
         return false;
     }
     else
@@ -411,7 +416,7 @@ bool GameAI::isBetween(VNode* testNode)
             (term2==NULL)
             )
         {
-            cout<<"null term\n";
+            std::cout<<"null term\n";
             return false;
         }
         else
@@ -428,14 +433,14 @@ bool GameAI::isBetween(VNode* testNode)
                 fv1=intToVToken[term1->tokenIndex].floatValue;
                 fv2=intToVToken[term2->tokenIndex].floatValue;
 
-                cout<<"success, compare: "<<fv0<<" "<<fv1<<" "<<fv2<<"\n";
+                std::cout<<"success, compare: "<<fv0<<" "<<fv1<<" "<<fv2<<"\n";
 
                 return ((fv0>=fv1)&&(fv0<=fv2));
 
             }
             else
             {
-                cout<<"non float term\n";
+                std::cout<<"non float term\n";
 
                 return false;
             }
@@ -447,20 +452,20 @@ bool GameAI::isBetween(VNode* testNode)
     }
 }
 
-bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
+bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset)
 {
 
 
     int i;
     int j;
-    int k;
+//    int k;
 
     bool tempRes=false;
     bool tempRes2=false;
     bool foundUni;
     bool isHead;
     bool wasSuccessful=false;
-    bool foundGen;
+//    bool foundGen;
 
     VNode* curKBRule=NULL;
     VNode* curKBRuleHead=NULL;
@@ -476,15 +481,15 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
     //removeGoal();
     //goalList.pop_back();
 
-    cout<<SPACE_BUFFER[curGen]<<"searchToUnify("<<
+    std::cout<<SPACE_BUFFER[curGen]<<"searchToUnify("<<
         intToVToken[nodeToUnify->tokenIndex].stringValue<<") curOffset = "<<curOffset<<"\n";
 
     for(j=0; j<qbCompiled->children[0]->children.size(); j++)
     {
         printChain(qbCompiled->children[0]->children[j]);
-        cout<<"\n";
+        std::cout<<"\n";
     }
-    cout<<"\n";
+    std::cout<<"\n";
 
 
 
@@ -544,7 +549,7 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
 
             if(curKBRule->children.size()!=2)
             {
-                cout<<"Error: If/Then statement requires exactly two arguments.\n";
+                std::cout<<"Error: If/Then statement requires exactly two arguments.\n";
                 wasSuccessful=false;
                 goto DO_RETURN;
             }
@@ -571,13 +576,13 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
 
                 if(tempRes)
                 {
-                    cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
+                    std::cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
                     foundUni=true;
                     break;
                 }
                 else
                 {
-                    cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
+                    std::cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
                     rollBack(curGen);
                 }
             }
@@ -612,12 +617,12 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
 
                             if(tempRes2)
                             {
-                                cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
+                                std::cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
                                 foundUni=true;
                             }
                             else
                             {
-                                cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
+                                std::cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
                                 rollBack(curGen);
                             }
 
@@ -625,7 +630,7 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
                         else
                         {
                             // done proving items
-                            cout<<SPACE_BUFFER[curGen]<<"Total unify success\n";
+                            std::cout<<SPACE_BUFFER[curGen]<<"Total unify success\n";
                             foundUni=true;
                         }
 
@@ -633,20 +638,20 @@ bool GameAI::searchToUnify(VNode* nodeToUnifyBase, int curGen, int curOffset=0)
                         break;
                     case E_VC_ANY:
                         // should not hit this
-                        cout<<SPACE_BUFFER[curGen]<<"Error: should not reach this segment\n";
+                        std::cout<<SPACE_BUFFER[curGen]<<"Error: should not reach this segment\n";
                         break;
                     }
                 }
                 else
                 {
-                    cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
+                    std::cout<<SPACE_BUFFER[curGen]<<"Unify success\n";
                     foundUni=true;
                 }
 
             }
             else
             {
-                cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
+                std::cout<<SPACE_BUFFER[curGen]<<"Unify failure\n";
                 rollBack(curGen);
             }
         }
@@ -700,7 +705,7 @@ DO_RETURN:
         }
     }
 
-    cout<<SPACE_BUFFER[curGen]<<"wasSuccessful: "<<wasSuccessful<<"\n";
+    std::cout<<SPACE_BUFFER[curGen]<<"wasSuccessful: "<<wasSuccessful<<"\n";
     return wasSuccessful;
 
 }
@@ -711,11 +716,11 @@ void GameAI::printChain(VNode* curVar)
 
     if(curVar==NULL)
     {
-        cout<<"NULL";
+        std::cout<<"NULL";
     }
     else
     {
-        cout<<intToVToken[curVar->tokenIndex].stringValue;
+        std::cout<<intToVToken[curVar->tokenIndex].stringValue;
 
         if(tokenIndexToVar[curVar->tokenIndex]==NULL)
         {
@@ -723,7 +728,7 @@ void GameAI::printChain(VNode* curVar)
         }
         else
         {
-            cout<<" -> ";
+            std::cout<<" -> ";
             printChain(tokenIndexToVar[curVar->tokenIndex]);
         }
     }
@@ -738,7 +743,7 @@ void GameAI::runQueries()
     bool res=false;
 
 
-    cout<<"\n\n";
+    std::cout<<"\n\n";
 
     for(i=0; i<qbCompiled->children.size(); i++)
     {
@@ -753,15 +758,15 @@ void GameAI::runQueries()
         for(j=0; j<qbCompiled->children[i]->children.size(); j++)
         {
             printChain(qbCompiled->children[i]->children[j]);
-            cout<<"\n";
+            std::cout<<"\n";
         }
 
-        cout<<"final result: "<<res<<"\n";
+        std::cout<<"final result: "<<res<<"\n";
 
 
     }
 
-    cout<<"\n\n";
+    std::cout<<"\n\n";
 }
 
 
@@ -775,7 +780,7 @@ bool GameAI::compileVocab(JSONValue* uncompiledNode, VNode* curVNode)
     JSONValue* lastJVNode=NULL;
 
 
-    string tempNumberStr;
+    std::string tempNumberStr;
 
     if(uncompiledNode->IsArray())
     {
@@ -789,7 +794,7 @@ bool GameAI::compileVocab(JSONValue* uncompiledNode, VNode* curVNode)
             {
                 if(lastJVNode==NULL)
                 {
-                    cout<<"Array must be preceded by string value\n";
+                    std::cout<<"Array must be preceded by string value\n";
                     return false;
                 }
                 else
@@ -809,7 +814,7 @@ bool GameAI::compileVocab(JSONValue* uncompiledNode, VNode* curVNode)
                         }
                         else
                         {
-                            cout<<"Array must be preceded by operator or predicate\n";
+                            std::cout<<"Array must be preceded by operator or predicate\n";
                             return false;
                         }
 
@@ -817,7 +822,7 @@ bool GameAI::compileVocab(JSONValue* uncompiledNode, VNode* curVNode)
                     }
                     else
                     {
-                        cout<<"Array must be preceded by string value\n";
+                        std::cout<<"Array must be preceded by string value\n";
                         return false;
                     }
                 }
@@ -845,14 +850,14 @@ bool GameAI::compileVocab(JSONValue* uncompiledNode, VNode* curVNode)
             else if(curJVNode->IsNumber())
             {
 
-                tempNumberStr=f__s(curJVNode->number_value);
+                tempNumberStr=f__s((float)curJVNode->number_value);
                 if(stringToVTokenIndex.find(tempNumberStr)==stringToVTokenIndex.end())
                 {
                     intToVToken.push_back(VToken());
-                    curInd=intToVToken.size()-1;
+                    curInd=(int)intToVToken.size()-1;
                     intToVToken[curInd].index=curInd;
                     intToVToken[curInd].stringValue=tempNumberStr;
-                    intToVToken[curInd].floatValue=curJVNode->number_value;
+                    intToVToken[curInd].floatValue=(float)curJVNode->number_value;
                     intToVToken[curInd].type=E_VCT_FLOAT;
                     intToVToken[curInd].maxParam=0;
                     stringToVTokenIndex[tempNumberStr]=curInd;
@@ -894,7 +899,7 @@ bool GameAI::checkVocab(JSONValue* jv)
             if(stringToVTokenIndex.find(jv->string_value)==stringToVTokenIndex.end())
             {
                 result=false;
-                cout<<"Undeclared token "<<jv->string_value<<"\n";
+                std::cout<<"Undeclared token "<<jv->string_value<<"\n";
             }
         }
     }
@@ -979,7 +984,7 @@ void GameAI::numberRule(VNode* curNode, int ruleNumber)
             // variable not yet created, make it
 
             intToVToken.push_back(VToken());
-            curInd=intToVToken.size()-1;
+            curInd=(int)intToVToken.size()-1;
             intToVToken[curInd].index=curInd;
             intToVToken[curInd].stringValue=tempVarStr;
             intToVToken[curInd].floatValue=0.0f;
@@ -1019,7 +1024,7 @@ int GameAI::numberRuleSet(VNode* curNode, int offset)
 void GameAI::printRule(VNode* curNode, int offset)
 {
     int i;
-    int curInd;
+//    int curInd;
 
 
     curNode->tokenIndex;
@@ -1028,11 +1033,11 @@ void GameAI::printRule(VNode* curNode, int offset)
 
     if(curNode->children.size()>0)
     {
-        cout<<SPACE_BUFFER[offset]<<intToVToken[curNode->tokenIndex].stringValue<<"[\n";
+        std::cout<<SPACE_BUFFER[offset]<<intToVToken[curNode->tokenIndex].stringValue<<"[\n";
     }
     else
     {
-        cout<<SPACE_BUFFER[offset]<<intToVToken[curNode->tokenIndex].stringValue<<"\n";
+        std::cout<<SPACE_BUFFER[offset]<<intToVToken[curNode->tokenIndex].stringValue<<"\n";
     }
 
     for(i=0; i<curNode->children.size(); i++)
@@ -1042,7 +1047,7 @@ void GameAI::printRule(VNode* curNode, int offset)
 
     if(curNode->children.size()>0)
     {
-        cout<<SPACE_BUFFER[offset]<<"]\n";
+        std::cout<<SPACE_BUFFER[offset]<<"]\n";
     }
 }
 
@@ -1055,7 +1060,7 @@ void GameAI::printRuleSet(VNode* curNode)
     {
         printRule(curNode->children[i], 0);
 
-        cout<<"\n\n";
+        std::cout<<"\n\n";
 
     }
 
@@ -1066,14 +1071,14 @@ void GameAI::printRuleSet(VNode* curNode)
 bool GameAI::parseKB()
 {
     int i;
-    int j;
+//    int j;
     int tokIndex;
     int curType;
     int arraySize;
     int tempInt0;
     int curInd;
     int tempInt=0;
-    string tempStr0;
+    std::string tempStr0;
     JSONValue* curJV;
 
     bool res0;
@@ -1091,13 +1096,13 @@ bool GameAI::parseKB()
         if(curJV->IsArray())
         {
 
-            arraySize=curJV->array_value.size();
+            arraySize=(int)curJV->array_value.size();
 
             if(arraySize==2)
             {
 
                 tempStr0=curJV->array_value[0]->string_value;
-                tempInt0=curJV->array_value[1]->number_value;
+                tempInt0=(int)curJV->array_value[1]->number_value;
 
                 switch(tempStr0[0])
                 {
@@ -1117,13 +1122,13 @@ bool GameAI::parseKB()
                     curType=E_VCT_PREDICATE;
                     break;
                 default:
-                    cout<<"Unsupported type in token "<<tempStr0<<"\n";
+                    std::cout<<"Unsupported type in token "<<tempStr0<<"\n";
                     return false;
                     break;
                 }
 
                 intToVToken.push_back(VToken());
-                curInd=intToVToken.size()-1;
+                curInd=(int)intToVToken.size()-1;
                 intToVToken[curInd].index=curInd;
                 intToVToken[curInd].stringValue=tempStr0;
                 intToVToken[curInd].floatValue=0.0f;
@@ -1134,7 +1139,7 @@ bool GameAI::parseKB()
             }
             else
             {
-                cout<<"Invalid Array Size of "<<arraySize<<" in vocabulary.\n";
+                std::cout<<"Invalid Array Size of "<<arraySize<<" in vocabulary.\n";
                 return false;
             }
 
@@ -1143,7 +1148,7 @@ bool GameAI::parseKB()
         }
         else
         {
-            cout<<"Vocabulary entry "<<i<<" is not an array.\n";
+            std::cout<<"Vocabulary entry "<<i<<" is not an array.\n";
             return false;
         }
     }
@@ -1157,7 +1162,7 @@ bool GameAI::parseKB()
     }
     else
     {
-        cout<<"checkVocab() failed\n";
+        std::cout<<"checkVocab() failed\n";
         return false;
     }
 
@@ -1178,7 +1183,7 @@ bool GameAI::parseKB()
     kbCompiled=new VNode(tokIndex);
     qbCompiled=new VNode(tokIndex);
 
-    cout<<"Begin vocab compile\n";
+    std::cout<<"Begin vocab compile\n";
 
     res0=compileVocab(jvKB->Child("kb"), kbCompiled);
     res1=compileVocab(jvKB->Child("qb"), qbCompiled);
@@ -1189,7 +1194,7 @@ bool GameAI::parseKB()
     }
     else
     {
-        cout<<"compileVocab() failed\n";
+        std::cout<<"compileVocab() failed\n";
         return false;
     }
 
@@ -1222,32 +1227,32 @@ void GameAI::traceRules()
     int i;
     int j;
 
-    cout<<"TokenToRules:\n";
+    std::cout<<"TokenToRules:\n";
     for(i=0; i<tokenToRules.size(); i++)
     {
 
-        cout<<intToVToken[i].stringValue<<": ";
+        std::cout<<intToVToken[i].stringValue<<": ";
 
         for(j=0; j<tokenToRules[i].data.size(); j++)
         {
-            cout<<tokenToRules[i].data[j]<<" ";
+            std::cout<<tokenToRules[i].data[j]<<" ";
         }
 
-        cout<<"\n";
+        std::cout<<"\n";
     }
 
-    cout<<"\nAll Vocab:\n";
+    std::cout<<"\nAll Vocab:\n";
     for(i=0; i<intToVToken.size(); i++)
     {
-        cout<<intToVToken[i].stringValue<<"\n";
+        std::cout<<intToVToken[i].stringValue<<"\n";
     }
 
 
-    cout<<"kb\n";
+    std::cout<<"kb\n";
     printRuleSet(kbCompiled);
-    cout<<"qb\n";
+    std::cout<<"qb\n";
     printRuleSet(qbCompiled);
-    cout<<"\n\n";
+    std::cout<<"\n\n";
 
 }
 
@@ -1256,13 +1261,13 @@ void GameAI::getKB()
 
     bool res;
 
-    cout<<"getKB()\n";
+    std::cout<<"getKB()\n";
     tokenToRules.clear();
     stringToVTokenIndex.clear();
     tokenIndexToVar.clear();
     intToVToken.clear();
 
-    jvKB=singleton->fetchJSONData("kb.js", true);
+    jvKB=fetchJSONData("kb.js", true);
 
     if(jvKB==NULL)
     {
@@ -1273,14 +1278,14 @@ void GameAI::getKB()
 
     if(res)
     {
-        cout<<"Successfully compiled KB\n";
+        std::cout<<"Successfully compiled KB\n";
 
         runQueries();
 
     }
     else
     {
-        cout<<"Failed to compile KB\n";
+        std::cout<<"Failed to compile KB\n";
     }
 
 }

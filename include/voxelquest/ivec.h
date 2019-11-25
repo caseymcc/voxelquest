@@ -1,10 +1,9 @@
 #ifndef _voxelquest_ivec_h_
 #define _voxelquest_ivec_h_
 
+#include "voxelquest/constants.h"
 
-
-
-
+#include <ostream>
 
 ///////////////////////////////////////////////////////////////////////////////
 // 3D vector
@@ -170,17 +169,17 @@ inline void VectorI3::doAbs() {
 }
 
 inline int VectorI3::length() const {
-    return sqrtf(x*x + y*y + z*z);
+    return (int)sqrtf((float)(x*x + y*y + z*z));
 }
 
 inline int VectorI3::distance(const VectorI3& vec) const {
-    return sqrtf((vec.x-x)*(vec.x-x) + (vec.y-y)*(vec.y-y) + (vec.z-z)*(vec.z-z));
+    return (int)sqrtf((float)((vec.x-x)*(vec.x-x) + (vec.y-y)*(vec.y-y) + (vec.z-z)*(vec.z-z)));
 }
 
 inline VectorI3& VectorI3::normalize() {
     int xxyyzz = x*x + y*y + z*z;
     //int invLength = invSqrt(xxyyzz);
-    int invLength = 1.0f / sqrtf(xxyyzz);
+    int invLength = (int)(1.0f / sqrtf((float)xxyyzz));
     x *= invLength;
     y *= invLength;
     z *= invLength;
@@ -222,8 +221,8 @@ const static VectorI3 DIR_VECS_IV[NUM_ORIENTATIONS] = {
 
 typedef VectorI3 ivec3;
 
-ivec3 toIVEC(vec3 val);
-vec3 toVEC(ivec3 val);
+//ivec3 toIVEC(vec3 val);
+//vec3 toVEC(ivec3 val);
 
 
 #endif//_voxelquest__h_

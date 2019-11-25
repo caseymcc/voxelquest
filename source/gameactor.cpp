@@ -1,4 +1,4 @@
-#include "gameactor.h"
+#include "voxelquest/gameactor.h"
 
 GameActor::GameActor(
     Singleton* _singleton,
