@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamemusic_h_
+#define _voxelquest_gamemusic_h_
 
 class GameMusic
 {
@@ -20,3 +22,5 @@ private:
 
     float volume;
 };
+
+#endif//_voxelquest__h_

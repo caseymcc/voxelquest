@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameentnode_h_
+#define _voxelquest_gameentnode_h_
 
 
 
@@ -93,3 +95,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

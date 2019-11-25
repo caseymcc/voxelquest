@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamefluid_h_
+#define _voxelquest_gamefluid_h_
 
 class GameFluid
 {
@@ -258,3 +260,5 @@ private:
 
 };
 
+
+#endif//_voxelquest__h_

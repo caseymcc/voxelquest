@@ -32,120 +32,132 @@ find_package(Poco REQUIRED Foundation Util Net CONFIG)
 #include_directories ("${PROJECT_SOURCE_DIR}/CompiledSource")
 #add_subdirectory (CompiledSource)
 
+hunter_add_package(PNG)
+find_package(PNG CONFIG REQUIRED)
+
 set(voxelquest_include
-    src/cpp/f00020_includes.h
-    src/cpp/f00022_enums.h
-    src/cpp/f00024_mat.h
-    src/cpp/f00025_includes.h
-    src/cpp/f00025_ivec.h
-    src/cpp/f00026_enums.h
-    src/cpp/f00026_vectors.h
-    src/cpp/f00027_mat.h
-    src/cpp/f00027_vectors.h
-    src/cpp/f00028_gameent.h
-    src/cpp/f00028_vectors.h
-    src/cpp/f00029_gameent.h
-    src/cpp/f00030_json.h
-    src/cpp/f00040_png.h
-    src/cpp/f00050_enums.h
-    src/cpp/f00215_helperfuncs.h
-    src/cpp/f00217_helperclasses.h
-    src/cpp/f00220_timer.h
-    src/cpp/f00230_network.h
-    src/cpp/f00240_simplex.h
-    src/cpp/f00250_imageloader.h
-    src/cpp/f00251_fbos.h
-    src/cpp/f00260_classdefs.h
-    src/cpp/f00290_wsrequesthandler.hpp
-    src/cpp/f00291_rhfactory.hpp
-    src/cpp/f00292_wsserver.hpp
-    src/cpp/f00293_gamesound.hpp
-    src/cpp/f00294_gamemusic.hpp
-    src/cpp/f00295_gamegeom.hpp
-    src/cpp/f00296_gameactor.hpp
-    src/cpp/f00297_gamecamera.hpp
-    src/cpp/f00297_gameent.hpp
-    src/cpp/f00300_singleton.hpp
-    src/cpp/f00305_shader.hpp
-    src/cpp/f00307_dynbuffer.hpp
-    src/cpp/f00310_pooledresource.hpp
-    src/cpp/f00315_poolmanager.hpp
-    src/cpp/f00316_poolpagemanager.hpp
-    src/cpp/f00320_fontwrapper.hpp
-    src/cpp/f00323_gameoctree.hpp
-    src/cpp/f00324_gamevoxelwrap.hpp
-    src/cpp/f00325_uicomponent.hpp
-    src/cpp/f00330_gamegui.hpp
-    src/cpp/f00332_gamenetwork.hpp
-    src/cpp/f00335_gameai.hpp
-    src/cpp/f00337_gamefluid.hpp
-    src/cpp/f00338_gameentnode.hpp
-    src/cpp/f00338_gameorgnode.hpp
-    src/cpp/f00339_gameent.hpp
-    src/cpp/f00339_gameorg.hpp
-    src/cpp/f00340_gameplantnode.hpp
-    src/cpp/f00341_gameplant.hpp
-    src/cpp/f00345_gameragdoll.hpp
-    src/cpp/f00345_geompage.hpp
-    src/cpp/f00346_gameactor.hpp
-    src/cpp/f00346_gameactorjoint.hpp
-    src/cpp/f00347_gameactor.hpp
-    src/cpp/f00347_gamephysrig.hpp
-    src/cpp/f00349_gameentmanager.hpp
-    src/cpp/f00350_gamepage.hpp
-    src/cpp/f00351_gamepageholder.hpp
-    src/cpp/f00352_gameblock.hpp
-    src/cpp/f00352_gamechunk.hpp
-    src/cpp/f00353_gameblock.hpp
-    src/cpp/f00355_volumewrapper.hpp
-    src/cpp/f00360_threadpoolwrapper.hpp
-    src/cpp/f00370_gamelogic.hpp
-    src/cpp/f00373_myshapedrawer.hpp
-    src/cpp/f00374_myglhelper.hpp
-    src/cpp/f00375_gamephysics.hpp
-    src/cpp/f00377_gamesim.hpp
-    src/cpp/f00380_gameworld.hpp
-    src/cpp/f00500_mainfuncs.h
+    include/classdefs.h
+    include/dynbuffer.h
+    include/enums.h
+    include/fbos.h
+    include/fontwrapper.h
+    include/gameactor.h
+    include/gameactorjoint.h
+    include/gameai.h
+    include/gameblock.h
+    include/gamecamera.h
+    include/gamechunk.h
+    include/gameent.h
+    include/gameentmanager.h
+    include/gameentnode.h
+    include/gamefluid.h
+    include/gamegeom.h
+    include/gamegui.h
+    include/gamelogic.h
+    include/gamemusic.h
+    include/gamenetwork.h
+    include/gameoctree.h
+    include/gameorg.h
+    include/gameorgnode.h
+    include/gamepage.h
+    include/gamepageholder.h
+    include/gamephysics.h
+    include/gamephysrig.h
+    include/gameplant.h
+    include/gameplantnode.h
+    include/gameragdoll.h
+    include/gamesim.h
+    include/gamesound.h
+    include/gamevoxelwrap.h
+    include/gameworld.h
+    include/geompage.h
+    include/helperclasses.h
+    include/helperfuncs.h
+    include/imageloader.h
+    include/includes.h
+    include/ivec.h
+    include/json.h
+    include/mat.h
+    include/myglhelper.h
+    include/myshapedrawer.h
+    include/network.h
+    include/pooledresource.h
+    include/poolmanager.h
+    include/poolpagemanager.h
+    include/rhfactory.h
+    include/shader.h
+    include/simplex.h
+    include/singleton.h
+    include/threadpoolwrapper.h
+    include/timer.h
+    include/uicomponent.h
+    include/vectors.h
+    include/volumewrapper.h
+    include/wsrequesthandler.h
+    include/wsserver.h
 )
 
 set(voxelquest_source
-    src/f_0010_includes.cpp
-    src/f_0011_json.cpp
-    src/f_0012_vectors.cpp
-    src/f_0013_enums.cpp
-    src/f_0015_helperfuncs.cpp
-    src/f_0017_helperclasses.cpp
-    src/f_0020_timer.cpp
-    src/f_0030_network.cpp
-    src/f_0040_simplex.cpp
-    src/f_0050_imageloader.cpp
-    src/f_0051_fbos.cpp
-    src/f_0052_singleton.cpp
-    src/f_0055_predefs.cpp
-    src/f_0056_fpage3d.cpp
-    src/f_0057_fpagemanager.cpp
-    src/f_0058_gameui.cpp
-    src/f_0060_main.cpp
+    source/dynbuffer.cpp
+    source/fbos.cpp
+    source/fontwrapper.cpp
+    source/gameactor.cpp
+    source/gameai.cpp
+    source/gameblock.cpp
+    source/gamecamera.cpp
+    source/gamechunk.cpp
+    source/gameent.cpp
+    source/gameentmanager.cpp
+    source/gameentnode.cpp
+    source/gamefluid.cpp
+    source/gamegeom.cpp
+    source/gamegui.cpp
+    source/gamelogic.cpp
+    source/gamemusic.cpp
+    source/gamenetwork.cpp
+    source/gameoctree.cpp
+    source/gameorg.cpp
+    source/gameorgnode.cpp
+    source/gamepage.cpp
+    source/gamepageholder.cpp
+    source/gamephysics.cpp
+    source/gamephysrig.cpp
+    source/gameplant.cpp
+    source/gameplantnode.cpp
+    source/gameragdoll.cpp
+    source/gamesound.cpp
+    source/gamevoxelwrap.cpp
+    source/gameworld.cpp
+    source/helperclasses.cpp
+    source/helperfuncs.cpp
+    source/imageloader.cpp
+    source/includes.cpp
+    source/ivec.cpp
+    source/json.cpp
+    source/mat.cpp
+    source/myglhelper.cpp
+    source/myshapedrawer.cpp
+    source/network.cpp
+    source/pooledresource.cpp
+    source/poolmanager.cpp
+    source/poolpagemanager.cpp
+    source/rhfactory.cpp
+    source/shader.cpp
+    source/simplex.cpp
+    source/singleton.cpp
+    source/threadpoolwrapper.cpp
+    source/timer.cpp
+    source/uicomponent.cpp
+    source/vectors.cpp
+    source/volumewrapper.cpp
+    source/wsrequesthandler.cpp
+    source/wsserver.cpp
 )
 
-add_executable(voxelquest_server ${voxelquest_include} ${voxelquest_source})
-target_link_libraries(voxelquest_server 
-    glbinding::glbinding
-    Boost::system 
-    Boost::filesystem 
-    Poco::Foundation
-    Poco::Util
-    Poco::Net
-    OpenGL::GL
-    glfw
-)
-
-add_executable(voxelquest ${PROJECT_SOURCE_DIR}/CompiledSource/main.cpp)
+include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
+add_executable(voxelquest ${voxelquest_include} ${voxelquest_source})
 find_package(OpenGL REQUIRED)
-#find_package(GLUT REQUIRED)
-#include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
 
-#target_link_libraries(voxelquest ${Boost_LIBRARIES} ${POCO_FOUNDATION} ${POCO_NET} ${POCO_UTIL} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
 target_link_libraries(voxelquest 
     glbinding::glbinding
     Boost::system 
@@ -155,4 +167,5 @@ target_link_libraries(voxelquest
     Poco::Net
     OpenGL::GL
     glfw
+    PNG::png
 )

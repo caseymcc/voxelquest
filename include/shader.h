@@ -1,3 +1,5 @@
+#ifndef _voxelquest_shader_h_
+#define _voxelquest_shader_h_
 
 class Shader
 {
@@ -87,3 +89,5 @@ private:
     string localString;
 };
 
+
+#endif//_voxelquest__h_

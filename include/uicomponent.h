@@ -1,3 +1,5 @@
+#ifndef _voxelquest_uicomponent_h_
+#define _voxelquest_uicomponent_h_
 
 class UIComponent
 {
@@ -247,3 +249,5 @@ private:
     
 
 };
+
+#endif//_voxelquest__h_

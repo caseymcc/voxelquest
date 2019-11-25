@@ -1,3 +1,5 @@
+#ifndef _voxelquest_wsrequesthandler_h_
+#define _voxelquest_wsrequesthandler_h_
 
 
 class WebSocketRequestHandler: public HTTPRequestHandler
@@ -13,3 +15,5 @@ private:
     WebSocketServer* ws_ptr;
 
 };
+
+#endif//_voxelquest__h_

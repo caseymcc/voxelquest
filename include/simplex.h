@@ -1,3 +1,5 @@
+#ifndef _voxelquest_simplex_h_
+#define _voxelquest_simplex_h_
 
     inline int fastfloor( const float x ) { return x > 0 ? (int) x : (int) x - 1; }
 inline float dot( const int* g, const float x, const float y ) { return g[0]*x + g[1]*y; }
@@ -139,3 +141,5 @@ float simplexRawNoise(const float x, const float y, const float z);
 
 // 4D raw Simplex noise
 float simplexRawNoise(const float x, const float y, const float z, const float w);
+
+#endif//_voxelquest__h_

@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamephysics_h_
+#define _voxelquest_gamephysics_h_
 
 class GamePhysics {
 public:
@@ -65,3 +67,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

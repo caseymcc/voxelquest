@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamegui_h_
+#define _voxelquest_gamegui_h_
 
 class GameGUI {
 public:
@@ -100,3 +102,5 @@ private:
 
 };
 
+
+#endif//_voxelquest__h_

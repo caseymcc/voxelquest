@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamesim_h_
+#define _voxelquest_gamesim_h_
 
 class GameSim {
 public:
@@ -86,3 +88,5 @@ public:
 
 
 
+
+#endif//_voxelquest__h_

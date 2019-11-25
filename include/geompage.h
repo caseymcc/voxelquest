@@ -1,3 +1,5 @@
+#ifndef _voxelquest_geompage_h_
+#define _voxelquest_geompage_h_
 
 class GeomPage
 {
@@ -22,3 +24,5 @@ public:
 private:
     std::vector<int> containsGeomIds;
 };
+
+#endif//_voxelquest__h_

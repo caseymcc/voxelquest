@@ -1,3 +1,6 @@
+#ifndef _voxelquest_gamecamera_h_
+#define _voxelquest_gamecamera_h_
+
 
 class GameCamera {
 private:
@@ -37,3 +40,5 @@ public:
     void init() 
     
 };
+
+#endif//_voxelquest__h_

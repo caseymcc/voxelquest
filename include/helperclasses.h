@@ -1,3 +1,5 @@
+#ifndef _voxelquest_helperclasses_h_
+#define _voxelquest_helperclasses_h_
 
 
 class UniformBuffer
@@ -63,3 +65,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

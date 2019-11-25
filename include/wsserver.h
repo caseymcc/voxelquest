@@ -1,3 +1,5 @@
+#ifndef _voxelquest_wsserver_h_
+#define _voxelquest_wsserver_h_
 
 
 
@@ -69,3 +71,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

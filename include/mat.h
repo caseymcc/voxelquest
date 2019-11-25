@@ -1,3 +1,5 @@
+#ifndef _voxelquest_mat_h_
+#define _voxelquest_mat_h_
 ///////////////////////////////////////////////////////////////////////////////
 // Matrice.h
 // =========
@@ -1407,3 +1409,5 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix4& m)
     os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
     return os;
 }
+
+#endif//_voxelquest__h_

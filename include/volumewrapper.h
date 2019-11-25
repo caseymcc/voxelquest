@@ -1,3 +1,5 @@
+#ifndef _voxelquest_volumewrapper_h_
+#define _voxelquest_volumewrapper_h_
 
 class VolumeWrapper
 {
@@ -23,3 +25,5 @@ private:
     bool isReady;
 
 };
+
+#endif//_voxelquest__h_

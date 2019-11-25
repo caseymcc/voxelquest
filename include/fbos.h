@@ -1,3 +1,6 @@
+#ifndef _voxelquest_fbos_h_
+#define _voxelquest_fbos_h_
+
 class FBOWrapper
 {
 public:
@@ -149,3 +152,5 @@ private:
    
 };
 
+
+#endif//_voxelquest__h_

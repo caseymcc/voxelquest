@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamepageholder_h_
+#define _voxelquest_gamepageholder_h_
 
 class GamePageHolder
 {
@@ -236,3 +238,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

@@ -1,3 +1,6 @@
+#ifndef _voxelquest_gamechunk_h_
+#define _voxelquest_gamechunk_h_
+
 class GameChunk
 {
 public:
@@ -56,3 +59,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

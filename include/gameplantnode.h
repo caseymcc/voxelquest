@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameplantnode_h_
+#define _voxelquest_gameplantnode_h_
 
 
 // class GamePlantNode {
@@ -45,3 +47,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

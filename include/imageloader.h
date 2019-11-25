@@ -1,3 +1,5 @@
+#ifndef _voxelquest_imageloader_h_
+#define _voxelquest_imageloader_h_
 
 
 //Converts a four-character array to an integer, using little-endian form
@@ -127,3 +129,5 @@ private:
 
 Image* loadBMP(string fnString);
 
+
+#endif//_voxelquest__h_

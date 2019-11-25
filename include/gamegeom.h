@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamegeom_h_
+#define _voxelquest_gamegeom_h_
 
 class GameGeom
 {
@@ -184,3 +186,5 @@ private:
     //float maxRad;
     //float matId;
 };
+
+#endif//_voxelquest__h_

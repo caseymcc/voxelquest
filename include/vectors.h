@@ -1,3 +1,5 @@
+#ifndef _voxelquest_vectors_h_
+#define _voxelquest_vectors_h_
 
 
 
@@ -806,3 +808,5 @@ struct PushModStruct
 	int actionType;
 	FIVector4 data[4];
 };
+
+#endif//_voxelquest__h_

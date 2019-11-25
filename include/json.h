@@ -1,3 +1,5 @@
+#ifndef _voxelquest_json_h_
+#define _voxelquest_json_h_
 
 
 enum JSONType { JSONType_Null, JSONType_String, JSONType_Bool, JSONType_Number, JSONType_Array, JSONType_Object };
@@ -89,3 +91,5 @@ class JSON
 #define FREE_OBJECT(x) { JSONObject::iterator iter; for (iter = x.begin(); iter != x.end(); iter++) { delete (*iter).second; } }
 
 
+
+#endif//_voxelquest__h_

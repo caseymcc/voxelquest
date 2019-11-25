@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameworld_h_
+#define _voxelquest_gameworld_h_
 
 class GameWorld
 {
@@ -312,3 +314,5 @@ private:
 	
 };
 
+
+#endif//_voxelquest__h_

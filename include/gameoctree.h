@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameoctree_h_
+#define _voxelquest_gameoctree_h_
 
 class GameOctree {
 public:
@@ -72,3 +74,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

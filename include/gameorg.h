@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameorg_h_
+#define _voxelquest_gameorg_h_
 
 class GameOrg
 {
@@ -95,3 +97,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

@@ -1,3 +1,5 @@
+#ifndef _voxelquest_fontwrapper_h_
+#define _voxelquest_fontwrapper_h_
 
 
 // list<int> cachedPoolIds;
@@ -45,3 +47,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

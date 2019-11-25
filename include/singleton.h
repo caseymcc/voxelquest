@@ -1,3 +1,5 @@
+#ifndef _voxelquest_singleton_h_
+#define _voxelquest_singleton_h_
 
 class Singleton
 {
@@ -1495,3 +1497,5 @@ public:
     FIVector4 btvConv;
 
 };
+
+#endif//_voxelquest__h_

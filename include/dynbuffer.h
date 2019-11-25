@@ -1,3 +1,6 @@
+#ifndef _voxelquest_dynbuffer_h_
+#define _voxelquest_dynbuffer_h_
+
 
 class DynBuffer
 {
@@ -93,3 +96,4 @@ private:
     //float copyTime, updateTime;
 };
 
+#endif//_voxelquest__h_

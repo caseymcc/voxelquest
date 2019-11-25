@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameactor_h_
+#define _voxelquest_gameactor_h_
 
 
 class GameActor {
@@ -76,3 +78,4 @@ private:
 
 
 
+#endif//_voxelquest__h_

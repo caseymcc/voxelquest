@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameactorjoint_h_
+#define _voxelquest_gameactorjoint_h_
 
 
 class GameActorJoint
@@ -30,3 +32,4 @@ private:
 };
 
 
+#endif//_voxelquest__h_

@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamepage_h_
+#define _voxelquest_gamepage_h_
 
 
 class GamePage //: public Poco::Runnable 
@@ -129,3 +131,5 @@ private:
     uint *volDataLinear;
 
 };
+
+#endif//_voxelquest__h_

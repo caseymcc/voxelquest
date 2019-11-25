@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamephsrig_h_
+#define _voxelquest_gamephsrig_h_
 
 
 class GamePhysRig
@@ -74,3 +76,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

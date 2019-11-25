@@ -1,3 +1,6 @@
+#ifndef _voxelquest_threadpoolwrapper_h_
+#define _voxelquest_threadpoolwrapper_h_
+
 class ThreadPoolWrapper
 {
 public:
@@ -35,3 +38,5 @@ private:
 
     std::vector<int> availIds;
 };
+
+#endif//_voxelquest__h_

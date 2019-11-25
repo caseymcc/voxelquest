@@ -1,3 +1,6 @@
+#ifndef _voxelquest_timer_h_
+#define _voxelquest_timer_h_
+
 class Timer
 {
 public:
@@ -31,3 +34,4 @@ private:
     timeval endCount;                           //
 #endif
 };
+#endif//_voxelquest__h_

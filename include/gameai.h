@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameai_h_
+#define _voxelquest_gameai_h_
 
 class GameAI
 {
@@ -200,3 +202,5 @@ private:
 
 
     */
+
+#endif//_voxelquest__h_

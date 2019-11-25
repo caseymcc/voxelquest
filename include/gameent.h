@@ -1,3 +1,6 @@
+#ifndef _voxelquest_gameent_h_
+#define _voxelquest_gameent_h_
+
 
 class GameEnt
 {
@@ -28,3 +31,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

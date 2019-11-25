@@ -1,3 +1,5 @@
+#ifndef _voxelquest_classdefs_h_
+#define _voxelquest_classdefs_h_
 
 // class WebSocketRequestHandler;
 // class WebSocketServer;
@@ -31,3 +33,5 @@ class GamePhysics;
 class GameSim;
 class GameWorld;
 class DynBuffer;
+
+#endif//_voxelquest_classdefs_h_

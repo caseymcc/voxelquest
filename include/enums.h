@@ -1,3 +1,5 @@
+#ifndef _voxelquest_enums_h_
+#define _voxelquest_enums_h_
 
 const int MAX_KEYS = 256;
 
@@ -146,3 +148,4 @@ enum E_ALIGN {
 //#define DEBUG_MODE 
 
 //const static int MAX_THREADS = 8;
+#endif//_voxelquest__h_

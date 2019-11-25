@@ -1,3 +1,5 @@
+#ifndef _voxelquest_includes_h_
+#define _voxelquest_includes_h_
 
 #if !defined(WIN32_LEAN_AND_MEAN)
 #define WIN32_LEAN_AND_MEAN
@@ -1446,3 +1448,5 @@ bool replaceStr(std::string& str, const std::string& from, const std::string& to
 // 	return new BenchmarkDemo(options.m_guiHelper,options.m_option);
 // }
 
+
+#endif//_voxelquest__h_

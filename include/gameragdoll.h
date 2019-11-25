@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameragdoll_h_
+#define _voxelquest_gameragdoll_h_
 class GameRagDoll
 {
 public:
@@ -64,3 +66,5 @@ private:
        
 	
 };
+
+#endif//_voxelquest__h_

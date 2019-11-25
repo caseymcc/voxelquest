@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamevoxelwrap_h_
+#define _voxelquest_gamevoxelwrap_h_
 
 class GameVoxelWrap
 {
@@ -118,3 +120,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

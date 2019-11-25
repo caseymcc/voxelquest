@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamelogic_h_
+#define _voxelquest_gamelogic_h_
 
 class GameLogic
 {
@@ -144,3 +146,5 @@ private:
     bool allowThreadCreation;
 };
 
+
+#endif//_voxelquest__h_

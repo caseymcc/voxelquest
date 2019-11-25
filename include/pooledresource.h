@@ -1,3 +1,5 @@
+#ifndef _voxelquest_pooledresource_h_
+#define _voxelquest_pooledresource_h_
 
 class PooledResource {
 public:
@@ -27,3 +29,5 @@ private:
 
     
 };
+
+#endif//_voxelquest__h_

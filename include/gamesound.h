@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamesound_h_
+#define _voxelquest_gamesound_h_
 
 class GameSound
 {
@@ -34,3 +36,5 @@ private:
 
     float curVolume;
 };
+
+#endif//_voxelquest__h_

@@ -1,3 +1,5 @@
+#ifndef _voxelquest_myshapedrawer_h_
+#define _voxelquest_myshapedrawer_h_
 
 
 class MyShapeDrawer
@@ -75,3 +77,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

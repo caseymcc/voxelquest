@@ -1,3 +1,6 @@
+#ifndef _voxelquest_helperfuncs_h_
+#define _voxelquest_helperfuncs_h_
+
 int traceLevel = 0; int popCount = 0;
 
 std::string i__s(int i);
@@ -84,3 +87,5 @@ void popTrace();
 
 
 
+
+#endif//_voxelquest__h_

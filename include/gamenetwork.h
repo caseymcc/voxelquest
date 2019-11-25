@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gamenetwork_h_
+#define _voxelquest_gamenetwork_h_
 
 class GameNetwork
 {
@@ -70,3 +72,4 @@ private:
 
 };
 
+#endif//_voxelquest__h_

@@ -1,3 +1,5 @@
+#ifndef _voxelquest_gameorgnode_h_
+#define _voxelquest_gameorgnode_h_
 
 
 
@@ -118,3 +120,5 @@ private:
 
 
 };
+
+#endif//_voxelquest__h_

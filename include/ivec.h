@@ -1,3 +1,5 @@
+#ifndef _voxelquest_ivec_h_
+#define _voxelquest_ivec_h_
 
 
 
@@ -223,3 +225,5 @@ typedef VectorI3 ivec3;
 ivec3 toIVEC(vec3 val);
 vec3 toVEC(ivec3 val);
 
+
+#endif//_voxelquest__h_

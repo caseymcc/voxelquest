@@ -1,3 +1,6 @@
+#ifndef _voxelquest_gameblock_h_
+#define _voxelquest_gameblock_h_
+
 class GameBlock
 {
 public:
@@ -250,3 +253,4 @@ private:
 
 
 };
+#endif//_voxelquest__h_

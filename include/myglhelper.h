@@ -1,3 +1,5 @@
+#ifndef _voxelquest_myglhelper_h_
+#define _voxelquest_myglhelper_h_
 
 class MyGLHelper : public GUIHelperInterface  {
 public:
@@ -70,3 +72,5 @@ private:
 };
 
 
+
+#endif//_voxelquest__h_

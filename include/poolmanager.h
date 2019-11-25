@@ -1,3 +1,5 @@
+#ifndef _voxelquest_poolmanager_h_
+#define _voxelquest_poolmanager_h_
 
 class PoolManager
 {
@@ -41,3 +43,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_

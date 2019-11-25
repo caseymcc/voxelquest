@@ -1,3 +1,6 @@
+#ifndef _voxelquest_networl_h_
+#define _voxelquest_networl_h_
+
 char* g_RecBuffer;
 static int g_MAX_FRAME_SIZE=16777216; //16 MB
 
@@ -78,3 +81,5 @@ private:
 
 
 
+
+#endif//_voxelquest__h_
