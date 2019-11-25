@@ -101,7 +101,7 @@ private:
 
 
     FIVector4 tempFI;
-    btVector3 tbnOffset;
+    btVector3tbnOffset;
     btVector3 tempOffset;
 
     // computed results

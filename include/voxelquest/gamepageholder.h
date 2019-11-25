@@ -82,7 +82,7 @@ public:
 
     void getInfoReport(int pathDataIndex);
 
-    btVector3 holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex);
+    btVector3holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex);
 
 
 

@@ -67,7 +67,7 @@ public:
     void setShaderfVec4(string paramName, FIVector4* f);
 
 
-    void setShaderbtVec3(string paramName, btVector3 f);
+    void setShaderbtVec3(string paramName, btVector3f);
 
 
     void setShaderFloatUB(string paramName, float x);

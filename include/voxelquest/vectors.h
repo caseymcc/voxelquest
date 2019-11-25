@@ -1,7 +1,15 @@
 #ifndef _voxelquest_vectors_h_
 #define _voxelquest_vectors_h_
 
+#include "voxelquest/types.h"
+#include "voxelquest/constants.h"
 
+#include <LinearMath/btVector3.h>
+#include <LinearMath/btMatrix3x3.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <vector>
 
 int boolToInt(bool val);
 
@@ -47,7 +55,7 @@ inline float clampfZO(float val) {
 
 inline float fGenRand() {
 	float intPart;
-	float res = abs ( modf(sin(RAND_COUNTER*433.2351267) * 43758.8563f, &intPart) );
+	float res = fabs (modff((float)(sin(RAND_COUNTER*433.2351267f) * 43758.8563f), &intPart) );
 	RAND_COUNTER += 1.0f;
 	if (RAND_COUNTER >= 8000000.0f) {
 		RAND_COUNTER = 0.0f;
@@ -65,7 +73,7 @@ inline int iGenRand(int nMin, int nMax)
 
 inline float fGenRand2() {
 	float intPart;
-	float res = abs ( modf(sin(RAND_COUNTER2*433.2351267) * 43758.8563f, &intPart) );
+	float res = fabs ( modff(sin(RAND_COUNTER2*433.2351267f) * 43758.8563f, &intPart) );
 	RAND_COUNTER2 += 1.0f;
 	if (RAND_COUNTER2 >= 8000000.0f) {
 		RAND_COUNTER2 = 0.0f;
@@ -95,19 +103,59 @@ int intPow(int x, int p);
 
 int wrapCoord(int val, int max);
 
+struct materialNode
+{
+    float h;
+    float s;
+    float l;
+    float r;
+    float g;
+    float b;
+    float power;
+    float ratio;
+};
 
+struct iVector4
+{
+    int x;
+    int y;
+    int z;
+    int w;
+};
+struct fVector4
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct iVector3
+{
+    int x;
+    int y;
+    int z;
+};
+struct fVector3
+{
+    float x;
+    float y;
+    float z;
+};
+
+
+struct iVector2
+{
+    int x;
+    int y;
+};
+struct fVector2
+{
+    float x;
+    float y;
+};
 
 class FIVector4 {
-private:
-	iVector4 iv4;
-	fVector4 fv4;
-
-	iVector3 iv3;
-	fVector3 fv3;
-
-	iVector2 iv2;
-	fVector2 fv2;
-
 public:
 
     FIVector4();
@@ -226,7 +274,7 @@ public:
 
     bool inBoundsIsEqualXYZ(FIVector4 *minV, FIVector4 *maxV);
 
-    static void normalizeBounds(FIVector4 *minBounds, FIVectorW4 *maxBounds);
+    static void normalizeBounds(FIVector4 *minBounds, FIVector4 *maxBounds);
 
 
 	
@@ -286,9 +334,6 @@ public:
 
     static void cross(FIVector4 *outVec, FIVector4 *v1, FIVector4 *v2);
 
-
-
-
     iVector4 *getIXYZW();
     fVector4 *getFXYZW();
 
@@ -308,7 +353,15 @@ public:
     float getFZ();
     float getFW();
 
+private:
+    iVector4 iv4;
+    fVector4 fv4;
 
+    iVector3 iv3;
+    fVector3 fv3;
+
+    iVector2 iv2;
+    fVector2 fv2;
 };
 
 
@@ -391,13 +444,6 @@ public:
 };
 AxisRotation axisRotationInstance;
 
-
-
-
-
-
-
-
 void safeNorm(btVector3 &normRef);
 
 float getShortestAngle(float begInRad, float endInRad, float amount);
@@ -416,263 +462,6 @@ struct SphereStruct {
 	float radVel;
 	float radAcc;
 };
-
-typedef int BaseObjType;
-
-
-
-
-struct SkillCard {
-	
-	// whenever x, do y
-	
-	
-	
-	// condition
-	// subject
-	// action
-	// subject
-	
-	// gain / lose
-	
-	
-	std::vector<int> triggers;
-};
-
-struct StatSheet {
-	std::vector<int> availableSkills;
-	std::vector<int> activeSkills;
-	std::vector<int> statusList;
-	
-	int baseStats[E_CS_LENGTH];
-	int unapplyedStats[E_CS_LENGTH];
-	
-	int curStatus[E_STATUS_LENGTH];
-	int maxStatus[E_STATUS_LENGTH];
-	
-	int availPoints;
-	
-	
-};
-
-
-
-
-class BaseObj
-{
-private:
-	FIVector4 centerPoint;
-	FIVector4 linVelocity;
-	
-	bool actionStates[E_ACT_LENGTH*RLBN_LENGTH];
-	
-public:
-	
-	PathInfo targPath;
-	StatSheet statSheet;
-	
-	int objectType;
-	int maxFrames;
-	
-	PoseKey defaultPose;
-	
-	BaseObjType uid;
-	BaseObjType parentUID;
-	vector<BaseObjType> children;
-	btVector3 startPoint;
-	btVector3 skelOffset;
-	
-	std::vector<int> targWeaponStack;
-	std::vector<BodyStruct> bodies;
-	
-	int actorId;
-	int orgId;
-	
-	int contactCount;
-	int isGrabbedById;
-	int isGrabbedByHand;
-	int entType;
-	int subType;
-	bool isHidden;
-	bool isOpen;
-	bool isEquipped;
-	bool zeroZ;
-	
-	float bounciness;
-	float friction;
-	float windResistance;
-	
-	// skeleton
-	btVector3 aabbMinSkel;
-	btVector3 aabbMaxSkel;
-	
-	// visual objects
-	btVector3 aabbMinVis;
-	btVector3 aabbMaxVis;
-	
-	
-	
-	
-	//////////////////
-	// NPC SPECIFIC //
-	//////////////////
-	
-	int tbDir;
-	btVector3 tbPos;
-	
-	int swingType[4];
-	int isGrabbingId[4];
-	
-	int hitCooldown;
-	int jumpCooldown;
-	
-	
-	float airCount;	
-	float bindingPower;
-	float swingCount;
-	float blockCount;
-	float lastBlockDis;
-	
-	btVector3 behaviorTarget;
-	btVector3 npcRepel;
-	
-	
-	
-	//////////////////
-	// END SPECIFIC //
-	//////////////////
-	
-    bool hasAtLeast(int status, int val);
-	
-    void modifyStatus(int status, int modVal);
-	
-    btVector3 getUnitBounds(bool getMax);
-	
-	
-	
-	
-    bool holdingWeapon(int handNum);
-	
-	
-    void setDamping(float linear, float angular);
-	
-    void clearAABB(btVector3* aabbMin, btVector3* aabbMax);
-	
-    void addAABBPoint(btVector3* aabbMin, btVector3* aabbMax, btVector3 newPoint);
-	
-	
-    bool hasBodies();
-	
-    void multVel(int i, btVector3 velMod);
-	
-    void multVelAng(int i, btVector3 velMod);
-	
-    void addVel(int i, btVector3 velMod);
-	
-    FIVector4* getVel(int i);
-	
-    BodyStruct* getBodyByBoneId(int id);
-	
-    float getTotalMass();
-	
-    float getMarkerMass();
-	
-	
-	
-    void wakeAll();
-	
-	
-	
-    bool allFalling();
-	
-    bool baseContact();
-	
-    float getPlanarVel();
-	
-    void setLinVel(btVector3 newVel, int i);
-	
-    void applyImpulses(float timeDelta, int i);
-	
-	
-    btVector3 getWeaponPos(int curPos);
-	
-    void setGrabbedBy(int newId, int handNum);
-
-    void flushImpulses();
-	
-    float turnTowardsTargAng(float targAng);
-	
-    float turnTowardsPointDelta(btVector3 targPoint);
-	
-    void applyAngularImpulse(btVector3 newAV, bool delayed, int i);
-	
-    void applyImpulse(btVector3 imp, bool delayed, int i);
-	
-    void applyImpulseOtherRot(btVector3 imp, btMatrix3x3 otherRot, bool delayed, int i);
-	
-    bool isHumanoid();	
-	
-    void moveOffset(btVector3 offset, int ind);
-	
-    void moveToPoint(btVector3 newPoint, int ind);
-	
-    btVector3 getCenterPoint(int ind);
-	
-    FIVector4* getCenterPointFIV(int ind);
-	
-	
-    BaseObj();
-	
-    void removeChild(BaseObjType _uid);
-	
-	
-    float healthPerc();
-	
-    bool isDead();
-	
-    bool isAlive();
-	
-    bool getActionState(int action, int handNum);
-    void setActionState(int action, int handNum, bool newVal);
-	
-    void clearActionStates();
-	
-	
-    void init(
-        BaseObjType _uid,
-        BaseObjType _parentUID,
-        int _objectType,
-        int _entType,
-        int _subType,
-        FIVector4* cellPos
-    );
-	
-};
-
-typedef map<BaseObjType, BaseObj>::iterator itBaseObj;
-
-
-class VNode {
-public:
-	
-	int tokenIndex;
-	int ruleNumber;
-	std::vector<VNode*> children;
-	
-    VNode(int _tokenIndex);
-	
-    ~VNode();
-	
-};
-
-struct AssignStruct {
-	VNode* lastAssign;
-	VNode* newAssign;
-	int tokenIndex;
-	int genIndex;
-};
-
-
 
 inline float qSign(float x) {return (x >= 0.0f) ? +1.0f : -1.0f;}
 inline float qNorm(float a, float b, float c, float d) {return sqrt(a * a + b * b + c * c + d * d);}
@@ -694,119 +483,5 @@ void moveToOrientation(
     btVector3 norAxis,
     float kv=0.5f
 );
-
-
-class VBOWrapper {
-public:
-	GLuint vao, vbo, ibo;
-
-	int drawEnum;
-	int sizeOfID;
-	int maxSizeOfID;
-	int sizeOfVD;
-	int maxSizeOfVD;
-	int numVecs;
-	int attSize;
-	// GLfloat* vertexData;
-	// GLuint* indexData;
-
-    VBOWrapper();
-	
-    void update(
-        GLfloat* _vertexData,
-        int _sizeOfVD,
-        GLuint* _indexData,
-        int _sizeOfID
-    );
-	
-    void updateNew();
-	
-    void init(
-        GLfloat* _vertexData,
-        int _sizeOfVD,
-        int _maxSizeOfVD,
-        GLuint* _indexData,
-        int _sizeOfID,
-        int _maxSizeOfID,
-        int _numVecs, // number of 4 component vecs
-        int _drawEnum //GL_DYNAMIC_DRAW GL_STATIC_DRAW
-    );
-	
-    void draw();
-	
-    void drawPoints();
-	
-};
-
-
-class VBOGrid {
-public:
-
-	int xpitch;
-	int ypitch;
-	
-	int totVerts;
-	int totInd;
-
-	VBOWrapper vboWrapper;
-
-
-	std::vector<float> vertexVec;
-	std::vector<uint> indexVec;
-	
-
-    VBOGrid();
-	
-    void init(
-        int _xpitch,
-        int _ypitch
-    );
-};
-
-class TBOWrapper {
-public:
-	GLuint tbo_buf;
-	GLuint tbo_tex;
-	
-	int dataSize;
-	
-	bool isFloat;
-	
-    TBOWrapper();
-	
-    void init(bool _isFloat, float* tbo_data, uint* tbo_data2, int _dataSize);
-	
-    void update(float* tbo_data, uint* tbo_data2, int newDataSize);
-	
-	
-};
-
-class ThreadWrapper {
-private:
-	bool threadRunningEx; // thread is running (exclusive, must lock)
-public:
-	std::thread threadMain;
-	std::mutex threadMutex;
-	bool threadRunning; // thread is running (not exclusive)
-	
-	int threadDataInt[THREAD_DATA_COUNT];
-	
-    ThreadWrapper();
-	
-    void init();
-	
-    void setRunningLocked(bool val) \;
-	
-    bool isReady();
-	
-};
-
-
-
-struct PushModStruct
-{
-	int actionType;
-	FIVector4 data[4];
-};
 
 #endif//_voxelquest__h_

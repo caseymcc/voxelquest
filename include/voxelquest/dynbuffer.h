@@ -1,6 +1,11 @@
 #ifndef _voxelquest_dynbuffer_h_
 #define _voxelquest_dynbuffer_h_
 
+#include "glinfo.h"
+
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
 
 class DynBuffer
 {
@@ -91,6 +96,7 @@ private:
     bool pboSupported;
     int pboMode;
     int drawMode;
+
     glInfo glInfo;
     //Timer timer, t1, t2;
     //float copyTime, updateTime;

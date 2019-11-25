@@ -28,7 +28,7 @@ public:
     // assumed that block exists when calling this
     GameBlock *getBlockAtId(int id);
 
-    int getCellInd(btVector3 cParam, GamePageHolder* &curHolder);
+    int getCellInd(btVector3cParam, GamePageHolder* &curHolder);
     
 
     int getCellInd(GamePageHolder* &curHolder, int xv, int yv, int zv);

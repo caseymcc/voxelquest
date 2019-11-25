@@ -1,6 +1,14 @@
 #ifndef _voxelquest_gamefluid_h_
 #define _voxelquest_gamefluid_h_
 
+#include "voxelquest/vectors.h"
+
+struct PushModStruct
+{
+    int actionType;
+    FIVector4 data[4];
+};
+
 class GameFluid
 {
 public:

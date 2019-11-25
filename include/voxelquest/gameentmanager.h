@@ -118,7 +118,7 @@ public:
 
     bool areFriends(int actorUID1, int actorUID2);
 
-    int getUnitDisXY(btVector3 p1, btVector3 p2);
+    int getUnitDisXY(btVector3p1, btVector3 p2);
 
     btVector3 getUnitDistance(int actorUID1, int actorUID2);
 

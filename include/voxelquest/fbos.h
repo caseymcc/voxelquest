@@ -1,6 +1,11 @@
 #ifndef _voxelquest_fbos_h_
 #define _voxelquest_fbos_h_
 
+#include "voxelquest/vectors.h"
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
+
 class FBOWrapper
 {
 public:

@@ -35,69 +35,80 @@ find_package(Poco REQUIRED Foundation Util Net CONFIG)
 hunter_add_package(PNG)
 find_package(PNG CONFIG REQUIRED)
 
+hunter_add_package(bullet)
+find_package(bullet CONFIG REQUIRED)
+
 set(voxelquest_include
-    include/classdefs.h
-    include/dynbuffer.h
-    include/enums.h
-    include/fbos.h
-    include/fontwrapper.h
-    include/gameactor.h
-    include/gameactorjoint.h
-    include/gameai.h
-    include/gameblock.h
-    include/gamecamera.h
-    include/gamechunk.h
-    include/gameent.h
-    include/gameentmanager.h
-    include/gameentnode.h
-    include/gamefluid.h
-    include/gamegeom.h
-    include/gamegui.h
-    include/gamelogic.h
-    include/gamemusic.h
-    include/gamenetwork.h
-    include/gameoctree.h
-    include/gameorg.h
-    include/gameorgnode.h
-    include/gamepage.h
-    include/gamepageholder.h
-    include/gamephysics.h
-    include/gamephysrig.h
-    include/gameplant.h
-    include/gameplantnode.h
-    include/gameragdoll.h
-    include/gamesim.h
-    include/gamesound.h
-    include/gamevoxelwrap.h
-    include/gameworld.h
-    include/geompage.h
-    include/helperclasses.h
-    include/helperfuncs.h
-    include/imageloader.h
-    include/includes.h
-    include/ivec.h
-    include/json.h
-    include/mat.h
-    include/myglhelper.h
-    include/myshapedrawer.h
-    include/network.h
-    include/pooledresource.h
-    include/poolmanager.h
-    include/poolpagemanager.h
-    include/rhfactory.h
-    include/shader.h
-    include/simplex.h
-    include/singleton.h
-    include/threadpoolwrapper.h
-    include/timer.h
-    include/uicomponent.h
-    include/vectors.h
-    include/volumewrapper.h
-    include/wsrequesthandler.h
-    include/wsserver.h
+    include/voxelquest/baseobject.h
+    include/voxelquest/classdefs.h
+    include/voxelquest/constants.h
+    include/voxelquest/dynbuffer.h
+    include/voxelquest/enums.h
+    include/voxelquest/fbos.h
+    include/voxelquest/fontwrapper.h
+    include/voxelquest/gameactor.h
+    include/voxelquest/gameactorjoint.h
+    include/voxelquest/gameai.h
+    include/voxelquest/gameblock.h
+    include/voxelquest/gamecamera.h
+    include/voxelquest/gamechunk.h
+    include/voxelquest/gameent.h
+    include/voxelquest/gameentmanager.h
+    include/voxelquest/gameentnode.h
+    include/voxelquest/gamefluid.h
+    include/voxelquest/gamegeom.h
+    include/voxelquest/gamegui.h
+    include/voxelquest/gamelogic.h
+    include/voxelquest/gamemusic.h
+    include/voxelquest/gamenetwork.h
+    include/voxelquest/gameoctree.h
+    include/voxelquest/gameorg.h
+    include/voxelquest/gameorgnode.h
+    include/voxelquest/gamepage.h
+    include/voxelquest/gamepageholder.h
+    include/voxelquest/gamephysics.h
+    include/voxelquest/gamephysrig.h
+    include/voxelquest/gameplant.h
+    include/voxelquest/gameplantnode.h
+    include/voxelquest/gameragdoll.h
+    include/voxelquest/gamesim.h
+    include/voxelquest/gamesound.h
+    include/voxelquest/gamevoxelwrap.h
+    include/voxelquest/gameworld.h
+    include/voxelquest/geompage.h
+    include/voxelquest/glinfo.h
+    include/voxelquest/helperclasses.h
+    include/voxelquest/helperfuncs.h
+    include/voxelquest/imageloader.h
+    include/voxelquest/includes.h
+    include/voxelquest/ivec.h
+    include/voxelquest/json.h
+    include/voxelquest/mat.h
+    include/voxelquest/myglhelper.h
+    include/voxelquest/myshapedrawer.h
+    include/voxelquest/network.h
+    include/voxelquest/pooledresource.h
+    include/voxelquest/poolmanager.h
+    include/voxelquest/poolpagemanager.h
+    include/voxelquest/rhfactory.h
+    include/voxelquest/shader.h
+    include/voxelquest/simplex.h
+    include/voxelquest/singleton.h
+    include/voxelquest/tbos.h
+    include/voxelquest/threadpoolwrapper.h
+    include/voxelquest/threadwrapper.h
+    include/voxelquest/timer.h
+    include/voxelquest/types.h
+    include/voxelquest/uicomponent.h
+    include/voxelquest/vbos.h
+    include/voxelquest/vectors.h
+    include/voxelquest/volumewrapper.h
+    include/voxelquest/wsrequesthandler.h
+    include/voxelquest/wsserver.h
 )
 
 set(voxelquest_source
+    source/baseobject.cpp
     source/dynbuffer.cpp
     source/fbos.cpp
     source/fontwrapper.cpp
@@ -128,6 +139,7 @@ set(voxelquest_source
     source/gamesound.cpp
     source/gamevoxelwrap.cpp
     source/gameworld.cpp
+    source/glinfo.cpp
     source/helperclasses.cpp
     source/helperfuncs.cpp
     source/imageloader.cpp
@@ -145,9 +157,12 @@ set(voxelquest_source
     source/shader.cpp
     source/simplex.cpp
     source/singleton.cpp
+    source/tbos.cpp
     source/threadpoolwrapper.cpp
+    source/threadwrapper.cpp
     source/timer.cpp
     source/uicomponent.cpp
+    source/vbos.cpp
     source/vectors.cpp
     source/volumewrapper.cpp
     source/wsrequesthandler.cpp
@@ -168,4 +183,8 @@ target_link_libraries(voxelquest
     OpenGL::GL
     glfw
     PNG::png
+    bullet::BulletCollision
+    bullet::BulletDynamics
+    bullet::BulletSoftBody
+    bullet::LinearMath
 )

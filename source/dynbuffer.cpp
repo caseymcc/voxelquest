@@ -1,4 +1,19 @@
-#include "dynbuffer.h"
+#include "voxelquest/dynbuffer.h"
+
+#include <iostream>
+#include <assert.h>  
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+
+typedef BOOL(WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
+typedef int (WINAPI * PFNWGLGETSWAPINTERVALEXTPROC) (void);
+PFNWGLSWAPINTERVALEXTPROC pwglSwapIntervalEXT=0;
+PFNWGLGETSWAPINTERVALEXTPROC pwglGetSwapIntervalEXT=0;
+#define wglSwapIntervalEXT      pwglSwapIntervalEXT
+#define wglGetSwapIntervalEXT   pwglGetSwapIntervalEXT
+#endif//_WIN32
 
 DynBuffer::DynBuffer()
 {
@@ -15,7 +30,7 @@ DynBuffer::DynBuffer()
     CHANNEL_COUNT=4;
     DATA_SIZE=IMAGE_WIDTH*IMAGE_HEIGHT * CHANNEL_COUNT;
 
-    font=GLUT_BITMAP_8_BY_13;
+//    font=GLUT_BITMAP_8_BY_13;
 
 
     initSharedMem();
@@ -43,43 +58,43 @@ DynBuffer::DynBuffer()
     if(glInfo.isExtensionSupported("GL_ARB_pixel_buffer_object"))
     {
         // get pointers to GL functions
-        glGenBuffersARB=(PFNGLGENBUFFERSARBPROC)wglGetProcAddress("glGenBuffersARB");
-        glBindBufferARB=(PFNGLBINDBUFFERARBPROC)wglGetProcAddress("glBindBufferARB");
-        glBufferDataARB=(PFNGLBUFFERDATAARBPROC)wglGetProcAddress("glBufferDataARB");
-        glBufferSubDataARB=(PFNGLBUFFERSUBDATAARBPROC)wglGetProcAddress("glBufferSubDataARB");
-        glDeleteBuffersARB=(PFNGLDELETEBUFFERSARBPROC)wglGetProcAddress("glDeleteBuffersARB");
-        glGetBufferParameterivARB=(PFNGLGETBUFFERPARAMETERIVARBPROC)wglGetProcAddress("glGetBufferParameterivARB");
-        glMapBufferARB=(PFNGLMAPBUFFERARBPROC)wglGetProcAddress("glMapBufferARB");
-        glUnmapBufferARB=(PFNGLUNMAPBUFFERARBPROC)wglGetProcAddress("glUnmapBufferARB");
-
-        // check once again PBO extension
-        if(glGenBuffersARB && glBindBufferARB && glBufferDataARB && glBufferSubDataARB &&
-            glMapBufferARB && glUnmapBufferARB && glDeleteBuffersARB && glGetBufferParameterivARB)
-        {
+//        glGenBuffersARB=(PFNGLGENBUFFERSARBPROC)wglGetProcAddress("glGenBuffersARB");
+//        glBindBufferARB=(PFNGLBINDBUFFERARBPROC)wglGetProcAddress("glBindBufferARB");
+//        glBufferDataARB=(PFNGLBUFFERDATAARBPROC)wglGetProcAddress("glBufferDataARB");
+//        glBufferSubDataARB=(PFNGLBUFFERSUBDATAARBPROC)wglGetProcAddress("glBufferSubDataARB");
+//        glDeleteBuffersARB=(PFNGLDELETEBUFFERSARBPROC)wglGetProcAddress("glDeleteBuffersARB");
+//        glGetBufferParameterivARB=(PFNGLGETBUFFERPARAMETERIVARBPROC)wglGetProcAddress("glGetBufferParameterivARB");
+//        glMapBufferARB=(PFNGLMAPBUFFERARBPROC)wglGetProcAddress("glMapBufferARB");
+//        glUnmapBufferARB=(PFNGLUNMAPBUFFERARBPROC)wglGetProcAddress("glUnmapBufferARB");
+//
+//        // check once again PBO extension
+//        if(glGenBuffersARB && glBindBufferARB && glBufferDataARB && glBufferSubDataARB &&
+//            glMapBufferARB && glUnmapBufferARB && glDeleteBuffersARB && glGetBufferParameterivARB)
+//        {
             pboSupported=true;
             pboMode=1;    // using 1 PBO
             std::cout<<"Video card supports GL_ARB_pixel_buffer_object."<<std::endl;
-        }
-        else
-        {
-            pboSupported=false;
-            pboMode=0;    // without PBO
-            std::cout<<"Video card does NOT support GL_ARB_pixel_buffer_object."<<std::endl;
-        }
+//        }
+//        else
+//        {
+//            pboSupported=false;
+//            pboMode=0;    // without PBO
+//            std::cout<<"Video card does NOT support GL_ARB_pixel_buffer_object."<<std::endl;
+//        }
     }
 
     // check EXT_swap_control is supported
     if(glInfo.isExtensionSupported("WGL_EXT_swap_control"))
     {
         // get pointers to WGL functions
-        wglSwapIntervalEXT=(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-        wglGetSwapIntervalEXT=(PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
-        if(wglSwapIntervalEXT && wglGetSwapIntervalEXT)
-        {
+//        wglSwapIntervalEXT=(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+//        wglGetSwapIntervalEXT=(PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
+//        if(wglSwapIntervalEXT && wglGetSwapIntervalEXT)
+//        {
             // enable v-sync
             wglSwapIntervalEXT(1);
             std::cout<<"Video card supports WGL_EXT_swap_control."<<std::endl;
-        }
+ //       }
     }
 
 
@@ -132,10 +147,10 @@ void DynBuffer::setVsync(bool enabled)
     if(glInfo.isExtensionSupported("WGL_EXT_swap_control"))
     {
         // get pointers to WGL functions
-        wglSwapIntervalEXT=(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-        wglGetSwapIntervalEXT=(PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
-        if(wglSwapIntervalEXT && wglGetSwapIntervalEXT)
-        {
+//        wglSwapIntervalEXT=(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+//        wglGetSwapIntervalEXT=(PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
+//        if(wglSwapIntervalEXT && wglGetSwapIntervalEXT)
+//        {
             if(enabled)
             {
                 wglSwapIntervalEXT(1);
@@ -147,7 +162,7 @@ void DynBuffer::setVsync(bool enabled)
             // enable v-sync
 
             //std::cout << "Video card supports WGL_EXT_swap_control." << std::endl;
-        }
+  //      }
     }
 }
 
@@ -317,7 +332,9 @@ void DynBuffer::setCamera(float posX, float posY, float posZ, float targetX, flo
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(posX, posY, posZ, targetX, targetY, targetZ, 0, 1, 0); // eye(x,y,z), focal(x,y,z), up(x,y,z)
+
+    assert(false);
+//    gluLookAt(posX, posY, posZ, targetX, targetY, targetZ, 0, 1, 0); // eye(x,y,z), focal(x,y,z), up(x,y,z)
 }
 
 
@@ -434,7 +451,8 @@ void DynBuffer::showTransferRate()
     glPushMatrix();                     // save current projection matrix
     glLoadIdentity();                   // reset projection matrix
     //gluOrtho2D(0, IMAGE_WIDTH, 0, IMAGE_HEIGHT); // set to orthogonal projection
-    gluOrtho2D(0, screenWidth, 0, screenHeight); // set to orthogonal projection
+    assert(false);
+//    gluOrtho2D(0, screenWidth, 0, screenHeight); // set to orthogonal projection
 
     //float color[4] = {1, 1, 0, 1};
     //drawString(ss.str().c_str(), 200, 286, color, font);
@@ -509,7 +527,8 @@ void DynBuffer::toPerspective()
     // set perspective viewing frustum
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0f, (float)(screenWidth)/screenHeight, 1.0f, 1000.0f); // FOV, AspectRatio, NearClip, FarClip
+    assert(false);
+//    gluPerspective(60.0f, (float)(screenWidth)/screenHeight, 1.0f, 1000.0f); // FOV, AspectRatio, NearClip, FarClip
 
     // switch to modelview matrix in order to set scene
     glMatrixMode(GL_MODELVIEW);
@@ -671,7 +690,8 @@ void DynBuffer::reshapeCB(int width, int height)
 
 void DynBuffer::idleCB()
 {
-    glutPostRedisplay();
+    assert(false);
+//    glutPostRedisplay();
 }
 
 
@@ -723,25 +743,26 @@ void DynBuffer::mouseCB(int button, int state, int x, int y)
     mouseX=x;
     mouseY=y;
 
-    if(button==GLUT_LEFT_BUTTON)
-    {
-        if(state==GLUT_DOWN)
-        {
-            mouseLeftDown=true;
-        }
-        else if(state==GLUT_UP)
-            mouseLeftDown=false;
-    }
-
-    else if(button==GLUT_RIGHT_BUTTON)
-    {
-        if(state==GLUT_DOWN)
-        {
-            mouseRightDown=true;
-        }
-        else if(state==GLUT_UP)
-            mouseRightDown=false;
-    }
+    assert(false);
+//    if(button==GLUT_LEFT_BUTTON)
+//    {
+//        if(state==GLUT_DOWN)
+//        {
+//            mouseLeftDown=true;
+//        }
+//        else if(state==GLUT_UP)
+//            mouseLeftDown=false;
+//    }
+//
+//    else if(button==GLUT_RIGHT_BUTTON)
+//    {
+//        if(state==GLUT_DOWN)
+//        {
+//            mouseRightDown=true;
+//        }
+//        else if(state==GLUT_UP)
+//            mouseRightDown=false;
+//    }
 }
 
 

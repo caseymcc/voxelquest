@@ -82,7 +82,7 @@ public:
         //,int r, int g, int b
     );
 
-    btVector3 holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex, bool addHalfOff);
+    btVector3holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex, bool addHalfOff);
 
     void drawPointAtIndex(GamePageHolder* curPointHolder, int curPointIndex, int r, int g, int b, float rad);
 

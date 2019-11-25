@@ -3430,7 +3430,7 @@ void Singleton::drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, flo
 
 void Singleton::drawBoxMinMax(
     btVector3 v0,
-    btVector3 v1
+    btVector3v1
 )
 {
     tempVec1.setBTV(v0);

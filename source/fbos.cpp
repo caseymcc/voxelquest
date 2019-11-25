@@ -1,3 +1,4 @@
+#include "voxelquest/fbos.h"
 
 int FBOWrapper::init(
     int _width,
@@ -6,7 +7,7 @@ int FBOWrapper::init(
     int _slot,
     int filterEnum,
     int clampEnum,
-    bool isMultisample=false
+    bool isMultisample
 )
 {
     numBytes=0;

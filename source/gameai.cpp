@@ -1,4 +1,20 @@
-#include "gameai.h"
+#include "voxelquest/gameai.h"
+
+VNode::VNode(int _tokenIndex)
+{
+    tokenIndex=_tokenIndex;
+}
+
+VNode::~VNode()
+{
+    int i;
+
+    for(i=0; i<children.size(); i++)
+    {
+        delete children[i];
+    }
+    children.clear();
+}
 
 GameAI::GameAI()
 {

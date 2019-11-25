@@ -72,7 +72,7 @@ std::string floatToString(float f);
 
 void doTraceND(std::string traceVal0="", std::string traceVal1="", std::string traceVal2="", std::string traceVal3="", std::string traceVal4="", std::string traceVal5="", std::string traceVal6="", std::string traceVal7="", std::string traceVal8="", std::string traceVal9="", std::string traceVal10="");
 void doTraceVecND(std::string traceVal0, FIVector4 *fv);
-void traceBTV(std::string traceVal0, btVector3 myBTV);
+void traceBTV(std::string traceVal0, btVector3myBTV);
 void doTraceVecND4(std::string traceVal0, FIVector4 *fv);
 
 void pushTraceND(std::string traceVal0="", std::string traceVal1="", std::string traceVal2="", std::string traceVal3="", std::string traceVal4="", std::string traceVal5="", std::string traceVal6="", std::string traceVal7="", std::string traceVal8="", std::string traceVal9="", std::string traceVal10="");

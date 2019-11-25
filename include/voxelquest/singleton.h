@@ -47,7 +47,7 @@ public:
     Singleton();
     ~Singleton();
 
-    FIVector4* BTV2FIV(btVector3 btv);
+    FIVector4* BTV2FIV(btVector3btv);
 
 
 

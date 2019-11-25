@@ -1,6 +1,29 @@
 #ifndef _voxelquest_gameai_h_
 #define _voxelquest_gameai_h_
 
+
+class VNode
+{
+public:
+
+    int tokenIndex;
+    int ruleNumber;
+    std::vector<VNode*> children;
+
+    VNode(int _tokenIndex);
+
+    ~VNode();
+
+};
+
+struct AssignStruct
+{
+    VNode* lastAssign;
+    VNode* newAssign;
+    int tokenIndex;
+    int genIndex;
+};
+
 class GameAI
 {
 public:
