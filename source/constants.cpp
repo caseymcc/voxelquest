@@ -1,4 +1,4 @@
-#include "voxelquest/constant.h"
+#include "voxelquest/constants.h"
 #include "voxelquest/jsonhelpers.h"
 
 float conVals[E_CONST_LENGTH];
@@ -7,6 +7,7 @@ void loadConstants()
 {
     int i;
 
+   
     stopAllThreads();
 
     if(loadJSON("..\\data\\constants.js", &constRootJS))

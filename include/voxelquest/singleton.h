@@ -120,42 +120,11 @@ public:
 
 
 
-    void prepSound(string soundName);
-
-    void playSoundEnt(
-        string soundName,
-        BaseObj* ge=NULL,
-        float variance=0.0f,
-        float volume=1.0f,
-        bool doLoop=false
-    );
-
-    void playSoundPosAndPitch(
-        string soundName,
-        FIVector4* listenerPos,
-        FIVector4* soundPos,
-        float variance=0.0f,
-        float volume=1.0f,
-        bool doLoop=false
-    );
-
-    void updateSoundPosAndPitch(
-        string soundName,
-        FIVector4* listenerPos,
-        FIVector4* soundPos,
-        float volume=1.0f,
-        float decay=0.01f
-    );
+    
 
 
 
-    void playSound(string soundName, float volume=1.0f);
-
-    void playSoundEvent(const char* eventName, bool suppress=false);
-
-
-
-    void updateMatVol();
+    
 
 
 
@@ -203,35 +172,7 @@ public:
 
 
 
-    void drawCrossHairs(FIVector4 originVec, float radius);
-
-
-    void drawLine(FIVector4 *p0, FIVector4 *p1);
-
-
-
-    void drawCubeCentered(FIVector4 *originVec, float radius);
-
-
-    void drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, float diamZ);
-
-
-    void drawBoxMinMax(
-        btVector3 v0,
-        btVector3 v1
-    );
-
-    void drawBoxRad(
-        btVector3 v0,
-        btVector3 v1
-    );
-
-    void drawBox(
-        FIVector4 *v0,
-        FIVector4 *v1,
-        int faceFlag=2
-    );
-
+    
 
     void getMaterialString();
 
@@ -255,74 +196,6 @@ public:
 
 
     void setWH(int w, int h);
-
-
-    void sampleFBODirect(
-        FBOSet *fbos,
-        int offset=0, /* write offset */
-        int _minOff=0, /* read min */
-        int _maxOff=-1 /* read max */
-
-    );
-
-    void unsampleFBODirect(
-        FBOSet *fbos,
-        int offset=0, /* write offset */
-        int _minOff=0, /* read min */
-        int _maxOff=-1 /* read max */
-
-    );
-
-
-    void getMatrixFromFBO(string fboName);
-
-
-    void bindFBODirect(FBOSet *fbos, int doClear=1);
-
-
-    ////
-
-
-    // todo: optimize this
-    FBOSet* getFBOByName(string &fboName);
-
-    void sampleFBO(
-        string fboName,
-        int offset=0,
-        int swapFlag=-1,
-        int minOff=0,
-        int maxOff=-1
-    );
-
-    void unsampleFBO(
-        string fboName,
-        int offset=0,
-        int swapFlag=-1,
-        int minOff=0,
-        int maxOff=-1
-    );
-
-    FBOSet *getFBOSet(string fboName);
-
-
-    FBOWrapper *getFBOWrapper(string fboName, int offset);
-
-
-
-
-    void copyFBO(string src, string dest, int num=0);
-
-
-    void copyFBO2(string src, string dest, int num1=0, int num2=1);
-
-
-    void copyFBO3(string src, string dest, int num1=0, int num2=1, int num3=2);
-
-
-    void bindFBO(string fboName, int swapFlag=-1, int doClear=1);
-
-
-    void unbindFBO();
 
 
 
@@ -403,51 +276,7 @@ public:
 
     bool altDown();
 
-
-
-    void drawQuadWithCoords(
-        FIVector4* p0,
-        FIVector4* p1,
-        FIVector4* p2,
-        FIVector4* p3,
-
-        float tx1,
-        float ty1,
-        float tx2,
-        float ty2
-
-    );
-
-    void drawQuadBounds(
-        float fx1,
-        float fy1,
-        float fx2,
-        float fy2,
-
-        float fz
-    );
-
-
-    void drawFSQuad();
-
-
-
-    void drawFSQuadOffset(
-        float xOff,
-        float yOff,
-        float zm
-    );
-
-
-    void drawFBO(string fboName, int ind, float zm, int swapFlag=-1);
-
-
-    void drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff, float zm);
-
-
-    void drawFBOOffset(string fboName, int ind, float xOff, float yOff, float zm);
-
-
+    
 
     float getTerHeightScaled(float val);
 
@@ -1400,8 +1229,8 @@ public:
 
 
 
-    int *rbStack;
-    int *rbHeightStack;
+    
+    
 
 
     TerTexture terTextures[MAX_TER_TEX];
@@ -1422,8 +1251,8 @@ public:
 
     FontWrapper* fontWrappers[EFW_LENGTH];
 
-    GameMusic* music[EML_LENGTH];
-    map<string, GameSound> soundMap;
+//    GameMusic* music[EML_LENGTH];
+//    map<string, GameSound> soundMap;
 
     map<string, StyleSheet> styleSheetMap;
     map<string, JSONStruct> externalJSON;

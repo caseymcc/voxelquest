@@ -1,6 +1,12 @@
 #ifndef _voxelquest_gameworld_h_
 #define _voxelquest_gameworld_h_
 
+#include "voxelquest/baseobject.h"
+#include "voxelquest/helperfuncs.h"
+
+class GameOrg;
+class GameOrgNode;
+
 class GameWorld
 {
 public:
@@ -28,7 +34,7 @@ public:
     // assumed that block exists when calling this
     GameBlock *getBlockAtId(int id);
 
-    int getCellInd(btVector3cParam, GamePageHolder* &curHolder);
+    int getCellInd(btVector3 cParam, GamePageHolder* &curHolder);
     
 
     int getCellInd(GamePageHolder* &curHolder, int xv, int yv, int zv);
@@ -89,7 +95,7 @@ public:
     void polyCombine();
 
     void drawPolys(
-        string fboName,
+        std::string fboName,
         int minPeel,
         int maxPeel
         //, bool isBlockHolder
@@ -111,8 +117,9 @@ public:
 
     void drawMap();
 
-    void doBlur(string fboName, int _baseFBO=0);
+    void doBlur(std::string fboName, int _baseFBO=0);
 
+    float getHeightAtPixelPos(float x, float y, bool dd=false);
 
     void drawBasicPrims(bool doShadow);
 
@@ -123,7 +130,14 @@ public:
     void finalStep(bool postToScreen);
     void postProcess(bool postToScreen);
 
-private:
+    float getSLNormalized()
+    {
+        return (((float)seaLevel)/255.0f);
+    }
+
+    float getSeaHeightScaled();
+
+//private:
 	bool skippedPrim;
 
 	int numProvinces;
@@ -214,8 +228,8 @@ private:
 	
 	btVector3 offsetVal[4];
 	
-	string curTargFBO[3];
-	string curDepthFBO[3];
+	std::string curTargFBO[3];
+	std::string curDepthFBO[3];
 
 	GamePageHolder* blockHolder;
 	GamePageHolder* holderInFocus;

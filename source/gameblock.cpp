@@ -1,15 +1,22 @@
 #include "voxelquest/gameblock.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/gameplant.h"
+
+#include <iostream>
+
+bool GameBlock::bufferInit=false;
+int *GameBlock::rbStack=nullptr;
+int *GameBlock::rbHeightStack=nullptr;
 
 GameBlock::GameBlock()
 {
-
     terData=NULL;
     buildingData=NULL;
-
 }
 
 void GameBlock::init(
     Singleton *_singleton,
+    GameWorld *gameworld,
     int _blockId,
     int _x,
     int _y,
@@ -19,6 +26,12 @@ void GameBlock::init(
     int _zw
 )
 {
+    if(!bufferInit)
+    {
+        rbStack=new int[terDataBufSize];
+        rbHeightStack=new int[g_settings.terDataBufSize];
+        bufferInit=true;
+    }
 
     plantScale=2.0f;
 
@@ -57,11 +70,7 @@ void GameBlock::init(
     offsetInBlocks.setIXYZ(_x, _y, _z);
     offsetInBlocksWrapped.setIXYZ(_xw, _yw, _zw);
 
-
     origin.setFXYZ(0.0f, 0.0f, 0.0f);
-
-
-
 
     int i;
     int j;
@@ -76,7 +85,6 @@ void GameBlock::init(
 
     int minRot=0;
     int maxRot=0;
-
 
     for(i=0; i<E_CT_LENGTH; i++)
     {
@@ -147,8 +155,7 @@ void GameBlock::init(
 
     //float z;
 
-    float zmax;
-
+//    float zmax;
 
     int curDir=0; // 0:x, 1:y, 2:z
 
@@ -156,29 +163,29 @@ void GameBlock::init(
 
     maxFloors=3;
 
-    terDataTexScale=singleton->terDataTexScale;
+    terDataTexScale=g_settings.terDataTexScale;
 
-    holdersPerBlock=singleton->holdersPerBlock;
+    holdersPerBlock=g_settings.holdersPerBlock;
 
-    cellsPerBlock=singleton->cellsPerBlock;
+    cellsPerBlock=g_settings.cellsPerBlock;
     fCellsPerBlock=(float)cellsPerBlock;
 
     float uvSizeInCells=1.0;
     float uvSizeInPixels=uvSizeInCells; // 64
 
     float offsetPerFloor=0.25;
-    float floorOffset;
+//    float floorOffset;
 
     bool notFound;
     bool foundA;
     bool foundB;
-    bool foundC;
+//    bool foundC;
 
     bool isInside;
     bool isWingBeg;
     bool isWingEnd;
-    bool isWingBeg2;
-    bool isWingEnd2;
+//    bool isWingBeg2;
+//    bool isWingEnd2;
 
 
     float wingMult;
@@ -189,17 +196,17 @@ void GameBlock::init(
 
     float cr1;
     float cr2;
-    float cr3;
-    float cr4;
+//    float cr3;
+//    float cr4;
 
     float doorMod=0.0f;
 
-    gw=singleton->gw;
+    gw=gameworld;
 
-    FBOWrapper *fbow=singleton->getFBOWrapper("hmFBO", 0);
-    FBOWrapper *fbow2=singleton->getFBOWrapper("cityFBO", 0);
+    FBOWrapper *fbow=FBOManager::getFBOWrapper("hmFBO", 0);
+    FBOWrapper *fbow2=FBOManager::getFBOWrapper("cityFBO", 0);
 
-    int maxLoop;
+//    int maxLoop;
     int lotX;
     int lotY;
     int lotZ;
@@ -237,7 +244,7 @@ void GameBlock::init(
     int counter;
 
     int houseColor=0;
-    int lotSizeO2=singleton->cellsPerHolder/2;
+    int lotSizeO2=g_settings.cellsPerHolder/2;
 
     int XP=0;
     int XN=1;
@@ -252,9 +259,9 @@ void GameBlock::init(
     int curBT3=0;
     int curHeight=0;
 
-    int wingDir;
+//    int wingDir;
 
-    floorHeightInCells=singleton->floorHeightInCells;
+    floorHeightInCells=g_settings.floorHeightInCells;
     float roofHeightInCells;// = singleton->roofHeightInCells;
     float wallRadInCells;
     float flushRadInCells;
@@ -263,19 +270,19 @@ void GameBlock::init(
     float fk;
 
     float tempf;
-    float pv1;
-    float pv2;
-    float pv3;
-    float pv4;
+//    float pv1;
+//    float pv2;
+//    float pv3;
+//    float pv4;
 
-    float perc1;
-    float perc2;
+//    float perc1;
+//    float perc2;
     float baseOffset=0.0f;
-    float cellsPerHolder=singleton->cellsPerHolder;
+    float cellsPerHolder=(float)g_settings.cellsPerHolder;
 
     bool doProc=false;
     bool isVert;
-    bool isDif;
+//    bool isDif;
 
     int curInd=0;
     int testInd=0;
@@ -289,10 +296,10 @@ void GameBlock::init(
 
     int curType;
     uint uiSimp;
-    float fSimp;
+//    float fSimp;
 
-    float fSimpLow;
-    float fSimpHigh;
+//    float fSimpLow;
+//    float fSimpHigh;
 
     int newCount=0;
     int io, jo, ko;
@@ -302,9 +309,9 @@ void GameBlock::init(
     float doorInset=0.0f;
     float doorScale=0.625f;
 
-    int iNodeDivsPerHolder=singleton->iNodeDivsPerHolder;
+    int iNodeDivsPerHolder=g_settings.iNodeDivsPerHolder;
 
-    iChunkSize=singleton->chunksPerBlock * singleton->chunksPerBlock * singleton->chunksPerBlock;
+    iChunkSize=g_settings.chunksPerBlock * g_settings.chunksPerBlock * g_settings.chunksPerBlock;
     chunkData=new GameChunk*[iChunkSize];
     for(i=0; i<iChunkSize; i++)
     {
@@ -312,24 +319,24 @@ void GameBlock::init(
     }
 
 
-    terDataBufAmount=singleton->terDataBufAmount;
-    terDataVisSize=singleton->terDataVisSize;
-    terDataBufSize=singleton->terDataBufSize;
+    terDataBufAmount=g_settings.terDataBufAmount;
+    terDataVisSize=g_settings.terDataVisSize;
+    terDataBufSize=g_settings.terDataBufSize;
 
-    terDataVisPitchXY=singleton->terDataVisPitchXY;
-    fTerDataVisPitchXY=singleton->terDataVisPitchXY;
-    terDataBufPitchXY=singleton->terDataBufPitchXY;
-    terDataBufPitchScaledXY=singleton->terDataBufPitchScaledXY;
+    terDataVisPitchXY=g_settings.terDataVisPitchXY;
+    fTerDataVisPitchXY=(float)g_settings.terDataVisPitchXY;
+    terDataBufPitchXY=g_settings.terDataBufPitchXY;
+    terDataBufPitchScaledXY=g_settings.terDataBufPitchScaledXY;
 
-    terDataVisPitchZ=singleton->terDataVisPitchZ;
-    fTerDataVisPitchZ=singleton->terDataVisPitchZ;
-    terDataBufPitchZ=singleton->terDataBufPitchZ;
-    terDataBufPitchScaledZ=singleton->terDataBufPitchScaledZ;
+    terDataVisPitchZ=g_settings.terDataVisPitchZ;
+    fTerDataVisPitchZ=(float)g_settings.terDataVisPitchZ;
+    terDataBufPitchZ=g_settings.terDataBufPitchZ;
+    terDataBufPitchScaledZ=g_settings.terDataBufPitchScaledZ;
 
 
-    seaLev=singleton->getSLNormalized()*fTerDataVisPitchZ+terDataBufAmount;
+    seaLev=(int)(gw->getSLNormalized()*fTerDataVisPitchZ)+terDataBufAmount;
 
-    float fTerDataBufAmount=(float)(singleton->terDataBufAmount);
+    float fTerDataBufAmount=(float)(g_settings.terDataBufAmount);
     float bmodXY=fTerDataBufAmount/(fTerDataVisPitchXY);
     float bmodZ=fTerDataBufAmount/(fTerDataVisPitchZ);
 
@@ -346,11 +353,6 @@ void GameBlock::init(
 
     // TODO: REIMPLEMENT BUILDING DATA AND REMOVE THIS RETURN
     return;
-
-
-
-
-
 
     terData=new uint[terDataBufSize];
     buildingData=new BuildingNode[terDataBufSize];
@@ -372,16 +374,13 @@ void GameBlock::init(
             curCon->nodeFlags=0;
             curCon->heightDelta=0;
             curCon->wingMult=1.0f;
-            curCon->wallRadInCells=singleton->wallRadInCells;
+            curCon->wallRadInCells=g_settings.wallRadInCells;
         }
 
 
     }
 
     // Create Map Data
-
-
-
     // iBuildingNodesPerSideM1 = holdersPerBlock*iNodeDivsPerHolder;
     // fBuildingNodesPerSideM1 = (float)iBuildingNodesPerSideM1;
     // iBuildingNodesPerSide = iBuildingNodesPerSideM1 + 1;
@@ -398,13 +397,7 @@ void GameBlock::init(
         }
     }
 
-
-
-
-
-
     // Create Ter Data
-
     p=1;
     for(i=0; i<terDataBufPitchXY; i++)
     {
@@ -443,7 +436,7 @@ void GameBlock::init(
                     fCellsPerBlock/fTerDataVisPitchZ
                 );
 
-                tempf=singleton->getHeightAtPixelPos(tempVec.getFX(), tempVec.getFY());
+                tempf=gw->getHeightAtPixelPos(tempVec.getFX(), tempVec.getFY());
 
                 if(tempVec.getFZ()<tempf)
                 {
@@ -460,11 +453,7 @@ void GameBlock::init(
         }
     }
 
-
-
-
     // Get Ter Data Height
-
     for(i=0; i<terDataBufPitchXY; i++)
     {
         for(j=0; j<terDataBufPitchXY; j++)
@@ -477,7 +466,7 @@ void GameBlock::init(
 
                 if(terData[curInd]!=0)
                 {
-                    singleton->rbHeightStack[curInd]=0;
+                    rbHeightStack[curInd]=0;
                 }
                 else
                 {
@@ -491,11 +480,11 @@ void GameBlock::init(
 
                     if(testInd>-1)
                     {
-                        singleton->rbHeightStack[curInd]=singleton->rbHeightStack[testInd]+1;
+                        rbHeightStack[curInd]=rbHeightStack[testInd]+1;
                     }
                     else
                     {
-                        singleton->rbHeightStack[curInd]=0;
+                        rbHeightStack[curInd]=0;
                     }
                 }
             }
@@ -507,29 +496,7 @@ void GameBlock::init(
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Layout Map Roads
-
     for(i=-1; i<=holdersPerBlock; i++)
     {
         for(j=-1; j<=holdersPerBlock; j++)
@@ -608,7 +575,6 @@ void GameBlock::init(
     }
 
     // houses
-
     for(i=0; i<holdersPerBlock; i++)
     {
         for(j=0; j<holdersPerBlock; j++)
@@ -669,10 +635,7 @@ void GameBlock::init(
         }
     }
 
-
-
     // connect wings
-
     for(i=0; i<terDataBufPitchXY; i++)
     {
         for(j=0; j<terDataBufPitchXY; j++)
@@ -737,10 +700,7 @@ void GameBlock::init(
             }
         }
     }
-
-
     tempVec2.setFXYZ(93.989f, 67.345f, 54.256f);
-
 
     for(i=0; i<terDataBufPitchXY; i++)
     {
@@ -753,14 +713,7 @@ void GameBlock::init(
         }
     }
 
-
-
-
-
-
-
-
-    if(singleton->settings[E_BS_TREES])
+    if(g_settings.settings[E_BS_TREES])
     {
         for(i=terDataBufAmount*2; i<terDataBufPitchXY-terDataBufAmount*2; i++)
         {
@@ -772,12 +725,12 @@ void GameBlock::init(
                     lotX=holdersPerBlock*(offsetInBlocks.getIX())+i;
                     lotY=holdersPerBlock*(offsetInBlocks.getIY())+j;
 
-                    x1=lotX+(i*cellsPerBlock)/terDataBufPitchXY;
-                    y1=lotY+(j*cellsPerBlock)/terDataBufPitchXY;
+                    x1=lotX+(float)(i*cellsPerBlock)/terDataBufPitchXY;
+                    y1=lotY+(float)(j*cellsPerBlock)/terDataBufPitchXY;
 
                     testInd=getMapNodeIndex(i, j, 0);
 
-                    tempVec.setFXYZ(i, j, 15.0);
+                    tempVec.setFXYZ((float)i, (float)j, 15.0f);
 
                     if(
 
@@ -785,7 +738,7 @@ void GameBlock::init(
                         //singleton->getSeaHeightScaled() + 2.0f
 
                         (((float)(mapData[testInd].terHeight))/fTerDataVisPitchZ)>
-                        (singleton->getSLNormalized()+1.0f/255.0f)
+                        (gw->getSLNormalized()+1.0f/255.0f)
 
                         )
                     {
@@ -835,7 +788,7 @@ void GameBlock::init(
 
                         if(testInd>-1)
                         {
-                            p=max(p, mapData[testInd].adjustedHeight);
+                            p=std::max(p, mapData[testInd].adjustedHeight);
                         }
                     }
 
@@ -847,7 +800,7 @@ void GameBlock::init(
 
                     if(newSeaLev>mapData[curInd].adjustedHeight)
                     {
-                        mapData[curInd].adjustedHeight=max(mapData[curInd].adjustedHeight, newSeaLev);
+                        mapData[curInd].adjustedHeight=std::max(mapData[curInd].adjustedHeight, newSeaLev);
                         notFound=true;
                     }
                 }
@@ -998,7 +951,7 @@ void GameBlock::init(
                                                     -1,
                                                     testVal2-testVal, // heightDelta,
                                                     0,
-                                                    singleton->wallRadInCells+1.0f
+                                                    g_settings.wallRadInCells+1.0f
                                                 );
                                             }
                                             break;
@@ -1290,7 +1243,7 @@ void GameBlock::init(
 
                                                     0,
                                                     0,
-                                                    singleton->wallRadInCells+0.5f
+                                                    g_settings.wallRadInCells+0.5f
 
                                                 );
                                             }
@@ -1799,7 +1752,7 @@ void GameBlock::init(
 
 
 
-    if(singleton->cavesOn)
+    if(g_settings.cavesOn)
     {
         makeMazeUG();
     }
@@ -1913,9 +1866,9 @@ void GameBlock::init(
                             xmod1=0.0f;
                             ymod1=0.0f;
                             zmod1=0.0f;
-                            xmod2=dirModX[m];
-                            ymod2=dirModY[m];
-                            zmod2=buildingData[curInd].con[q].heightDelta;
+                            xmod2=(float)dirModX[m];
+                            ymod2=(float)dirModY[m];
+                            zmod2=(float)buildingData[curInd].con[q].heightDelta;
 
                             if(conType==E_CT_FOUNDATION)
                             {
@@ -1945,7 +1898,7 @@ void GameBlock::init(
                             isWingEnd=(buildingData[curInd].con[q].nodeFlags & BC_FLAG_WING_END)>0;
                             wingMult=buildingData[curInd].con[q].wingMult;
                             newWingMult=(wingMult-1.0f);
-                            nDir=buildingData[curInd].con[q].direction;
+                            nDir=(float)buildingData[curInd].con[q].direction;
 
 
 
@@ -1959,7 +1912,7 @@ void GameBlock::init(
                                     ctClasses[buildingData[curInd].con[n].conType]==E_CTC_ROOM
                                     )
                                 {
-                                    flushRadInCells=max(
+                                    flushRadInCells=std::max(
                                         flushRadInCells,
                                         buildingData[curInd].con[n].wallRadInCells
                                     );
@@ -2230,7 +2183,7 @@ void GameBlock::init(
                             // todo: fix this
                             if(ctClasses[conType]==E_CTC_ROOM)
                             {
-                                roofHeightInCells=singleton->wallRadInCells;
+                                roofHeightInCells=g_settings.wallRadInCells;
                             }
                             else
                             {
@@ -2279,7 +2232,7 @@ void GameBlock::init(
 
                                     break;
                                 default:
-                                    cout<<"invalid height delta of "<<buildingData[curInd].con[q].heightDelta<<"\n";
+                                    std::cout<<"invalid height delta of "<<buildingData[curInd].con[q].heightDelta<<"\n";
                                     break;
                                 }
 
@@ -2312,7 +2265,7 @@ void GameBlock::init(
                                     tempVec4.addXYZ(0.0f, 0.0f, 2.0f);
 
                                     tempVec.setIXYZ(i, j, k);
-                                    tempVec.multXYZ(102.33, 305.44, 609.121);
+                                    tempVec.multXYZ(102.33f, 305.44f, 609.121f);
                                     tempVec2.setFXYZ(93.989f, 67.345f, 54.256f);
 
                                     //0: palm
@@ -2322,16 +2275,16 @@ void GameBlock::init(
 
 
 
-                                    singleton->gamePlants[tempInt]->init(
+                                    GamePlant::gamePlants[tempInt]->init(
                                         singleton,
                                         &(GamePlant::allPlantRules[tempInt*2+1]),
                                         &(GamePlant::allPlantRules[tempInt*2]),
                                         &origin
                                     );
-                                    matParams.setFY(tempInt*2+1);
-                                    addPlantNodes(singleton->gamePlants[tempInt]->rootsNode, &tempVec4, plantScale);
-                                    matParams.setFY(tempInt*2);
-                                    addPlantNodes(singleton->gamePlants[tempInt]->trunkNode, &tempVec4, plantScale);
+                                    matParams.setFY((float)(tempInt*2+1));
+                                    addPlantNodes(GamePlant::gamePlants[tempInt]->rootsNode, &tempVec4, plantScale);
+                                    matParams.setFY((float)(tempInt*2));
+                                    addPlantNodes(GamePlant::gamePlants[tempInt]->trunkNode, &tempVec4, plantScale);
 
 
 
@@ -2362,7 +2315,7 @@ void GameBlock::init(
                                     );
                                     thickVals.setFX(0.25f);
 
-                                    visInsetFromMin.setFXYZ(0.0f, 0.0f, cornerRad.getFZ()-0.125);
+                                    visInsetFromMin.setFXYZ(0.0f, 0.0f, cornerRad.getFZ()-0.125f);
                                     visInsetFromMax.setFXYZ(0.0f, 0.0f, 0.0f);
 
                                     powerVals.setFXYZ(2.0f, 1.0f, 0.0f);
@@ -2401,7 +2354,7 @@ void GameBlock::init(
                                     }
 
                                     curAlign=E_ALIGN_BOTTOM;
-                                    baseOffset=-(rad.getFZ()-(cornerRad.getFZ()+(0.25+doorMod)))+tempf*2.0f;
+                                    baseOffset=-(rad.getFZ()-(cornerRad.getFZ()+(0.25f+doorMod)))+tempf*2.0f;
 
 
 
@@ -2580,8 +2533,8 @@ void GameBlock::init(
                                     );
 
                                     if(
-                                        singleton->getHeightAtPixelPos(p1.getFX(), p1.getFY())<=
-                                        singleton->getSeaHeightScaled()+2.0f
+                                        gw->getHeightAtPixelPos(p1.getFX(), p1.getFY())<=
+                                        gw->getSeaHeightScaled()+2.0f
                                         )
                                     {
                                         matParams.setFXYZ(E_MAT_PARAM_FOUNDATION, E_MAT_SUBPARAM_DOCK, 0.0f);
@@ -2628,7 +2581,7 @@ void GameBlock::init(
 
                                 case E_CT_ROOF:
                                     baseOffset=-floorHeightInCells;
-                                    matParams.setFXYZ(E_MAT_PARAM_ROOF, E_MAT_SUBPARAM_TUDOR, buildingData[curInd].id);
+                                    matParams.setFXYZ((float)E_MAT_PARAM_ROOF, (float)E_MAT_SUBPARAM_TUDOR, (float)buildingData[curInd].id);
 
                                     if(curDir==E_DIR_Z)
                                     {
@@ -3194,11 +3147,11 @@ void GameBlock::connectNodes(
     int _z2,
 
     int ct,
-    int id=-1,
-    int _heightDelta=0,
-    int _direction=0,
-    float _wallRadInCells=-1.0f,
-    unsigned int _nodeFlags=0
+    int id,
+    int _heightDelta,
+    int _direction,
+    float _wallRadInCells,
+    unsigned int _nodeFlags
 )
 {
 
@@ -3213,7 +3166,7 @@ void GameBlock::connectNodes(
     float wallRad=_wallRadInCells;
     if(wallRad==-1.0f)
     {
-        wallRad=singleton->wallRadInCells;
+        wallRad=g_settings.wallRadInCells;
     }
 
     int x1=_x1;
@@ -3410,8 +3363,8 @@ void GameBlock::connectMapNodes(int _x1, int _y1, int _x2, int _y2, int building
 
     int i;
 
-    int ind1;
-    int ind2;
+//    int ind1;
+//    int ind2;
 
     if(x1>x2)
     {
@@ -3467,7 +3420,7 @@ void GameBlock::connectMapNodes(int _x1, int _y1, int _x2, int _y2, int building
 int GameBlock::getAdjustedHeightInHolders(int xInHolders, int yInHolders)
 {
 
-    float cellsPerHolder=singleton->cellsPerHolder;
+    float cellsPerHolder=(float)g_settings.cellsPerHolder;
 
     tempVec.setFXYZ(xInHolders*cellsPerHolder, yInHolders*cellsPerHolder, 0.0f);
 
@@ -3496,7 +3449,7 @@ int GameBlock::getAdjustedHeightInHolders(int xInHolders, int yInHolders)
     {
         fres=((float)(mapData[ind].terHeight))/fTerDataVisPitchZ; //adjustedHeight
 
-        res=fres*singleton->holdersPerWorld;
+        res=(int)(fres*g_settings.holdersPerWorld);
 
     }
     else
@@ -4226,7 +4179,7 @@ void GameBlock::makeMazeUG()
 
     //cout << "q\n";
 
-    int i;
+//    int i;
     int rbInd=0;
     int curInd=0;
     int startDir=0;
@@ -4249,7 +4202,7 @@ void GameBlock::makeMazeUG()
     int curDir=0;
     int blockOffset=offsetInBlocks.getIX()+offsetInBlocks.getIY();
 
-    int ct;
+//    int ct;
 
     bool isOddX, isOddY, isOddZ;
     bool doProc;
@@ -4263,7 +4216,7 @@ void GameBlock::makeMazeUG()
 
     //ind1 = getMapNodeIndex(terDataBufSize/2,terDataBufSize/2, 0);
 
-    singleton->rbStack[0]=getNodeIndex(
+    rbStack[0]=getNodeIndex(
         terDataBufPitchXY/2,
         terDataBufPitchXY/2,
         terDataBufPitchZ/2,
@@ -4276,7 +4229,7 @@ void GameBlock::makeMazeUG()
 
 
 
-        curInd=singleton->rbStack[rbInd];
+        curInd=rbStack[rbInd];
         buildingData[curInd].visited=1;
         buildingData[curInd].mazeIndex=rbInd;
 
@@ -4406,7 +4359,7 @@ DONE_SEARCHING:
 
 
 
-            singleton->rbStack[rbInd]=bestInd;
+            rbStack[rbInd]=bestInd;
 
 
             tunnelCount++;

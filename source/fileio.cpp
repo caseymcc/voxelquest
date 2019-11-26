@@ -1,12 +1,23 @@
 #include "voxelquest/fileio.h"
+#include "voxelquest/helperfuncs.h"
 
-bool createFolder(string folderNameStr)
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
+#include <cassert>
+#include <sstream>
+#include <iostream>
+
+bool createFolder(std::string folderNameStr)
 {
 
     std::wstring folderNameWstr=s2ws(folderNameStr);
 
+#ifdef _WIN32
     if(
-        CreateDirectory(folderNameWstr.c_str(), NULL)
+        CreateDirectoryW(folderNameWstr.c_str(), NULL)
         )
     {
         return true;
@@ -18,6 +29,9 @@ bool createFolder(string folderNameStr)
             return true;
         }
     }
+#else
+    assert(false);
+#endif
     return false;
 }
 
@@ -29,7 +43,7 @@ std::ifstream::pos_type filesize(const char* filename)
 }
 
 
-bool loadFile(string fnString, charArr *dest)
+bool loadFile(std::string fnString, charArr *dest)
 {
 
     const char* fileName=fnString.c_str();
@@ -56,7 +70,7 @@ bool loadFile(string fnString, charArr *dest)
     // long size = (long)infile.tellg();
     // infile.seekg (0, infile.beg);
 
-    long mySize=filesize(fnString.c_str());
+    long mySize=(long)filesize(fnString.c_str());
 
     dest->size=mySize;
 
@@ -120,7 +134,7 @@ bool saveFile(char *fileName, charArr *source)
     return true;
 }
 
-bool loadFloatArray(string fileName, float* data, int dataSizeInFloats)
+bool loadFloatArray(std::string fileName, float* data, int dataSizeInFloats)
 {
     if(dataSizeInFloats==0)
     {
@@ -146,7 +160,7 @@ bool loadFloatArray(string fileName, float* data, int dataSizeInFloats)
     }
 }
 
-bool saveFloatArray(string fileName, float* data, int dataSizeInFloats)
+bool saveFloatArray(std::string fileName, float* data, int dataSizeInFloats)
 {
     if(dataSizeInFloats==0)
     {
@@ -182,7 +196,7 @@ std::string loadFileString(std::string fnString)
     return buffer.str();
 }
 
-bool saveFileString(string fileName, string* source)
+bool saveFileString(std::string fileName, std::string* source)
 {
     if(source==NULL)
     {
@@ -209,7 +223,7 @@ bool saveFileString(string fileName, string* source)
 
     outfile.close();
 
-    cout<<"Save Successful";
+    std::cout<<"Save Successful";
 
     return true;
 }

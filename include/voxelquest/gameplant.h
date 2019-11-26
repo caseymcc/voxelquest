@@ -1,6 +1,35 @@
 #ifndef _voxelquest_gameplant_h_
 #define _voxelquest_gameplant_h_
 
+enum E_PLANT_TYPES
+{
+    E_PT_OAK_TRUNK,
+    E_PT_OAK_ROOTS,
+    E_PT_OAK2_TRUNK,
+    E_PT_OAK2_ROOTS,
+    E_PT_BARE_OAK_TRUNK,
+    E_PT_BARE_OAK_ROOTS,
+    E_PT_LENGTH
+};
+
+struct PlantRules
+{
+    float numChildren[2];
+    float divergenceAngleV[2];
+    float begThickness;
+    float endThickness;
+    float curLength[MAX_PLANT_GEN];
+    float sphereGen;
+    float sphereRad;
+    //float baseLength;
+    //float nodeLengthMultiplier;
+    float numGenerations;
+    float angleUniformityU;
+    float isInit;
+
+
+};
+
 class GamePlant
 {
 
@@ -9,12 +38,7 @@ public:
 
     static void initAllPlants(Singleton* _singleton);
 
-
     float gv(float* vals);
-
-
-
-
 
     void init(
         Singleton* _singleton,
@@ -44,7 +68,9 @@ public:
         float maxLength
     );
 
-private:
+    static PlantRules allPlantRules[E_PT_LENGTH];
+    static GamePlant* gamePlants[E_PT_LENGTH/2];
+//private:
 
     Singleton* singleton;
 
@@ -62,11 +88,6 @@ private:
 
     PlantRules* rootRules;
     PlantRules* trunkRules;
-
-
-
-
-    static PlantRules allPlantRules[E_PT_LENGTH];
 
     // static void sv(float* vals, float v0, float v1) {
     // 	vals[0] = v0;

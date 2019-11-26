@@ -1,7 +1,27 @@
-#include "gamechunk.h"
+#include "voxelquest/gamechunk.h"
+#include "voxelquest/draw.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/gamestate.h"
+
+bool GameChunk::staticInit=false;
+VIStruct GameChunk::chunkVI[NUM_MIP_LEVELS_WITH_FIRST];
+float GameChunk::mipDis[8];
 
 GameChunk::GameChunk()
 {
+    if(!staticInit)
+    {
+        mipDis[0]=getConst(E_CONST_MIPDIS0);
+        mipDis[1]=getConst(E_CONST_MIPDIS1);
+        mipDis[2]=getConst(E_CONST_MIPDIS2);
+        mipDis[3]=getConst(E_CONST_MIPDIS3);
+        mipDis[4]=getConst(E_CONST_MIPDIS4);
+        mipDis[5]=getConst(E_CONST_MIPDIS5);
+        mipDis[6]=getConst(E_CONST_MIPDIS6);
+        mipDis[7]=getConst(E_CONST_MIPDIS7);
+        staticInit=true;
+    }
+
     lastPointCount=0;
     changeFlag=false;
     changeTick=1;
@@ -32,14 +52,14 @@ void GameChunk::init(
 
     int i;
 
-    float cellsPerChunk=singleton->cellsPerChunk;
+    float cellsPerChunk=(float)g_settings.cellsPerChunk;
 
     for(i=0; i<NUM_MIP_LEVELS_WITH_FIRST; i++)
     {
-        vboWrapper[i].setVI(&(singleton->chunkVI[i]), true);
+        vboWrapper[i].setVI(&(chunkVI[i]), true);
     }
 
-    holdersPerChunk=singleton->holdersPerChunk;
+    holdersPerChunk=g_settings.holdersPerChunk;
 
     offsetInChunks.setIXYZ(trueX, trueY, trueZ);
     chunkCenInCells.copyFrom(&offsetInChunks);
@@ -65,7 +85,7 @@ VBOWrapper* GameChunk::getCurVBO()
     return &(vboWrapper[mipLev]);
 }
 
-void drawLoadingHolders()
+void GameChunk::drawLoadingHolders()
 {
     int i;
     GamePageHolder* curHolder;
@@ -82,7 +102,7 @@ void drawLoadingHolders()
         {
             if(curHolder->lockWrite)
             {
-                singleton->drawBox(&(curHolder->gphMinInCells), &(curHolder->gphMaxInCells));
+                drawBox(&(curHolder->gphMinInCells), &(curHolder->gphMaxInCells));
             }
         }
     }
@@ -95,22 +115,22 @@ void GameChunk::checkHolders()
 
     FIVector4 testPos;
 
-    float cellsPerChunk=singleton->cellsPerChunk;
+    float cellsPerChunk=(float)g_settings.cellsPerChunk;
 
     int testMip=-1;
     testPos.copyFrom(&offsetInChunks);
     testPos.addXYZ(0.5f);
     testPos.multXYZ(cellsPerChunk);
 
-    float testDis=testPos.distance(singleton->cameraGetPosNoShake());
+    float testDis=testPos.distance(GameState::cameraGetPosNoShake());
 
     testDis/=cellsPerChunk;
 
     for(i=0; i<NUM_MIP_LEVELS_WITH_FIRST; i++)
     {
         if(
-            (testDis>=singleton->mipDis[i])&&
-            (testDis<singleton->mipDis[i+1])
+            (testDis>=mipDis[i])&&
+            (testDis<mipDis[i+1])
             )
         {
             testMip=i;
@@ -132,7 +152,7 @@ void GameChunk::checkHolders()
 
     bool foundDirty=false;
 
-    int maxTicks=singleton->iGetConst(E_CONST_MAX_CHUNK_TICKS);
+    int maxTicks=iGetConst(E_CONST_MAX_CHUNK_TICKS);
     GamePageHolder* curHolder;
 
     if(isDirty)
@@ -176,7 +196,7 @@ void GameChunk::checkHolders()
     }
     else
     {
-        if(singleton->settings[E_BS_UPDATE_HOLDERS])
+        if(g_settings.settings[E_BS_UPDATE_HOLDERS])
         {
             if(
                 changeFlag
@@ -256,7 +276,7 @@ void GameChunk::fillVBO()
         {
             vboWrapper[j].init(
                 2,
-                GL_STATIC_DRAW
+                (int)GL_STATIC_DRAW
             );
         }
 
@@ -280,7 +300,7 @@ void GameChunk::fillVBO()
                     if(curHolder->listGenerated)
                     {
 
-                        curSize=curHolder->vertexVec.size();
+                        curSize=(int)curHolder->vertexVec.size();
 
                         for(k=curHolder->begMip[j]; k<curHolder->endMip[j]; k++)
                         {
@@ -303,8 +323,8 @@ void GameChunk::fillVBO()
         if(j==0)
         {
             listEmpty=(vboWrapper[j].vi->vertexVec.size()==0);
-            TOT_POINT_COUNT-=lastPointCount;
-            TOT_POINT_COUNT+=vboWrapper[j].getNumVerts();
+            GameState::totPointCount()-=lastPointCount;
+            GameState::totPointCount()+=vboWrapper[j].getNumVerts();
             lastPointCount=vboWrapper[j].getNumVerts();
         }
 
@@ -317,10 +337,8 @@ void GameChunk::fillVBO()
 
         vboWrapper[j].clearVecs(false);
 
-        singleton->wsBufferInvalid=true;
-        singleton->forceGetPD=true;
-
-
+        GameState::wsBufferInvalid()=true;
+        GameState::forceGetPD()=true;
     }
 
 
@@ -330,7 +348,7 @@ void GameChunk::fillVBO()
     //changeCount = 0;
 
     readyToRender=true;
-    singleton->forceShadowUpdate=32;
+    GameState::forceShadowUpdate()=32;
 
     //cout << "fillVBO b\n";
 

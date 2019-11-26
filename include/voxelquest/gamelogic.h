@@ -1,6 +1,20 @@
 #ifndef _voxelquest_gamelogic_h_
 #define _voxelquest_gamelogic_h_
 
+#include <list>
+
+struct LoadHolderStruct
+{
+    int holderId;
+    int blockId;
+    int x;
+    int y;
+    int z;
+};
+
+class GamePageHolder;
+class ThreadPoolWrapper;
+
 class GameLogic
 {
 public:
@@ -82,7 +96,7 @@ public:
         //,int r, int g, int b
     );
 
-    btVector3holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex, bool addHalfOff);
+    btVector3 holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex, bool addHalfOff);
 
     void drawPointAtIndex(GamePageHolder* curPointHolder, int curPointIndex, int r, int g, int b, float rad);
 
@@ -112,7 +126,6 @@ public:
 
     void loadNearestHolders(bool doUpdate);
 
-private:
     Singleton* singleton;
 
     std::vector<PathResult> pathSearchStack;

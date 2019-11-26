@@ -3,6 +3,8 @@
 
 #include "voxelquest/enums.h"
 
+#include <string>
+
 int RUN_COUNT;
 
 bool ND_TRACE_OFF=false;
@@ -179,18 +181,6 @@ const static int MAX_ICON_ID=ITEMS_PER_COL*ITEMS_PER_ROW;
 const static int EMPTY_OBJECT_TYPE=1672;
 const static int EMPTY_OBJECT_ID=1;
 
-enum E_DIR_SPECS_SIGN
-{
-    E_DIR_XP,
-    E_DIR_XM,
-    E_DIR_YP,
-    E_DIR_YM,
-    E_DIR_ZP,
-    E_DIR_ZM,
-    E_DIR_MP_LENGTH
-};
-
-
 const static int NUM_ORIENTATIONS=6;
 const static float DIR_VECS[NUM_ORIENTATIONS][3]={
     {1.0f, 0.0f, 0.0f},
@@ -284,63 +274,63 @@ const static int DIR_VECS_MOVE[NUM_MOVEABLE_DIRS][3]={
 
 
 float ALL_ROT[16*NUM_ORIENTATIONS*NUM_ORIENTATIONS*NUM_ORIENTATIONS];
-const static int ROT_MAP[36]={
-
-    // x, inc theta
-    //-------------
-    E_DIR_XP,// x+ -> x+
-    E_DIR_XM,// x- -> x-
-    E_DIR_ZP,// y+ -> z+
-    E_DIR_ZM,// y- -> z-
-    E_DIR_YM,// z+ -> y-
-    E_DIR_YP,// z- -> y+
-
-    // x, dec theta
-    //-------------
-    E_DIR_XP,// x+ -> x+
-    E_DIR_XM,// x- -> x-
-    E_DIR_ZM,// y+ -> z-
-    E_DIR_ZP,// y- -> z+
-    E_DIR_YP,// z+ -> y+
-    E_DIR_YM,// z- -> y-
-
-    // y, inc theta
-    //-------------
-    E_DIR_ZP,// x+ -> z+
-    E_DIR_ZM,// x- -> z-
-    E_DIR_YP,// y+ -> y+
-    E_DIR_YM,// y- -> y-
-    E_DIR_XM,// z+ -> x-
-    E_DIR_XP,// z- -> x+
-
-    // y, dec theta
-    //-------------
-    E_DIR_ZM,// x+ -> z-
-    E_DIR_ZP,// x- -> z+
-    E_DIR_YP,// y+ -> y+
-    E_DIR_YM,// y- -> y-
-    E_DIR_XP,// z+ -> x+
-    E_DIR_XM,// z- -> x-
-
-    // z, inc theta
-    //-------------
-    E_DIR_YP,// x+ -> y+
-    E_DIR_YM,// x- -> y-
-    E_DIR_XM,// y+ -> x-
-    E_DIR_XP,// y- -> x+
-    E_DIR_ZP,// z+ -> z+
-    E_DIR_ZM,// z- -> z-
-
-    // z, dec theta
-    //-------------
-    E_DIR_YM,// x+ -> y-
-    E_DIR_YP,// x- -> y+
-    E_DIR_XP,// y+ -> x+
-    E_DIR_XM,// y- -> x-
-    E_DIR_ZP,// z+ -> z+
-    E_DIR_ZM// z- -> z-
-
-};
+//const static int ROT_MAP[36]={
+//
+//    // x, inc theta
+//    //-------------
+//    E_DIR_XP,// x+ -> x+
+//    E_DIR_XM,// x- -> x-
+//    E_DIR_ZP,// y+ -> z+
+//    E_DIR_ZM,// y- -> z-
+//    E_DIR_YM,// z+ -> y-
+//    E_DIR_YP,// z- -> y+
+//
+//    // x, dec theta
+//    //-------------
+//    E_DIR_XP,// x+ -> x+
+//    E_DIR_XM,// x- -> x-
+//    E_DIR_ZM,// y+ -> z-
+//    E_DIR_ZP,// y- -> z+
+//    E_DIR_YP,// z+ -> y+
+//    E_DIR_YM,// z- -> y-
+//
+//    // y, inc theta
+//    //-------------
+//    E_DIR_ZP,// x+ -> z+
+//    E_DIR_ZM,// x- -> z-
+//    E_DIR_YP,// y+ -> y+
+//    E_DIR_YM,// y- -> y-
+//    E_DIR_XM,// z+ -> x-
+//    E_DIR_XP,// z- -> x+
+//
+//    // y, dec theta
+//    //-------------
+//    E_DIR_ZM,// x+ -> z-
+//    E_DIR_ZP,// x- -> z+
+//    E_DIR_YP,// y+ -> y+
+//    E_DIR_YM,// y- -> y-
+//    E_DIR_XP,// z+ -> x+
+//    E_DIR_XM,// z- -> x-
+//
+//    // z, inc theta
+//    //-------------
+//    E_DIR_YP,// x+ -> y+
+//    E_DIR_YM,// x- -> y-
+//    E_DIR_XM,// y+ -> x-
+//    E_DIR_XP,// y- -> x+
+//    E_DIR_ZP,// z+ -> z+
+//    E_DIR_ZM,// z- -> z-
+//
+//    // z, dec theta
+//    //-------------
+//    E_DIR_YM,// x+ -> y-
+//    E_DIR_YP,// x- -> y+
+//    E_DIR_XP,// y+ -> x+
+//    E_DIR_XM,// y- -> x-
+//    E_DIR_ZP,// z+ -> z+
+//    E_DIR_ZM// z- -> z-
+//
+//};
 
 int totalPointCount;
 

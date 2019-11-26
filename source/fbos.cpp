@@ -2,6 +2,7 @@
 #include "voxelquest/helperfuncs.h"
 
 #include <algorithm>
+#include <iostream>
 
 int FBOWrapper::init(
     int _width,
@@ -1070,7 +1071,7 @@ void FBOSet::copyFromMem(int ind, unsigned char *dat)
 }
 
 /////////////////////////////////////////////////////////////
-static FBOManager *singleton()
+FBOManager *FBOManager::singleton()
 {
     static FBOManager fboManager;
 
@@ -1078,12 +1079,12 @@ static FBOManager *singleton()
 }
 
 // todo: optimize this
-FBOSet* FBOManager::getFBOByName(string &fboName)
+FBOSet* FBOManager::getFBOByName(std::string &fboName)
 {
 
     if(fboMap.find(fboName)==fboMap.end())
     {
-        cout<<"invalid key "<<fboName<<"\n";
+        std::cout<<"invalid key "<<fboName<<"\n";
         exit(0);
     }
 
@@ -1091,11 +1092,11 @@ FBOSet* FBOManager::getFBOByName(string &fboName)
 }
 
 void FBOManager::sampleFBO(
-    string fboName,
-    int offset=0,
-    int swapFlag=-1,
-    int minOff=0,
-    int maxOff=-1
+    std::string fboName,
+    int offset,
+    int swapFlag,
+    int minOff,
+    int maxOff
 )
 {
     FBOSet *fbos;
@@ -1131,7 +1132,7 @@ void FBOManager::sampleFBO(
 }
 
 void FBOManager::unsampleFBO(
-    string fboName,
+    std::string fboName,
     int offset=0,
     int swapFlag=-1,
     int minOff=0,
@@ -1170,19 +1171,19 @@ void FBOManager::unsampleFBO(
 
 }
 
-FBOSet *FBOManager::getFBOSet(string fboName)
+FBOSet *FBOManager::getFBOSet(std::string fboName)
 {
-    return getFBOByName(fboName);
+    return singleton()->getFBOByName(fboName);
 }
 
-FBOWrapper *FBOManager::getFBOWrapper(string fboName, int offset)
+FBOWrapper *FBOManager::getFBOWrapper(std::string fboName, int offset)
 {
-    FBOSet *fbos=getFBOByName(fboName);
+    FBOSet *fbos=singleton()->getFBOByName(fboName);
     return fbos->getFBOWrapper(offset);
 }
 
 
-void FBOManager::copyFBO(string src, string dest, int num=0)
+void FBOManager::copyFBO(std::string src, std::string dest, int num=0)
 {
     bindShader("CopyShader");
     bindFBO(dest);
@@ -1194,7 +1195,7 @@ void FBOManager::copyFBO(string src, string dest, int num=0)
     unbindShader();
 }
 
-void FBOManager::copyFBO2(string src, string dest, int num1=0, int num2=1)
+void FBOManager::copyFBO2(std::string src, std::string dest, int num1=0, int num2=1)
 {
     bindShader("CopyShader2");
     bindFBO(dest);
@@ -1207,7 +1208,7 @@ void FBOManager::copyFBO2(string src, string dest, int num1=0, int num2=1)
     unbindShader();
 }
 
-void FBOManager::copyFBO3(string src, string dest, int num1=0, int num2=1, int num3=2)
+void FBOManager::copyFBO3(std::string src, string dest, int num1=0, int num2=1, int num3=2)
 {
     bindShader("CopyShader3");
     bindFBO(dest);
@@ -1222,7 +1223,7 @@ void FBOManager::copyFBO3(string src, string dest, int num1=0, int num2=1, int n
     unbindShader();
 }
 
-void FBOManager::bindFBO(string fboName, int swapFlag=-1, int doClear=1)
+void FBOManager::bindFBO(std::string fboName, int swapFlag=-1, int doClear=1)
 {
 
     FBOSet *fbos;
@@ -1266,9 +1267,9 @@ void FBOManager::unbindFBO()
 
 void FBOManager::sampleFBODirect(
     FBOSet *fbos,
-    int offset=0, /* write offset */
-    int _minOff=0, /* read min */
-    int _maxOff=-1 /* read max */
+    int offset, /* write offset */
+    int _minOff, /* read min */
+    int _maxOff /* read max */
 
 )
 {
@@ -1292,9 +1293,9 @@ void FBOManager::sampleFBODirect(
 
 void FBOManager::unsampleFBODirect(
     FBOSet *fbos,
-    int offset=0, /* write offset */
-    int _minOff=0, /* read min */
-    int _maxOff=-1 /* read max */
+    int offset, /* write offset */
+    int _minOff, /* read min */
+    int _maxOff /* read max */
 
 )
 {
@@ -1317,14 +1318,14 @@ void FBOManager::unsampleFBODirect(
 }
 
 
-void FBOManager::getMatrixFromFBO(string fboName)
+void FBOManager::getMatrixFromFBO(std::string fboName)
 {
     FBOSet *fbos=getFBOByName(fboName);
     setMatrices(fbos->width, fbos->height);
 }
 
 
-void FBOManager::bindFBODirect(FBOSet *fbos, int doClear=1)
+void FBOManager::bindFBODirect(FBOSet *fbos, int doClear)
 {
     setMatrices(fbos->width, fbos->height);
 

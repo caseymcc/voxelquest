@@ -192,9 +192,9 @@ public:
         int maxOff=-1
     );
 
-    FBOSet *getFBOSet(std::string fboName);
+    static FBOSet *getFBOSet(std::string fboName);
 
-    FBOWrapper *getFBOWrapper(std::string fboName, int offset);
+    static FBOWrapper *getFBOWrapper(std::string fboName, int offset);
 
     void copyFBO(std::string src, std::string dest, int num=0);
 

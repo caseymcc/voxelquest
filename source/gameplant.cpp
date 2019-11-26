@@ -169,6 +169,11 @@ static void GamePlant::initAllPlants(Singleton* _singleton)
 
         }
     }
+
+    for(i=0; i<E_PT_LENGTH/2; i++)
+    {
+        gamePlants[i]=new GamePlant();
+    }
 }
 
 

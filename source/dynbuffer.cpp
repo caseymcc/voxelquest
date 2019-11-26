@@ -740,8 +740,8 @@ void DynBuffer::keyboardCB(unsigned char key, int x, int y)
 
 void DynBuffer::mouseCB(int button, int state, int x, int y)
 {
-    mouseX=x;
-    mouseY=y;
+    mouseX=(float)x;
+    mouseY=(float)y;
 
     assert(false);
 //    if(button==GLUT_LEFT_BUTTON)
@@ -772,8 +772,8 @@ void DynBuffer::mouseMotionCB(int x, int y)
     {
         cameraAngleY+=(x-mouseX);
         cameraAngleX+=(y-mouseY);
-        mouseX=x;
-        mouseY=y;
+        mouseX=(float)x;
+        mouseY=(float)y;
     }
     if(mouseRightDown)
     {
@@ -781,7 +781,7 @@ void DynBuffer::mouseMotionCB(int x, int y)
         if(cameraDistance<2.0f)
             cameraDistance=2.0f;
 
-        mouseY=y;
+        mouseY=(float)y;
     }
 }
 

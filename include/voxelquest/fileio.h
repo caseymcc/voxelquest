@@ -4,6 +4,7 @@
 #include "voxelquest/types.h"
 
 #include <string>
+#include <fstream>
 
 bool createFolder(std::string folderNameStr);
 

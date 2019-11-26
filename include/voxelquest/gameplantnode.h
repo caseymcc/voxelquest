@@ -21,7 +21,7 @@ public:
         int _numChildren
     );
 
-private:
+//private:
     FIVector4 begPoint;
     FIVector4 endPoint;
     //FIVector4 ctrPoint;

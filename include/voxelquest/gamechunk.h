@@ -58,9 +58,9 @@ private:
 
     std::vector<ObjectStruct> localObjects;
 
-
-
-
+    static bool GameChunk::staticInit;
+    static VIStruct chunkVI[NUM_MIP_LEVELS_WITH_FIRST];
+    static float mipDis[8];
 };
 
 #endif//_voxelquest__h_

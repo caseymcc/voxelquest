@@ -1,4 +1,5 @@
-#include "gameworld.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/settings.h"
 
 GameWorld::GameWorld()
 {
@@ -244,7 +245,7 @@ void GameWorld::clearAllHolders() {
 		}
 	}
 		
-	TOT_POINT_COUNT = 0;
+    GameState::totPointCount() = 0;
 		
 	glFlush();
 	glFinish();
@@ -5141,6 +5142,80 @@ void GameWorld::doBlur(string fboName, int _baseFBO = 0)
 		
 }
 
+float GameWorld::getHeightAtPixelPos(float x, float y, bool dd=false)
+{
+    FBOWrapper *fbow;
+    float xc;
+    float yc;
+
+    int channel=0;
+
+    float testHeight;
+
+    float v0=0.0f;
+    float v1=0.0f;
+    float v2=0.0f;
+    float v3=0.0f;
+
+
+    if(mapInvalid)
+    {
+
+        cout<<"mapInvalid\n";
+        return 0.0f;
+
+    }
+    else
+    {
+        FBOWrapper *fbow=getFBOWrapper("hmFBO", 0);
+
+        xc=(x/((float)cellsPerWorld)) * ((float)fbow->width);
+        yc=(y/((float)cellsPerWorld)) * ((float)fbow->height);
+
+        v0=fbow->getPixelAtLinear((xc * mapFreqs.getFX()), (yc * mapFreqs.getFX()), channel);
+        v1=fbow->getPixelAtLinear((xc * mapFreqs.getFY()), (yc * mapFreqs.getFY()), channel);
+        v2=fbow->getPixelAtLinear((xc * mapFreqs.getFZ()), (yc * mapFreqs.getFZ()), channel);
+        v3=fbow->getPixelAtLinear((xc * mapFreqs.getFW()), (yc * mapFreqs.getFW()), channel);
+
+
+
+
+
+        if(dd)
+        {
+            //cout << "hmvals: " << v0 << ", " << v1 << ", " << v2 << ", " << v3 << "\n";
+        }
+
+
+        testHeight=
+            v0*mapAmps.getFX()
+            +v1*mapAmps.getFY()
+            +v2*mapAmps.getFZ()
+            +v3*mapAmps.getFW()
+
+            // - v1 * mapAmps.getFY()*0.5f
+            // - v2 * mapAmps.getFZ()*0.5f
+            // - v3 * mapAmps.getFW()*0.5f
+
+            ;
+
+        if(dd)
+        {
+            //cout << "testHeight " << testHeight << "\n";
+        }
+
+        testHeight=clampf(testHeight, 0.0f, 1.0f);
+
+        return getTerHeightScaled(testHeight);
+
+
+
+    }
+
+
+
+}
+
 // 	void updateLights()
 // 	{
 		
@@ -6598,6 +6673,11 @@ void GameWorld::postProcess(bool postToScreen)
 		
 		
 
+}
+
+float GameWorld::getSeaHeightScaled()
+{
+    return getSLNormalized()*g_settings.heightMapMaxInCells;
 }
 
 

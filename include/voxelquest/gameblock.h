@@ -55,9 +55,62 @@ enum E_CONNECTION_TYPES
     E_CT_LENGTH
 };
 
+enum E_DIR_SPECS
+{
+    E_DIR_X,
+    E_DIR_Y,
+    E_DIR_Z,
+    E_DIR_LENGTH
+};
+
+enum E_DIR_SPECS_SIGN
+{
+    E_DIR_XP,
+    E_DIR_XM,
+    E_DIR_YP,
+    E_DIR_YM,
+    E_DIR_ZP,
+    E_DIR_ZM,
+    E_DIR_MP_LENGTH
+};
+
+enum E_MAT_SUBPARAM
+{
+    E_MAT_SUBPARAM_NONE,
+    E_MAT_SUBPARAM_TUDOR,
+    E_MAT_SUBPARAM_DOCK,
+    E_MAT_SUBPARAM_BRICK,
+    E_MAT_SUBPARAM_BRICK_ARCH,
+    E_MAT_SUBPARAM_LENGTH
+};
+
+
+enum E_MAT_PARAM
+{
+    E_MAT_PARAM_FOUNDATION,
+    E_MAT_PARAM_ROOF,
+    //E_MAT_PARAM_WALKWAY_TOP,
+    //E_MAT_PARAM_DOCK,
+    E_MAT_PARAM_BUILDING,
+    //E_MAT_PARAM_WALKWAY,
+    E_MAT_PARAM_LANTERN,
+    E_MAT_PARAM_DOORWAY,
+    E_MAT_PARAM_DOOR,
+    //E_MAT_PARAM_STAIRS,
+    E_MAT_PARAM_TREE, // TREES MUST BE LAST ENTRY
+    E_MAT_PARAM_LENGTH
+};
+
+enum E_TER_TYPE
+{
+    E_TER_GROUNDLEVEL,
+    E_TER_UNDERGROUND,
+    E_TER_AIR,
+    E_TER_LENGTH
+};
+
 class Singleton;
 class GameWorld;
-
 
 struct MapNode
 {
@@ -128,6 +181,7 @@ public:
 
     void init(
         Singleton *_singleton,
+        GameWorld *gameworld,
         int _blockId,
         int _x,
         int _y,
@@ -365,11 +419,8 @@ private:
 
     BuildingCon *curCon;
 
-
-
-    
-
-
-
+    static bool bufferInit;
+    static int *rbStack;
+    static int *rbHeightStack;
 };
 #endif//_voxelquest__h_
