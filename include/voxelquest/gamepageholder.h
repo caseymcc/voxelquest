@@ -3,9 +3,11 @@
 
 #include "voxelquest/path.h"
 #include "voxelquest/constants.h"
-
+#include "voxelquest/object.h"
 #include "voxelquest/volumewrapper.h"
 #include "voxelquest/gamevoxelwrap.h"
+
+#include <BulletDynamics/Dynamics/btRigidBody.h>
 
 class Singleton;
 
@@ -126,7 +128,12 @@ public:
 
     void wrapPolys();
 
-private:
+
+    std::vector<float> vertexVec;
+
+    int begMip[NUM_MIP_LEVELS_WITH_FIRST];
+    int endMip[NUM_MIP_LEVELS_WITH_FIRST];
+
     //uint* cubeData;
     //std::vector<CubeWrap> cubeWraps;
 
@@ -142,12 +149,7 @@ private:
     bool lockWrite;
     // /bool lockRead;
 
-    int begMip[NUM_MIP_LEVELS_WITH_FIRST];
-    int endMip[NUM_MIP_LEVELS_WITH_FIRST];
-
     //VBOWrapper vboWrapper;
-    std::vector<float> vertexVec;
-
     VolumeWrapper* terVW;
 
     GameVoxelWrap* voxelWrap;

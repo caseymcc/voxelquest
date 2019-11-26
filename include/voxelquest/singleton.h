@@ -1067,26 +1067,7 @@ public:
 
 
 
-    int cellsPerHolder;
-    int cellsPerHolderPad;
-    int voxelsPerHolder;
-    int voxelsPerHolderPad;
-    int cellsPerBlock;
-    int holdersPerBlock;
-    int holdersPerChunk;
-    int chunksPerBlock;
-    int chunksPerWorld;
-    int cellsPerChunk;
-
-    int cellsPerWorld;
-    int holdersPerWorld;
-    int blocksPerWorld;
-
-    int voxelsPerCell;
-
-    int paddingInCells;
-
-
+    
     //TBOEntry tboPool[MAX_TBOPOOL_SIZE];
     PaddedData pdPool[MAX_PDPOOL_SIZE];
     //GameOctree* octPool[MAX_PDPOOL_SIZE];
@@ -1114,7 +1095,7 @@ public:
     uint naUintData[8];
     int naIntData[8];
     float naFloatData[8];
-    float conVals[E_CONST_LENGTH];
+    //float conVals[E_CONST_LENGTH];
 
     float gammaVal;
     float lastMouseOrigX;

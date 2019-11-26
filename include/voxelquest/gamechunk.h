@@ -1,6 +1,9 @@
 #ifndef _voxelquest_gamechunk_h_
 #define _voxelquest_gamechunk_h_
 
+#include "voxelquest/vbos.h"
+#include "voxelquest/gamepageholder.h"
+
 class GameChunk
 {
 public:

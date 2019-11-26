@@ -3,6 +3,7 @@
 
 #include "voxelquest/gameplantnode.h"
 #include "voxelquest/gameent.h"
+#include "voxelquest/gamechunk.h"
 
 enum E_BLOCK_GEN
 {
@@ -55,6 +56,69 @@ enum E_CONNECTION_TYPES
 };
 
 class Singleton;
+class GameWorld;
+
+
+struct MapNode
+{
+    int connectionProps[TOT_MAP_DIRS];
+    int terHeight;
+    int adjustedHeight;
+    int houseHeight;
+    int id;
+};
+
+const static unsigned int BC_FLAG_INSIDE=1;
+const static unsigned int BC_FLAG_WING_BEG=2;
+const static unsigned int BC_FLAG_WING_END=4;
+
+struct BuildingCon
+{
+    int conType;
+    unsigned int nodeFlags;
+    //bool isWingBeg;
+    //bool isWingEnd;
+    float wingMult;
+    float wallRadInCells;
+    int heightDelta;
+    int direction; 	// -1: negative,
+                    //  0: neutral,
+                    //  1: positve
+};
+
+
+struct BuildingNode
+{
+
+    BuildingCon con[TOT_NODE_VALS];
+
+    // int con[TOT_NODE_VALS]; // connections
+    // bool isWingBeg[TOT_NODE_VALS];
+    // bool isWingEnd[TOT_NODE_VALS];
+
+    //std::vector<ConnectionProp> connections;
+
+    int mazeIndex;
+    int id;
+    int visited;
+    float powerValU;
+    float powerValV;
+    bool nearTerrain;
+    bool nearAir;
+
+    // float terHeight;
+    // bool isWingTip;
+
+    // int centerType;
+    // int connectionTypes[4];
+    // int shortTypes[4];
+
+    // int centerHeight;
+    // int connectionHeights[4];
+    // int shortHeights[4];
+
+
+};
 
 class GameBlock
 {

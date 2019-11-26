@@ -64,7 +64,7 @@ private:
     float boneLengthHalf;
 
 
-    const static float multiplier=2.0f;
+    const static float multiplier;
 
     FIVector4* readTBN;
     FIVector4* writeTBN;
@@ -96,4 +96,5 @@ private:
 
 };
 
+const float GameEntNode::multiplier=2.0f;
 #endif//_voxelquest__h_

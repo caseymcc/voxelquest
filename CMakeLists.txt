@@ -70,6 +70,7 @@ set(voxelquest_include
     include/voxelquest/gamesound.h
     include/voxelquest/gamevoxelwrap.h
     include/voxelquest/gameworld.h
+    include/voxelquest/geom.h
     include/voxelquest/geompage.h
     include/voxelquest/glinfo.h
     include/voxelquest/helperclasses.h
@@ -79,19 +80,23 @@ set(voxelquest_include
     include/voxelquest/ivec.h
     include/voxelquest/json.h
     include/voxelquest/mat.h
+    include/voxelquest/memorypool.h
     include/voxelquest/myglhelper.h
     include/voxelquest/myshapedrawer.h
     include/voxelquest/network.h
+    include/voxelquest/object.h
     include/voxelquest/path.h
     include/voxelquest/pooledresource.h
     include/voxelquest/poolmanager.h
     include/voxelquest/poolpagemanager.h
     include/voxelquest/rhfactory.h
+    include/voxelquest/settings.h
     include/voxelquest/shader.h
     include/voxelquest/simplex.h
     include/voxelquest/singleton.h
     include/voxelquest/spacebuffer.h
     include/voxelquest/tbos.h
+    include/voxelquest/texenums.h
     include/voxelquest/threadpoolwrapper.h
     include/voxelquest/threadwrapper.h
     include/voxelquest/timer.h
@@ -108,6 +113,7 @@ set(voxelquest_include
 set(voxelquest_source
     source/baseobject.cpp
     source/bullethelpers.cpp
+    source/constants.cpp
     source/dynbuffer.cpp
     source/fbos.cpp
     source/fileio.cpp
@@ -139,6 +145,7 @@ set(voxelquest_source
     source/gamesound.cpp
     source/gamevoxelwrap.cpp
     source/gameworld.cpp
+    source/geom.cpp
     source/glinfo.cpp
     source/helperclasses.cpp
     source/helperfuncs.cpp
@@ -147,9 +154,11 @@ set(voxelquest_source
     source/ivec.cpp
     source/json.cpp
     source/mat.cpp
+    source/memorypool.cpp
     source/myglhelper.cpp
     source/myshapedrawer.cpp
     source/network.cpp
+    source/object.cpp
     source/pooledresource.cpp
     source/poolmanager.cpp
     source/poolpagemanager.cpp

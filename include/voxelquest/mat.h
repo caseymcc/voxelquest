@@ -18,7 +18,14 @@
 // Copyright (C) 2005 Song Ho Ahn
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <ostream>
+#include <iomanip>
+#include <algorithm>
 
+inline float fract(float val)
+{
+    return (val-floor(val));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // 2D vector
@@ -36,7 +43,7 @@ struct Vector2
     void        set(float x, float y);
     float       length() const;                         //
     float       distance(const Vector2& vec) const;     // distance between two vectors
-    Vector2&    normalize();                            //
+    bool    normalize();                            //
     float       dot(const Vector2& vec) const;          // dot product
     bool        equal(const Vector2& vec, float e) const; // compare with epsilon
 
@@ -76,14 +83,22 @@ struct Vector3
     // ctors
     Vector3() : x(0), y(0), z(0) {};
     Vector3(float x, float y, float z) : x(x), y(y), z(z) {};
+    Vector3(float v): x(v), y(v), z(v) {};
 
     // utils functions
+    void        doAbs();
+    void        doSin();
+    void        doFract();
+    void        doFloor();
     void        set(float x, float y, float z);
     float       length() const;                         //
     float       distance(const Vector3& vec) const;     // distance between two vectors
-    Vector3&    normalize();                            //
+    float       distance2(const Vector3& vec, float powVal) const;     // distance between two vectors
+    bool        normalize();
     float       dot(const Vector3& vec) const;          // dot product
     Vector3     cross(const Vector3& vec) const;        // cross product
+    Vector2     xy();
+    void        doMax(const Vector3& vec);        // cross product
     bool        equal(const Vector3& vec, float e) const; // compare with epsilon
 
     // operators
@@ -92,10 +107,13 @@ struct Vector3
     Vector3     operator-(const Vector3& rhs) const;    // subtract rhs
     Vector3&    operator+=(const Vector3& rhs);         // add rhs and update this object
     Vector3&    operator-=(const Vector3& rhs);         // subtract rhs and update this object
+    Vector3&    operator+=(const float rhs);         // add rhs and update this object
+    Vector3&    operator-=(const float rhs);         // subtract rhs and update this object
     Vector3     operator*(const float scale) const;     // scale
     Vector3     operator*(const Vector3& rhs) const;    // multiplay each element
     Vector3&    operator*=(const float scale);          // scale and update this object
     Vector3&    operator*=(const Vector3& rhs);         // product each element and update this object
+    Vector3     operator/(const Vector3& rhs) const;     // inverse scale
     Vector3     operator/(const float scale) const;     // inverse scale
     Vector3&    operator/=(const float scale);          // scale and update this object
     bool        operator==(const Vector3& rhs) const;   // exact compare, no epsilon
@@ -131,6 +149,7 @@ struct Vector4
     Vector4&    normalize();                            //
     float       dot(const Vector4& vec) const;          // dot product
     bool        equal(const Vector4& vec, float e) const; // compare with epsilon
+    Vector3     xyz();
 
     // operators
     Vector4     operator-() const;                      // unary operator (negate)
@@ -252,14 +271,20 @@ inline float Vector2::distance(const Vector2& vec) const {
     return sqrtf((vec.x-x)*(vec.x-x) + (vec.y-y)*(vec.y-y));
 }
 
-inline Vector2& Vector2::normalize() {
-    float xxyy = x*x + y*y;
+inline bool Vector2::normalize()
+{
+    float xxyy=x*x+y*y;
 
-    //float invLength = invSqrt(xxyy);
-    float invLength = 1.0f / sqrtf(xxyy);
-    x *= invLength;
-    y *= invLength;
-    return *this;
+    float len=sqrtf(xxyy);
+    if(len==0.0f)
+    {
+        return false;
+    }
+    float invLength=1.0f/len;
+
+    x*=invLength;
+    y*=invLength;
+    return true;
 }
 
 inline float Vector2::dot(const Vector2& rhs) const {
@@ -306,6 +331,16 @@ inline Vector3& Vector3::operator-=(const Vector3& rhs) {
     x -= rhs.x; y -= rhs.y; z -= rhs.z; return *this;
 }
 
+inline Vector3& Vector3::operator+=(const float rhs)
+{
+    x+=rhs; y+=rhs; z+=rhs; return *this;
+}
+
+inline Vector3& Vector3::operator-=(const float rhs)
+{
+    x-=rhs; y-=rhs; z-=rhs; return *this;
+}
+
 inline Vector3 Vector3::operator*(const float a) const {
     return Vector3(x*a, y*a, z*a);
 }
@@ -324,6 +359,11 @@ inline Vector3& Vector3::operator*=(const Vector3& rhs) {
 
 inline Vector3 Vector3::operator/(const float a) const {
     return Vector3(x/a, y/a, z/a);
+}
+
+inline Vector3 Vector3::operator/(const Vector3& rhs) const
+{
+    return Vector3(x/rhs.x, y/rhs.y, z/rhs.z);
 }
 
 inline Vector3& Vector3::operator/=(const float a) {
@@ -360,22 +400,71 @@ inline void Vector3::set(float x, float y, float z) {
     this->x = x; this->y = y; this->z = z;
 }
 
+inline void Vector3::doAbs()
+{
+    this->x=abs(this->x);
+    this->y=abs(this->y);
+    this->z=abs(this->z);
+}
+
+inline void Vector3::doSin()
+{
+    this->x=sin(this->x);
+    this->y=sin(this->y);
+    this->z=sin(this->z);
+}
+
+inline void Vector3::doFloor()
+{
+    this->x=floor(this->x);
+    this->y=floor(this->y);
+    this->z=floor(this->z);
+}
+
+inline void Vector3::doFract()
+{
+    this->x=fract(this->x);
+    this->y=fract(this->y);
+    this->z=fract(this->z);
+}
+
 inline float Vector3::length() const {
     return sqrtf(x*x + y*y + z*z);
 }
 
-inline float Vector3::distance(const Vector3& vec) const {
-    return sqrtf((vec.x-x)*(vec.x-x) + (vec.y-y)*(vec.y-y) + (vec.z-z)*(vec.z-z));
+inline float Vector3::distance2(const Vector3& vec, float powVal) const
+{
+    Vector3 newVec=vec-(*this);
+    newVec.doAbs();
+
+
+    //return sqrtf(newVec.x*newVec.x + newVec.y*newVec.y + newVec.z*newVec.z);
+
+    return std::max(std::max(newVec.x, newVec.y), newVec.z);
+
+    // return pow(
+    //     pow(newVec.x,powVal) +
+    //     pow(newVec.y,powVal) +
+    //     pow(newVec.z,powVal),   
+    //     1.0f/powVal
+    // );
 }
 
-inline Vector3& Vector3::normalize() {
-    float xxyyzz = x*x + y*y + z*z;
+inline bool Vector3::normalize()
+{
+    float xxyyzz=x*x+y*y+z*z;
     //float invLength = invSqrt(xxyyzz);
-    float invLength = 1.0f / sqrtf(xxyyzz);
-    x *= invLength;
-    y *= invLength;
-    z *= invLength;
-    return *this;
+    float len=sqrtf(xxyyzz);
+    if(len==0.0f)
+    {
+        return false;
+    }
+    float invLength=1.0f/len;
+
+    x*=invLength;
+    y*=invLength;
+    z*=invLength;
+    return true;
 }
 
 inline float Vector3::dot(const Vector3& rhs) const {
@@ -384,6 +473,19 @@ inline float Vector3::dot(const Vector3& rhs) const {
 
 inline Vector3 Vector3::cross(const Vector3& rhs) const {
     return Vector3(y*rhs.z - z*rhs.y, z*rhs.x - x*rhs.z, x*rhs.y - y*rhs.x);
+}
+
+inline Vector2 Vector3::xy()
+{
+    return Vector2(x, y);
+}
+
+inline void Vector3::doMax(const Vector3& rhs)
+{
+    x=std::max(rhs.x, x);
+    y=std::max(rhs.y, y);
+    z=std::max(rhs.z, z);
+    //y*rhs.z - z*rhs.y, z*rhs.x - x*rhs.z, x*rhs.y - y*rhs.x
 }
 
 inline bool Vector3::equal(const Vector3& rhs, float epsilon) const {
@@ -405,6 +507,11 @@ inline std::ostream& operator<<(std::ostream& os, const Vector3& vec) {
 ///////////////////////////////////////////////////////////////////////////////
 // inline functions for Vector4
 ///////////////////////////////////////////////////////////////////////////////
+inline Vector3 Vector4::xyz()
+{
+    return Vector3(x, y, z);
+}
+
 inline Vector4 Vector4::operator-() const {
     return Vector4(-x, -y, -z, -w);
 }
@@ -654,6 +761,14 @@ public:
     void        setColumn(int index, const float col[4]);
     void        setColumn(int index, const Vector4& v);
     void        setColumn(int index, const Vector3& v);
+
+    void        orthoProjection(const float width, const float height, const float nZ, const float fZ);
+
+    void        lookAt(
+        Vector3 &eye, // target point
+        Vector3 &center, // origin point
+        Vector3 &up
+    );
 
     float* get();
     const float* getTranspose();                        // return transposed matrix
@@ -1409,5 +1524,10 @@ inline std::ostream& operator<<(std::ostream& os, const Matrix4& m)
     os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
     return os;
 }
+
+typedef Matrix3 mat3;
+typedef Vector4 vec4;
+typedef Vector3 vec3;
+typedef Vector2 vec2;
 
 #endif//_voxelquest__h_

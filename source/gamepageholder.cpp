@@ -1,4 +1,5 @@
-#include "gamepageholder.h"
+#include "voxelquest/gamepageholder.h"
+#include "voxelquest/memorypool.h"
 
 
 void GamePageHolder::reset(bool destroyCache)
@@ -1940,18 +1941,20 @@ void GamePageHolder::genCellData()
 void GamePageHolder::bindPD(int pd)
 {
     curPD=pd;
-    singleton->pdPool[curPD].isFree=false;
 
-    singleton->pdPool[curPD].boundToHolder.v0=blockId;
-    singleton->pdPool[curPD].boundToHolder.v1=chunkId;
-    singleton->pdPool[curPD].boundToHolder.v2=holderId;
+    PaddedData &pdPool=MemoryPool::pd(curPD);
+
+    pdPool.isFree=false;
+    pdPool.boundToHolder.v0=blockId;
+    pdPool.boundToHolder.v1=chunkId;
+    pdPool.boundToHolder.v2=holderId;
 }
 
 void GamePageHolder::unbindPD()
 {
     if(curPD!=-1)
     {
-        singleton->pdPool[curPD].isFree=true;
+        MemoryPool::pd(curPD).isFree=true;
     }
 
     curPD=-1;

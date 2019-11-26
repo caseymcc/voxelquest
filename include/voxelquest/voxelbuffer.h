@@ -2,9 +2,9 @@
 #define _voxelquest_voxelbuffer_h_
 
 #include "voxelquest/types.h"
+#include "voxelquest/settings.h"
 #include "voxelquest/ivec.h"
-
-#include <glm/glm.hpp>
+#include "voxelquest/mat.h"
 
 struct VoxelBufferEntry
 {
@@ -17,8 +17,8 @@ struct VoxelInfo
     int viIndex;
     uint normId;
     uint matId;
-    glm::vec3 normal;
-    glm::vec3 pos;
+    vec3 normal;
+    vec3 pos;
 };
 
 struct VoxelCell
