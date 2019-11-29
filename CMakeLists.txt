@@ -97,6 +97,7 @@ set(voxelquest_include
     include/voxelquest/shader.h
     include/voxelquest/simplex.h
     include/voxelquest/singleton.h
+	include/voxelquest/stylesheet.h
     include/voxelquest/spacebuffer.h
     include/voxelquest/tbos.h
     include/voxelquest/texenums.h
@@ -124,6 +125,7 @@ set(voxelquest_source
     source/fontwrapper.cpp
 #    source/gameactor.cpp #does not appear to be used
     source/gameai.cpp
+	source/gameaudio.cpp
     source/gameblock.cpp
 #    source/gamecamera.cpp #does not appear to be used
     source/gamechunk.cpp
@@ -168,9 +170,11 @@ set(voxelquest_source
 #    source/poolmanager.cpp #does not appear to be used
 #    source/poolpagemanager.cpp #does not appear to be used
 #    source/rhfactory.cpp #does not appear to be used
+	source/settings.cpp
     source/shader.cpp
     source/simplex.cpp
     source/singleton.cpp
+	source/stylesheet.cpp
     source/tbos.cpp
     source/threadpoolwrapper.cpp
     source/threadwrapper.cpp
@@ -185,22 +189,23 @@ set(voxelquest_source
 )
 
 include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/../../sfml/include")
 add_executable(voxelquest ${voxelquest_include} ${voxelquest_source})
 find_package(OpenGL REQUIRED)
 
 target_link_libraries(voxelquest 
     glbinding::glbinding
-    Boost::system 
-    Boost::filesystem 
-    Poco::Foundation
-    Poco::Util
-    Poco::Net
+#    Boost::system 
+#    Boost::filesystem 
+#    Poco::Foundation
+#    Poco::Util
+#    Poco::Net
     OpenGL::GL
     glfw
     PNG::png
-    bullet::BulletCollision
-    bullet::BulletDynamics
-    bullet::BulletSoftBody
-    bullet::LinearMath
+#    bullet::BulletCollision
+#    bullet::BulletDynamics
+#    bullet::BulletSoftBody
+#    bullet::LinearMath
     glm
 )

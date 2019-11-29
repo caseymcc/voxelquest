@@ -4,25 +4,8 @@
 class Singleton
 {
 public:
-    struct UIQuad
-    {
-        fBoundingBox hitBounds;
-        CharStruct* cs;
-        int fontId;
-    };
-
-    struct UICont
-    {
-        //UIComponent* uiComp;
-        UIQuad bg;
-        std::vector<UIQuad> charVec;
-        //bool locked;
-    };
-
-    struct JSONStruct
-    {
-        JSONValue* jv;
-    };
+    
+    
     struct UICStruct
     {
         int nodeId;
@@ -383,11 +366,7 @@ public:
     void holderReport();
 
 
-    void speakSetting(int settingName);
-
-    void toggleSetting(int settingName, bool withVoice=true);
-
-    void setSetting(int settingName, bool value, bool withVoice=true);
+    
 
 
     void resetGeom();

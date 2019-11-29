@@ -32,10 +32,10 @@ public:
 
     int getPoseUID();
 
-    void loadOrgFromFile(string fileName, bool notThePose);
+    void loadOrgFromFile(std::string fileName, bool notThePose);
 
 
-    void saveOrgToFile(string fileName);
+    void saveOrgToFile(std::string fileName);
 
     BaseObj* getOwner();
 
@@ -63,7 +63,7 @@ public:
     void initHuman();
 
 private:
-    const static float baseMat=12.0f;
+    const static float baseMat;
     Singleton* singleton;
     GameOrgNode* baseNode;
 

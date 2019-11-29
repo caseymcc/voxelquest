@@ -1,11 +1,54 @@
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/gameorg.h"
+#include "voxelquest/gameorgnode.h"
+#include "voxelquest/gameaudio.h"
+#include "voxelquest/uicomponent.h"
+#include "voxelquest/gamenetwork.h"
+#include "voxelquest/gamegui.h"
+#include "voxelquest/entenums.h"
+#include "voxelquest/bullethelpers.h"
 
+
+#include <iostream>
+
+#define E_SUBTYPES(DDD) \
+DDD(E_SUB_DEFAULT) \
+DDD(E_SUB_SWING) \
+DDD(E_SUB_PUNCH) \
+DDD(E_SUB_KICK) \
+DDD(E_SUB_WEAPON) \
+DDD(E_SUB_LENGTH)
+
+std::string E_SUBTYPE_STRINGS[]={
+	E_SUBTYPES(DO_DESCRIPTION)
+};
+
+enum E_SUBTYPE_VALS
+{
+	E_SUBTYPES(DO_ENUM)
+};
+
+std::string dragStrings[]={
+	"E_DT_NOTHING",
+	"E_DT_WORLD_OBJECT",
+	"E_DT_INV_OBJECT",
+	"E_DT_INV_OBJECT_PARENT",
+	"E_DT_LENGTH"
+};
+
+uint naUintData[8];
+int naIntData[8];
+float naFloatData[8];
 
 GameEntManager::GameEntManager()
 {
 
 }
 
-void init(Singleton* _singleton)
+void GameEntManager::init(Singleton* _singleton)
 {
     singleton=_singleton;
 
@@ -28,7 +71,7 @@ void init(Singleton* _singleton)
 
     takingTurn=true;
     curActorNeedsRefresh=false;
-    EDIT_POSE=singleton->settings[E_BS_EDIT_POSE];
+    EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
     orgOn=false;
     isDraggingObject=false;
     firstPerson=false;
@@ -71,7 +114,7 @@ void init(Singleton* _singleton)
 
         for(j=0; j<entPoolStack[i].maxCount; j++)
         {
-            placeNewEnt(false, i, &singleton->origin, true);
+            placeNewEnt(false, i, &GameState::origin, true);
         }
     }
 
@@ -120,7 +163,7 @@ void GameEntManager::refreshActiveId()
 void GameEntManager::endHumanTurn()
 {
     takingTurn=false;
-    singleton->tbTicks=1;
+    GameState::tbTicks=1;
 }
 
 void GameEntManager::cycleTurn()
@@ -145,7 +188,7 @@ void GameEntManager::cycleTurn()
 
 void GameEntManager::nextTurn()
 {
-    singleton->tbTicks=1;
+    GameState::tbTicks=1;
 
     refreshActiveId();
     if(activeActorUID>-1)
@@ -168,7 +211,7 @@ void GameEntManager::nextTurn()
     }
     else
     {
-        singleton->gameLogic->applyTBBehavior();
+        GameState::gameLogic->applyTBBehavior();
     }
 
 }
@@ -198,7 +241,7 @@ void GameEntManager::refreshTurnList()
 
 void GameEntManager::setTurnBased(bool newVal)
 {
-    singleton->setSetting(E_BS_TURN_BASED, newVal);
+    g_settings.setSetting(E_BS_TURN_BASED, newVal);
 
     int i;
     int testInd;
@@ -227,7 +270,7 @@ void GameEntManager::setTurnBased(bool newVal)
 
 void GameEntManager::checkActorRefresh()
 {
-    if(curActorNeedsRefresh&&singleton->settings[E_BS_EDIT_POSE])
+    if(curActorNeedsRefresh&&g_settings.settings[E_BS_EDIT_POSE])
     {
         refreshActor(getCurActorUID());
         curActorNeedsRefresh=false;
@@ -262,7 +305,7 @@ void GameEntManager::closeAllContainers()
 
     if(didClose)
     {
-        singleton->playSoundEnt("leather0", NULL, 0.1);
+        GameAudio::playSoundEnt("leather0", NULL, 0.1f);
     }
 }
 
@@ -286,10 +329,10 @@ bool GameEntManager::anyContainerOpen()
 
 void GameEntManager::togglePoseEdit()
 {
-    singleton->toggleSetting(E_BS_EDIT_POSE);
-    EDIT_POSE=singleton->settings[E_BS_EDIT_POSE];
+    g_settings.toggleSetting(E_BS_EDIT_POSE);
+    EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
         loadCurrentPose();
     }
@@ -304,7 +347,7 @@ void GameEntManager::loadDefaultPose(int actorId)
         return;
     }
 
-    string tempPoseString=getPoseString(
+    std::string tempPoseString=getPoseString(
         ca->defaultPose.group,
         ca->defaultPose.RLBN,
         ca->defaultPose.step
@@ -338,7 +381,7 @@ void GameEntManager::applyNonPoseData()
     }
     else
     {
-        cout<<"Error, switch to E_PG_NONPOSE\n";
+        std::cout<<"Error, switch to E_PG_NONPOSE\n";
     }
 }
 
@@ -364,7 +407,7 @@ void GameEntManager::setFirstPerson(bool _newVal)
         lastSubjectDistance=subjectDistance;
     }
 
-    cout<<"firstPerson "<<firstPerson<<"\n";
+	std::cout<<"firstPerson "<<firstPerson<<"\n";
 }
 
 int GameEntManager::getCurActorUID()
@@ -387,11 +430,11 @@ void GameEntManager::updateOrgMat(UIComponent* comp)
     if(selectedNode!=NULL)
     {
 
-        selectedNode->orgVecs[E_OV_MATPARAMS].setFX(comp->index);
+        selectedNode->orgVecs[E_OV_MATPARAMS].setFX((float)comp->index);
         tmpNode=getMirroredNode(selectedNode);
         if(tmpNode!=NULL)
         {
-            tmpNode->orgVecs[E_OV_MATPARAMS].setFX(comp->index);
+            tmpNode->orgVecs[E_OV_MATPARAMS].setFX((float)comp->index);
         }
         makeDirty();
     }
@@ -400,12 +443,12 @@ void GameEntManager::updateOrgMat(UIComponent* comp)
 void GameEntManager::doDrag()
 {
     performDrag(
-        singleton->gameNetwork->isConnected,
+        GameState::gameNetwork->isConnected,
         draggingFromInd,
         draggingFromType,
         draggingToInd,
         draggingToType,
-        &(singleton->worldMarker)
+        &(GameState::worldMarker)
     );
 }
 
@@ -419,12 +462,12 @@ void GameEntManager::endDrag(int upInd)
             draggingToInd=0;
             draggingToType=E_DT_NOTHING;
             performDrag(
-                singleton->gameNetwork->isConnected,
+                GameState::gameNetwork->isConnected,
                 draggingFromInd,
                 draggingFromType,
                 draggingToInd,
                 draggingToType,
-                &(singleton->worldMarker)
+                &(GameState::worldMarker)
             );
         }
         else
@@ -444,12 +487,12 @@ void GameEntManager::endDrag(int upInd)
                 }
 
                 performDrag(
-                    singleton->gameNetwork->isConnected,
+                    GameState::gameNetwork->isConnected,
                     draggingFromInd,
                     draggingFromType,
                     draggingToInd,
                     draggingToType,
-                    &(singleton->worldMarker)
+                    &(GameState::worldMarker)
                 );
             }
         }
@@ -469,7 +512,7 @@ bool GameEntManager::handleGUI(
 )
 {
 
-    bool isCon=singleton->gameNetwork->isConnected;
+    bool isCon=GameState::gameNetwork->isConnected;
 
     int i;
 
@@ -493,7 +536,7 @@ bool GameEntManager::handleGUI(
                         else
                         {
                             draggingToType=E_DT_INV_OBJECT_PARENT;
-                            draggingToInd=comp->jvNodeNoTemplate->Child("objectId")->number_value;
+                            draggingToInd=(int)comp->jvNodeNoTemplate->Child("objectId")->number_value;
                             doDrag();
                         }
                     }
@@ -521,26 +564,26 @@ bool GameEntManager::handleGUI(
 
                     if(wasDoubleClick)
                     {
-                        i=comp->jvNodeNoTemplate->Child("objectId")->number_value;
+                        i=(int)comp->jvNodeNoTemplate->Child("objectId")->number_value;
                         if(isContainer[gameObjects[i].objectType])
                         {
-                            cout<<"isCont\n";
+                            std::cout<<"isCont\n";
                             toggleCont(i, false);
                         }
                         else
                         {
-                            cout<<"notCont\n";
+							std::cout<<"notCont\n";
 
                             gameObjects[i].isEquipped=!(gameObjects[i].isEquipped);
                             if(gameObjects[i].isEquipped)
                             {
-                                singleton->playSoundEvent("showGUI");
+                                GameAudio::playSoundEvent("showGUI");
                             }
                             else
                             {
-                                singleton->playSoundEvent("hideGUI");
+                                GameAudio::playSoundEvent("hideGUI");
                             }
-                            singleton->refreshContainers(false);
+                            GameState::ui->refreshContainers(false);
                         }
 
 
@@ -554,18 +597,18 @@ bool GameEntManager::handleGUI(
                         else
                         {
                             draggingToType=E_DT_INV_OBJECT;
-                            draggingToInd=comp->jvNodeNoTemplate->Child("objectId")->number_value;
+                            draggingToInd=(int)comp->jvNodeNoTemplate->Child("objectId")->number_value;
                             doDrag();
                         }
 
                     }
                 }
-                else if(mouseDownEvent&&(!singleton->settings[E_BS_EDIT_POSE]))
+                else if(mouseDownEvent&&(!g_settings.settings[E_BS_EDIT_POSE]))
                 {
 
                     isDraggingObject=true;
                     draggingFromType=E_DT_INV_OBJECT;
-                    draggingFromInd=comp->jvNodeNoTemplate->Child("objectId")->number_value;
+                    draggingFromInd=(int)comp->jvNodeNoTemplate->Child("objectId")->number_value;
                 }
             }
         }
@@ -577,18 +620,18 @@ bool GameEntManager::handleGUI(
     {
         if(comp->uid.compare("#contMenu.close")==0)
         {
-            i=comp->getParent()->getChild(1)->jvNodeNoTemplate->Child("objectId")->number_value;
+            i=(int)comp->getParent()->getChild(1)->jvNodeNoTemplate->Child("objectId")->number_value;
             closeContainer(i);
         }
         else if(comp->uid.compare("statMenu.close")==0)
         {
-            singleton->menuList[E_FM_STATMENU]->visible=false;
+            GameState::ui->menuList[E_FM_STATMENU]->visible=false;
             //i = comp->getParent()->getChild(1)->jvNodeNoTemplate->Child("objectId")->number_value;
             //closeContainer(i);
         }
         else if(comp->uid.compare("hudMenu.close")==0)
         {
-            singleton->menuList[E_FM_HUDMENU]->visible=false;
+			GameState::ui->menuList[E_FM_HUDMENU]->visible=false;
             //i = comp->getParent()->getChild(1)->jvNodeNoTemplate->Child("objectId")->number_value;
             //closeContainer(i);
         }
@@ -598,37 +641,37 @@ bool GameEntManager::handleGUI(
         }
         else if(comp->uid.compare("ddMenu.placeEntity.npc")==0)
         {
-            placeNewEnt(isCon, E_ENTTYPE_NPC, &singleton->lastCellPos);
+			placeNewEnt(isCon, E_ENTTYPE_NPC, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.sword")==0)
         {
             weaponToPlace=E_PG_WPSWORD;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.axe")==0)
         {
             weaponToPlace=E_PG_WPAXE;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.mace")==0)
         {
             weaponToPlace=E_PG_WPMACE;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.hammer")==0)
         {
             weaponToPlace=E_PG_WPHAMMER;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.staff")==0)
         {
             weaponToPlace=E_PG_WPSTAFF;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
         else if(comp->uid.compare("ddMenu.placeEntity.spear")==0)
         {
             weaponToPlace=E_PG_WPSPEAR;
-            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &singleton->lastCellPos);
+            placeNewEnt(isCon, E_ENTTYPE_WEAPON, &GameState::ui->lastCellPos);
         }
 
         // else if (comp->uid.compare("ddMenu.placeEntity.object") == 0) {
@@ -692,7 +735,7 @@ void GameEntManager::updateDragInfo(int bestInd, bool lbDown, bool wasDoubleClic
 
 
 
-        if((bestInd>=E_OBJ_LENGTH)&&(!singleton->settings[E_BS_EDIT_POSE]))
+        if((bestInd>=E_OBJ_LENGTH)&&(!g_settings.settings[E_BS_EDIT_POSE]))
         {
 
             isDraggingObject=true;
@@ -788,7 +831,7 @@ void GameEntManager::fillWithRandomObjects(int parentUID, int gen)
             curId,
             E_ENTTYPE_OBJ,
             (int)E_SUB_DEFAULT,
-            &singleton->lastCellPos
+            &GameState::ui->lastCellPos
         );
 
         gameObjects[parentUID].children.push_back(gameObjCounter);
@@ -812,12 +855,12 @@ void GameEntManager::removeEntity(bool isReq, int ind)
 
     if(isReq)
     {
-        singleton->naIntData[0]=ind;
-        singleton->gameNetwork->addNetworkAction(
+        naIntData[0]=ind;
+        GameState::gameNetwork->addNetworkAction(
             E_NO_REM_ENT,
-            singleton->naUintData,
-            singleton->naIntData,
-            singleton->naFloatData
+            naUintData,
+            naIntData,
+            naFloatData
         );
         return;
     }
@@ -850,7 +893,7 @@ BaseObjType GameEntManager::placeNewEnt(
     bool isReq,
     int et,
     FIVector4* cellPos,
-    bool isHidden=false
+    bool isHidden
 )
 {
 
@@ -872,25 +915,25 @@ BaseObjType GameEntManager::placeNewEnt(
 
     if(isReq)
     {
-        singleton->naFloatData[0]=cellPos->getFX();
-        singleton->naFloatData[1]=cellPos->getFY();
-        singleton->naFloatData[2]=cellPos->getFZ();
-        singleton->naIntData[0]=et;
-        singleton->gameNetwork->addNetworkAction(E_NO_ADD_ENT, singleton->naUintData, singleton->naIntData, singleton->naFloatData);
+        naFloatData[0]=cellPos->getFX();
+        naFloatData[1]=cellPos->getFY();
+        naFloatData[2]=cellPos->getFZ();
+        naIntData[0]=et;
+        GameState::gameNetwork->addNetworkAction(E_NO_ADD_ENT, naUintData, naIntData, naFloatData);
         return -1;
     }
 
     float bounciness=0.0f;
-    float friction=0.9;
-    float windResistance=0.9;
+    float friction=0.9f;
+    float windResistance=0.9f;
 
     switch(et)
     {
     case E_ENTTYPE_OBJ:
         newType=getRandomObjId();
-        friction=0.1;
+        friction=0.1f;
         windResistance=1.0f;
-        bounciness=0.3;
+        bounciness=0.3f;
         break;
     case E_ENTTYPE_NPC:
         newType=getRandomNPCId();
@@ -901,7 +944,7 @@ BaseObjType GameEntManager::placeNewEnt(
     case E_ENTTYPE_BULLET:
     case E_ENTTYPE_TRACE:
 
-        if(singleton->settings[E_BS_WATER_BULLET])
+        if(g_settings.settings[E_BS_WATER_BULLET])
         {
             newType=1103;
         }
@@ -980,7 +1023,7 @@ BaseObjType GameEntManager::placeNewEnt(
         &newPos
     );
 
-    tmpObj->tbPos=floorBTV(cellPos->getBTV());
+    tmpObj->tbPos=floorBTV(convertToBTV(*cellPos));
 
 
 
@@ -1063,23 +1106,23 @@ void GameEntManager::performDrag(
     BaseObj* sourceObj=NULL;
     BaseObj* destObj=NULL;
 
-    vector<BaseObjType>* myVec;
+	std::vector<BaseObjType>* myVec;
 
     if(isReq)
     {
-        singleton->naFloatData[0]=_worldMarker->getFX();
-        singleton->naFloatData[1]=_worldMarker->getFY();
-        singleton->naFloatData[2]=_worldMarker->getFZ();
-        singleton->naIntData[0]=_draggingFromInd;
-        singleton->naIntData[1]=_draggingFromType;
-        singleton->naIntData[2]=_draggingToInd;
-        singleton->naIntData[3]=_draggingToType;
-        singleton->gameNetwork->addNetworkAction(E_NO_DRAG_ENT, singleton->naUintData, singleton->naIntData, singleton->naFloatData);
+        naFloatData[0]=_worldMarker->getFX();
+        naFloatData[1]=_worldMarker->getFY();
+        naFloatData[2]=_worldMarker->getFZ();
+        naIntData[0]=_draggingFromInd;
+        naIntData[1]=_draggingFromType;
+        naIntData[2]=_draggingToInd;
+        naIntData[3]=_draggingToType;
+        GameState::gameNetwork->addNetworkAction(E_NO_DRAG_ENT, naUintData, naIntData, naFloatData);
         return;
     }
 
 
-    cout<<"from "<<dragStrings[_draggingFromType]<<" to "<<dragStrings[_draggingToType]<<"\n";
+    std::cout<<"from "<<dragStrings[_draggingFromType]<<" to "<<dragStrings[_draggingToType]<<"\n";
 
     switch(_draggingFromType)
     {
@@ -1118,9 +1161,9 @@ void GameEntManager::performDrag(
         case E_DT_NOTHING:
 
 
-            singleton->lastCellPos.copyFrom(_worldMarker);
-            singleton->lastCellPos.addXYZ(0, 0, 5);
-            sourceObj->startPoint=singleton->lastCellPos.getBTV();
+            GameState::ui->lastCellPos.copyFrom(_worldMarker);
+            GameState::ui->lastCellPos.addXYZ(0, 0, 5);
+            sourceObj->startPoint=convertToBTV(GameState::ui->lastCellPos);
 
 
             gameObjects[sourceObj->parentUID].removeChild(sourceObj->uid);
@@ -1207,12 +1250,12 @@ void GameEntManager::performDrag(
         draggedIntoWorldObj
         )
     {
-        singleton->refreshContainers(false);
+		GameState::ui->refreshContainers(false);
     }
 
 
 PERFORM_DRAG_END:
-    singleton->markerFound=false;
+    GameState::markerFound=false;
     isDraggingObject=false;
 }
 
@@ -1232,9 +1275,9 @@ void GameEntManager::setCurActor(int newUID)
     {
         ca=&(gameObjects[newUID]);
         actObjInd=newUID;
-        subjectDistance=singleton->BTV2FIV(
+        subjectDistance=convertToVQV(
             ca->getCenterPoint(E_BDG_CENTER)
-        )->distance(singleton->cameraGetPosNoShake());
+        ).distance(GameState::cameraGetPosNoShake());
         curPoseType=ca->entType;
     }
 
@@ -1248,8 +1291,8 @@ void GameEntManager::toggleFirstPerson()
 
 void GameEntManager::toggleActorSel()
 {
-    singleton->targetSubjectZoom=1.0f;
-    singleton->subjectZoom=singleton->targetSubjectZoom;
+    GameState::targetSubjectZoom=1.0f;
+	GameState::subjectZoom=GameState::targetSubjectZoom;
 
     if(selObjInd>=E_OBJ_LENGTH)
     {
@@ -1267,7 +1310,7 @@ void GameEntManager::toggleActorSel()
             }
 
 
-            singleton->playSoundEnt(
+            GameAudio::playSoundEnt(
                 "swimming0",
                 getCurActor(),
                 0.0f,
@@ -1275,7 +1318,7 @@ void GameEntManager::toggleActorSel()
                 true
             );
 
-            singleton->playSoundEnt(
+			GameAudio::playSoundEnt(
                 "walkinggravel0",
                 getCurActor(),
                 0.0f,
@@ -1299,9 +1342,9 @@ void GameEntManager::setSelInd(int ind)
 
 void GameEntManager::closeContainer(int i)
 {
-    singleton->playSoundEnt("leather0", NULL, 0.1);
+	GameAudio::playSoundEnt("leather0", NULL, 0.1);
     gameObjects[i].isOpen=false;
-    singleton->refreshContainers(false);
+    GameState::ui->refreshContainers(false);
 }
 
 void GameEntManager::toggleCont(int contIndex, bool onMousePos)
@@ -1316,13 +1359,13 @@ void GameEntManager::toggleCont(int contIndex, bool onMousePos)
         isContainer[gameObjects[contIndex].objectType]
         )
     {
-        singleton->playSoundEnt("leather0", NULL, 0.1);
+		GameAudio::playSoundEnt("leather0", NULL, 0.1);
         gameObjects[contIndex].isOpen=!(gameObjects[contIndex].isOpen);
-        singleton->refreshContainers(onMousePos);
+        GameState::ui->refreshContainers(onMousePos);
     }
     else
     {
-        singleton->playSoundEnt("bump0");
+		GameAudio::playSoundEnt("bump0");
     }
 
 
@@ -1349,7 +1392,7 @@ void GameEntManager::addVisObject(BaseObjType _uid, bool isRecycled)
     }
     else
     {
-        singleton->gamePhysics->addBoxFromObj(_uid, false);
+        GameState::gamePhysics->addBoxFromObj(_uid, false);
     }
 
 }
@@ -1360,7 +1403,7 @@ bool GameEntManager::removeVisObject(BaseObjType _uid, bool isRecycled)
 
     BaseObj* ge=&(gameObjects[_uid]);
 
-    singleton->gamePhysics->remBoxFromObj(_uid);
+	GameState::gamePhysics->remBoxFromObj(_uid);
 
     // if (ge->body != NULL) {
     // 	//singleton->gamePhysics->scene->RemoveBody(ge->body);
@@ -1402,9 +1445,9 @@ int GameEntManager::getUnitDisXY(btVector3 p1, btVector3 p2)
 {
 
 
-    return
+    return (int)(
         floor(abs(p1.getX()-p2.getX()))+
-        floor(abs(p1.getY()-p2.getY()));
+        floor(abs(p1.getY()-p2.getY())));
 
 }
 

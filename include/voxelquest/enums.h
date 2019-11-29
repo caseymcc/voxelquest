@@ -120,6 +120,13 @@ enum E_ALIGN {
     E_ALIGN_TOP
 };
 
+enum E_FLUID_IDS
+{
+	//E_FID_SML,
+	E_FID_BIG,
+	//E_FID_MIP,
+	E_FID_LENGTH
+};
 
 //#define DEBUG_MODE 
 

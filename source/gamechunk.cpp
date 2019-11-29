@@ -153,7 +153,7 @@ void GameChunk::checkHolders()
     bool foundDirty=false;
 
     int maxTicks=iGetConst(E_CONST_MAX_CHUNK_TICKS);
-    GamePageHolder* curHolder;
+//    GamePageHolder* curHolder;
 
     if(isDirty)
     {
@@ -182,7 +182,7 @@ void GameChunk::checkHolders()
         // 	fillVBO();
         // }
 
-        if(singleton->gameLogic->dirtyStack)
+        if(GameState::gameLogic->dirtyStack)
         {
 
         }

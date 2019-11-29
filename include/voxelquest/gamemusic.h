@@ -1,20 +1,23 @@
 #ifndef _voxelquest_gamemusic_h_
 #define _voxelquest_gamemusic_h_
 
+#include "SFML/Audio.hpp"
+
 class GameMusic
 {
 public:
-    GameMusic()
+	GameMusic();
 
-        void init(string path)
+	void init(std::string path);
 
-        void setLoop(bool val)
+	void setLoop(bool val);
 
-        void stop()
+	void stop();
 
-        void setVolume(float _volume=1.0f)
+	void setVolume(float _volume=1.0f);
 
-        void play(float _volume=1.0f)
+	void play(float _volume=1.0f);
+
 private:
 
     //sf::SoundBuffer buffer;

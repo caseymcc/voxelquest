@@ -1,5 +1,7 @@
 #include "gameorg.h"
 
+const float GameOrg::baseMat=12.0f;
+
 GameOrg::GameOrg()
 {
     basePose.group=-1;

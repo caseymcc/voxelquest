@@ -1,6 +1,23 @@
 #include "voxelquest/gamestate.h"
 #include "voxelquest/emuns.h"
 
+int GameState::tbTicks;
+FIVector4 GameState::origin;
+
+float GameState::subjectZoom=1.0f;
+float GameState::targetSubjectZoom=1.0f;
+bool GameState::markerFound=false;
+FIVector4 GameState::worldMarker;
+
+GameWorld* GameState::gw=nullptr;
+GameEntManager* GameState::gem=nullptr;
+GamePhysics* GameState::gamePhysics=nullptr;
+GameFluid* GameState::gameFluid[E_FID_LENGTH];
+GameLogic* GameState::gameLogic=nullptr;
+GameNetwork* GameState::gameNetwork=nullptr;
+GameAI* GameState::gameAI=nullptr;
+GameGUI *GameState::ui=nullptr;
+
 GameState *GameState::singleton()
 {
     static GameState gameState;
@@ -10,6 +27,13 @@ GameState *GameState::singleton()
 
 GameState::GameState()
 {
+	init();
+}
+
+void GameState::init()
+{
+	tbTicks=0;
+
     m_wsBufferInvalid=true;
     m_forceGetPD=false;
     m_forceShadowUpdate=0;

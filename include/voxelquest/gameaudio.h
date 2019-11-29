@@ -3,21 +3,39 @@
 
 #include "voxelquest/gamemusic.h"
 #include "voxelquest/gamesound.h"
+#include "voxelquest/vectors.h"
+
+#include <string>
+#include <map>
+
+enum E_MUSIC_LIST
+{
+	EML_BIRDSONG0,
+	EML_CRICKETS0,
+	EML_OCEANWAVES0,
+	EML_UNDERWATER0,
+	EML_LENGTH
+};
+
+class BaseObj;
 
 class GameAudio
 {
-    void prepSound(string soundName);
+public:
+	static void init();
 
-    void playSoundEnt(
-        string soundName,
+	static void prepSound(std::string soundName);
+
+	static void playSoundEnt(
+		std::string soundName,
         BaseObj* ge=NULL,
         float variance=0.0f,
         float volume=1.0f,
         bool doLoop=false
     );
 
-    void playSoundPosAndPitch(
-        string soundName,
+	static void playSoundPosAndPitch(
+		std::string soundName,
         FIVector4* listenerPos,
         FIVector4* soundPos,
         float variance=0.0f,
@@ -25,22 +43,22 @@ class GameAudio
         bool doLoop=false
     );
 
-    void updateSoundPosAndPitch(
-        string soundName,
+	static void updateSoundPosAndPitch(
+		std::string soundName,
         FIVector4* listenerPos,
         FIVector4* soundPos,
         float volume=1.0f,
         float decay=0.01f
     );
 
-    void playSound(string soundName, float volume=1.0f);
+	static void playSound(std::string soundName, float volume=1.0f);
 
-    void playSoundEvent(const char* eventName, bool suppress=false);
+	static void playSoundEvent(const char* eventName, bool suppress=false);
 
-    void updateMatVol();
+	static void updateMatVol();
 
-    GameMusic* music[EML_LENGTH];
-    map<string, GameSound> soundMap;
+	static GameMusic* music[EML_LENGTH];
+	static std::map<std::string, GameSound> soundMap;
 };
 
 #endif//_voxelquest_gameaudio_h_

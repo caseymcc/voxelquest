@@ -1,6 +1,71 @@
 #ifndef _voxelquest_gameentmanager_h_
 #define _voxelquest_gameentmanager_h_
 
+#include "voxelquest/vectors.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/enums.h"
+#include "voxelquest/json.h"
+#include "voxelquest/entenums.h"
+
+#define E_PIK(DDD) \
+DDD(E_PIK_POSETYPE) \
+DDD(E_PIK_SUBTYPE) \
+DDD(E_PIK_NUMSTEPS) \
+DDD(E_PIK_EXTRASTEPS) \
+DDD(E_PIK_RLBN) \
+DDD(E_PIK_DOLOOP) \
+DDD(E_PIK_LERPSPEED) \
+DDD(E_PIK_TIMEINTERVAL) \
+DDD(E_PIK_LENGTH)
+
+std::string E_PIK_STRINGS[]={
+	E_PIK(DO_DESCRIPTION)
+};
+
+enum E_PIK_ENUMS
+{
+	E_PIK(DO_ENUM)
+};
+
+enum E_DRAG_TYPE
+{
+	E_DT_NOTHING, // can drag to, but not from
+	E_DT_WORLD_OBJECT,
+	E_DT_INV_OBJECT,
+	E_DT_INV_OBJECT_PARENT,
+	E_DT_LENGTH
+};
+
+const static int MAX_POSE_STEPS=8;
+
+struct PoseStepInfo
+{
+	std::string fileString[MAX_POSE_STEPS];
+	int gamePoseIndex[MAX_POSE_STEPS];
+};
+
+struct PoseInfo
+{
+	float data[E_PIK_LENGTH];
+	std::string stringData[E_PIK_LENGTH];
+	PoseStepInfo poseSteps[RLBN_LENGTH];
+};
+
+struct EntPool
+{
+	int curIndex;
+	int maxCount;
+	int entType;
+	std::vector<int> entIds;
+};
+
+class UIComponent;
+//class BaseObj;
+class GameOrg;
+class GameOrgNode;
+class GamePhysRig;
+class Singleton;
+
 class GameEntManager
 {
 public:
@@ -35,7 +100,6 @@ public:
 
     void loadDefaultPose(int actorId);
 
-
     void applyNonPoseData();
 
     void setFirstPerson(bool _newVal);
@@ -48,7 +112,6 @@ public:
 
     void endDrag(int upInd);
 
-
     bool handleGUI(
         UIComponent* comp,
         bool mouseUpEvent,
@@ -57,12 +120,9 @@ public:
         bool wasDoubleClick
     );
 
-
-
-    BaseObj* getEquipped(BaseObj* parentObj);
+	BaseObj* getEquipped(BaseObj* parentObj);
 
     void updateDragInfo(int bestInd, bool lbDown, bool wasDoubleClick);
-
 
     int getRandomContId();
     int getRandomNPCId();
@@ -70,9 +130,6 @@ public:
     int getRandomObjId();
 
     void fillWithRandomObjects(int parentUID, int gen);
-
-
-
 
     void removeEntity(bool isReq, int ind);
 
@@ -102,15 +159,13 @@ public:
 
     void toggleActorSel();
 
-
-    void setSelInd(int ind);
+	void setSelInd(int ind);
 
     void closeContainer(int i);
 
     void toggleCont(int contIndex, bool onMousePos);
 
-
-    void addVisObject(BaseObjType _uid, bool isRecycled);
+	void addVisObject(BaseObjType _uid, bool isRecycled);
 
     bool removeVisObject(BaseObjType _uid, bool isRecycled);
 
@@ -118,7 +173,7 @@ public:
 
     bool areFriends(int actorUID1, int actorUID2);
 
-    int getUnitDisXY(btVector3p1, btVector3 p2);
+    int getUnitDisXY(btVector3 p1, btVector3 p2);
 
     btVector3 getUnitDistance(int actorUID1, int actorUID2);
 
@@ -214,9 +269,9 @@ public:
     bool updateNearestOrgNode(bool setActive);
 
 
-    void saveOrgFromMenu(string currentFieldString);
+    void saveOrgFromMenu(std::string currentFieldString);
 
-    void loadOrgFromMenu(string currentFieldString);
+    void loadOrgFromMenu(std::string currentFieldString);
 
 
     void makeDirty();
@@ -235,7 +290,7 @@ public:
         int targStep
     );
 
-    string getPoseString(
+	std::string getPoseString(
         int targPoseGroup,
         int targRLBN,
         int targStep
@@ -243,7 +298,7 @@ public:
 
     GameOrg* getCurrentPose();
 
-    string getCurrentPoseString();
+	std::string getCurrentPoseString();
 
 
     int getActionStateFromPose(int poseNum);
@@ -272,7 +327,7 @@ public:
 
     int numberIcons(int pCurCount, int x1, int y1, int x2, int y2);
 
-    string getStringForObjectId(int objectId);
+	std::string getStringForObjectId(int objectId);
 
     void initAllObjects();
 
@@ -315,9 +370,9 @@ private:
     FIVector4 tempVec2;
     FIVector4 tempVec3;
 
-    map<BaseObjType, BaseObj> gameObjects;
-    vector<BaseObjType> visObjects;
-    vector<int> turnList;
+	std::map<BaseObjType, BaseObj> gameObjects;
+	std::vector<BaseObjType> visObjects;
+	std::vector<int> turnList;
 
 
     GameOrgNode* bestNode;
@@ -328,7 +383,8 @@ private:
     std::vector<GamePhysRig*> gamePhysRigs;
     std::vector<GameOrg*> gameOrgs;
     std::vector<GameOrg*> gamePoses;
-    PoseInfo gamePoseInfo[E_PG_LENGTH];
+
+	PoseInfo gamePoseInfo[E_PG_LENGTH];
     PoseKey curPose[E_ENTTYPE_LENGTH];
     EntPool entPoolStack[E_ENTTYPE_LENGTH];
     JSONValue *poseRootJS;
@@ -336,14 +392,7 @@ private:
     int entIdToIcon[MAX_OBJ_TYPES];
     int iconToEntId[MAX_ICON_ID];
     bool isContainer[MAX_OBJ_TYPES];
-    string objStrings[MAX_OBJ_TYPES];
-
-
-    
-
-
-
-
+	std::string objStrings[MAX_OBJ_TYPES];
 };
 
 #endif//_voxelquest__h_

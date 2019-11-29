@@ -1287,8 +1287,42 @@ void GameGUI::renderGUI()
 
         glEnd();
     }
+}
+
+void GameGui::refreshContainers(bool onMousePos)
+{
+	UIComponent* objCont=NULL;
+
+	bool oldVis=false;
+
+	if(menuList[E_FM_CONTMENU]!=NULL)
+	{
+
+		cout<<"refreshContainers\n";
+
+		externalJSON.erase("E_SDT_OBJECTDATA"); // mem leak?
 
 
 
+		oldVis=menuList[E_FM_CONTMENU]->visible;
+		menuList[E_FM_CONTMENU]->visible=gem->anyContainerOpen();
 
+		objCont=mainGUI->findNodeByString("objectContainer");
+		//objCont->jvNodeNoTemplate->Child("dataParams")->number_value = contIndex;
+
+		mainGUI->refreshNode(objCont);
+
+		if(onMousePos&&(oldVis==false))
+		{
+
+			// menuList[E_FM_CONTMENU]->dragOffset.x = 0.0f;
+			// menuList[E_FM_CONTMENU]->dragOffset.y = 0.0f;
+			contMenuBar=menuList[E_FM_CONTMENU]->getChild(0)->getChild(0);
+
+			contMenuBar->lastDrag.x=(guiX);
+			contMenuBar->lastDrag.y=min((float)(guiY), (float)((guiWinH-menuList[E_FM_CONTMENU]->getChild(0)->resultDimInPixels.y)));
+			contMenuBar->forceDragUpdate=true;
+		}
+
+	}
 }

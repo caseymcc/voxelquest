@@ -92,8 +92,6 @@ public:
         GameOrgNode* tempParent
     );
 
-private:
-
 
     int nodeName;
     GameOrgNode* parent;

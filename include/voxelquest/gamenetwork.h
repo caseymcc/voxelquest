@@ -1,6 +1,31 @@
 #ifndef _voxelquest_gamenetwork_h_
 #define _voxelquest_gamenetwork_h_
 
+const static int NA_SIZE_IN_BYTES=32;
+
+class Singleton;
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+//#include "windows.h"
+#include "winsock2.h"
+#endif
+
+struct NetworkAction
+{
+	char data[NA_SIZE_IN_BYTES];
+};
+
+enum E_NET_OPS
+{
+	E_NO_TERMINAL,
+	E_NO_KEY_ACTION,
+	E_NO_ADD_ENT,
+	E_NO_REM_ENT,
+	E_NO_DRAG_ENT,
+	E_NO_LENGTH
+};
+
 class GameNetwork
 {
 public:
@@ -43,7 +68,6 @@ public:
     void updateSend();
     void updateRecv();
 
-private:
     Singleton* singleton;
 
     const static int FRAME_SIZE_IN_BYTES=256;

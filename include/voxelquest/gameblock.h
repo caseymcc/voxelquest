@@ -181,7 +181,6 @@ public:
 
     void init(
         Singleton *_singleton,
-        GameWorld *gameworld,
         int _blockId,
         int _x,
         int _y,

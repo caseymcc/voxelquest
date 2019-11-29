@@ -1,4 +1,60 @@
 #include "voxelquest/gameent.h"
+#include "voxelquest/gamestate.h"
+
+#include <iostream>
+#include <algorithm>
+
+enum E_COMMON_PARAMS
+{
+	E_CP_VISMININPIXELST,
+	E_CP_VISMAXINPIXELST,
+	E_CP_LENGTH
+};
+
+enum E_LIGHT_PARAMS
+{
+	E_LP_RESERVED0,
+	E_LP_RESERVED1,
+	E_LP_POSITION,
+	E_LP_RADIUS,
+	E_LP_COLOR,
+	E_LP_UNUSED2,
+	E_LP_UNUSED3,
+	E_LP_UNUSED4,
+	E_LP_UNUSED5,
+	E_LP_UNUSED6, // must be last
+	E_LP_LENGTH
+};
+
+enum E_TREE_PARAMS
+{
+	E_TP_RESERVED0,
+	E_TP_RESERVED1,
+	E_TP_P0,
+	E_TP_P1,
+	E_TP_P2,
+	E_TP_POWERVALS,
+	E_TP_POWERVALS2,
+	E_TP_THICKVALS,
+	E_TP_UNUSED,
+	E_TP_MATPARAMS, // must be last
+	E_TP_LENGTH
+};
+
+enum E_LINES_PARAMS
+{
+	E_AP_RESERVED0,
+	E_AP_RESERVED1,
+	E_AP_ORG, // origin
+	E_AP_TAN, // tangent (not normalized)
+	E_AP_BIT, // bitangent (normalized)
+	E_AP_NOR, // normal (normalized)
+	E_AP_RAD0, // radius
+	E_AP_RAD1,
+	E_AP_UNUSED1,
+	E_AP_MATPARAMS, // must be last
+	E_AP_LENGTH
+};
 
 
 void GameEnt::initLight(
@@ -78,7 +134,7 @@ void GameEnt::rotate(int mod, bool ignoreConstraints)
     }
     else
     {
-        cout<<"Attemped to rotate without anchor.\n";
+        std::cout<<"Attemped to rotate without anchor.\n";
     }
 
 
@@ -121,7 +177,7 @@ void GameEnt::initBounds(
 )
 {
     buildingType=_buildingType;
-    float temp;
+//    float temp;
     float zOffset=_zOffset;
 
 
@@ -215,7 +271,7 @@ void GameEnt::initLines(
 )
 {
     buildingType=_buildingType;
-    float temp;
+//    float temp;
     float radMax;
 
 
@@ -253,12 +309,12 @@ void GameEnt::initLines(
 
     FIVector4::normalizeBounds(&boundsMinInPixels, &boundsMaxInPixels);
 
-    radMax=max(
-        max(
-        max(tempVec2[0], tempVec2[1]),
-        max(tempVec3[0], tempVec3[1])
-    ),
-        max(tempVec2[2], tempVec3[2])
+    radMax=std::max(
+		std::max(
+			std::max(tempVec2[0], tempVec2[1]),
+			std::max(tempVec3[0], tempVec3[1])
+		),
+		std::max(tempVec2[2], tempVec3[2])
     );
 
     boundsMinInPixels.addXYZ(-radMax);
@@ -308,9 +364,9 @@ void GameEnt::initTree(
 )
 {
     buildingType=_buildingType;
-    float temp;
+//    float temp;
 
-    float radMax=max(max(radP0, radP1), sphereRad);
+    float radMax=std::max(std::max(radP0, radP1), sphereRad);
 
     curRot=0;
     rotDir=1;
@@ -478,7 +534,7 @@ void DynObject::init(
     bool _doRender, int _moveType,//bool _isRelative, bool _isTrackball,
     FIVector4 *_cameraPos,
     float _radius,
-    float _lightRadius=0.0f
+    float _lightRadius
 )
 {
     //isRelative = _isRelative;

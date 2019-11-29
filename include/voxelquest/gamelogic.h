@@ -3,6 +3,19 @@
 
 #include <list>
 
+enum E_CLOSEST_FLAGS
+{
+	E_CF_NOTGRABBED=1,
+	E_CF_AREENEMIES=2,
+	E_CF_AREFRIENDS=4,
+	E_CF_ISALIVE=8
+	// E_CF_ = 8,
+	// E_CF_ = 16,
+	// E_CF_ = 32,
+	// E_CF_ = 64
+
+};
+
 struct LoadHolderStruct
 {
     int holderId;

@@ -1,40 +1,42 @@
 #ifndef _voxelquest_gamesound_h_
 #define _voxelquest_gamesound_h_
 
+#include <string>
+
 class GameSound
 {
 public:
-    GameSound()
+	GameSound();
 
-        void init(string path);
+	void init(std::string path);
 
-    void setPitch(float val);
+	void setPitch(float val);
 
-    void setPositionAndMinDis(
-        float x,
-        float y,
-        float z,
-        float w
-    );
+	void setPositionAndMinDis(
+		float x,
+		float y,
+		float z,
+		float w
+	);
 
-    void setLoop(bool val);
+	void setLoop(bool val);
 
-    void stop();
+	void stop();
 
-    void setVolumeSmooth(float volume=1.0f, float decay=0.01f);
-
-
-    void setVolume(float volume=1.0f);
+	void setVolumeSmooth(float volume=1.0f, float decay=0.01f);
 
 
-    void play(float volume=1.0f);
+	void setVolume(float volume=1.0f);
+
+
+	void play(float volume=1.0f);
 
 private:
 
-    sf::SoundBuffer buffer;
-    sf::Sound sound;
+	sf::SoundBuffer buffer;
+	sf::Sound sound;
 
-    float curVolume;
+	float curVolume;
 };
 
 #endif//_voxelquest__h_

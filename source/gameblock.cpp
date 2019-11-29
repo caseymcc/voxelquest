@@ -1,6 +1,7 @@
 #include "voxelquest/gameblock.h"
 #include "voxelquest/gameworld.h"
 #include "voxelquest/gameplant.h"
+#include "voxelquest/gamestate.h"
 
 #include <iostream>
 
@@ -16,7 +17,6 @@ GameBlock::GameBlock()
 
 void GameBlock::init(
     Singleton *_singleton,
-    GameWorld *gameworld,
     int _blockId,
     int _x,
     int _y,
@@ -201,7 +201,7 @@ void GameBlock::init(
 
     float doorMod=0.0f;
 
-    gw=gameworld;
+    gw=GameState::gw;
 
     FBOWrapper *fbow=FBOManager::getFBOWrapper("hmFBO", 0);
     FBOWrapper *fbow2=FBOManager::getFBOWrapper("cityFBO", 0);
