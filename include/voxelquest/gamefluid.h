@@ -2,12 +2,52 @@
 #define _voxelquest_gamefluid_h_
 
 #include "voxelquest/vectors.h"
+#include "voxelquest/tbos.h"
+#include "voxelquest/geom.h"
+#include "voxelquest/threadwrapper.h"
+
+enum E_PRIM_LAYERS
+{
+	E_PL_TERRAIN,
+	//E_PL_PRIMIDS,
+	E_PL_LENGTH
+};
 
 struct PushModStruct
 {
     int actionType;
     FIVector4 data[4];
 };
+
+struct FluidPlane
+{
+	std::vector<int> planeIds;
+};
+
+struct FluidStruct
+{
+	int minX;
+	int minY;
+	int minZ;
+
+	int maxX;
+	int maxY;
+	int maxZ;
+
+	int id;
+	long long int collectedWater;
+
+	bool didCollectWater;
+
+	int fidBegInd;
+	int fidEndInd;
+
+	int iciBegInd;
+	int iciEndInd;
+
+};
+
+class Singleton;
 
 class GameFluid
 {
@@ -226,8 +266,8 @@ private:
     int waterTickMaxDiv;
     int cellsPerHolder;
     int cellsPerBlock;
-    int internalPrimFormat;
-    int precPrimFormat;
+    GLenum internalPrimFormat;
+    GLenum precPrimFormat;
     int mainId;
 
     int volSizes[E_FID_LENGTH];

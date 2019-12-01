@@ -78,7 +78,7 @@ Settings::Settings()
 	roofHeightInCells=((float)cellsPerNodeXY)/4.0f;
 	wallRadInCells=((float)cellsPerNodeXY)/4.0f;
 
-
+	guiSaveLoc="..\\data\\saves\\save0\\compMap.txt";
 }
 
 void Settings::speakSetting(int settingName)

@@ -1,6 +1,12 @@
 #ifndef _voxelquest_threadpoolwrapper_h_
 #define _voxelquest_threadpoolwrapper_h_
 
+#include "voxelquest/threadwrapper.h"
+
+#include <vector>
+
+class Singleton;
+
 class ThreadPoolWrapper
 {
 public:
@@ -9,7 +15,7 @@ public:
 
     void init(Singleton* _singleton, int _maxThreads, bool _singleThreaded);
 
-    void doSpeak(string speechString);
+    void doSpeak(std::string speechString);
 
     void funcTP(int threadId);
     void startTP(int threadId);
@@ -29,7 +35,7 @@ public:
 private:
     int maxThreads;
     int intData[THREAD_DATA_COUNT];
-    string stringData[THREAD_DATA_COUNT];
+    std::string stringData[THREAD_DATA_COUNT];
 
     ThreadWrapper* threadPool;
     Singleton* singleton;

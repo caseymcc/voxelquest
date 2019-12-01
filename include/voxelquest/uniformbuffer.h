@@ -6,19 +6,19 @@ class UniformBuffer
 {
 public:
 
-    UniformBuffer()
+	UniformBuffer();
 
-        void init(GLuint _progId, int bufNameInd)
+	void init(GLuint _progId, int bufNameInd);
 
 
-        void updateUniformBlock(int numFloats)
+	void updateUniformBlock(int numFloats);
 
-        void beginUniformBlock()
+	void beginUniformBlock();
 
-        void invalidateUniformBlock()
-        bool wasUpdatedUniformBlock()
+	void invalidateUniformBlock();
+	bool wasUpdatedUniformBlock();
 
-        ~UniformBuffer()
+	~UniformBuffer();
 
 private:
 

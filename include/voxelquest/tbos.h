@@ -1,6 +1,10 @@
 #ifndef _voxelquest_tbos_h_
 #define _voxelquest_tbos_h_
 
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
+
 class TBOWrapper
 {
 public:

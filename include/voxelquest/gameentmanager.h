@@ -331,7 +331,7 @@ public:
 
     void initAllObjects();
 
-private:
+//private:
     Singleton* singleton;
 
     bool curActorNeedsRefresh;

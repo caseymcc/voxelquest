@@ -6,15 +6,7 @@ class Singleton
 public:
     
     
-    struct UICStruct
-    {
-        int nodeId;
-    };
-    struct CompStruct
-    {
-        bool isValid;
-        UIComponent* data;
-    };
+    
 
     struct CompareStruct
     {
@@ -183,71 +175,7 @@ public:
 
 
 
-    void bindShader(string shaderName);
 
-
-    void unbindShader();
-
-
-    void setShaderArrayfVec3(string paramName, float *x, int count);
-
-    void setShaderArrayfVec4(string paramName, float *x, int count);
-
-    void setShaderMatrix4x4(string paramName, float *x, int count);
-
-    void setShaderMatrix3x3(string paramName, float *x, int count);
-
-    void setShaderArray(string paramName, float *x, int count);
-
-
-    GLint getShaderLoc(string paramName);
-
-    void setShaderFloat(string paramName, float x);
-
-    void setShaderInt(string paramName, int x);
-
-    void setShaderfVec2(string paramName, FIVector4 *v);
-
-    void setShaderVec2(string paramName, float x, float y);
-
-    void setShaderVec3(string paramName, float x, float y, float z);
-
-    void setShaderfVec3(string paramName, FIVector4 *v);
-
-    void setShaderbtVec3(string paramName, btVector3 v);
-
-
-    void setShaderVec4(string paramName, float x, float y, float z, float w);
-
-    void setShaderfVec4(string paramName, FIVector4 *v);
-
-
-
-
-    void setShaderFloatUB(string paramName, float x);
-
-    void setShaderfVec4UB(string paramName, FIVector4 *v);
-
-
-
-
-    void updateUniformBlock(int ubIndex, int ubDataSize=-1);
-
-    void invalidateUniformBlock(int ubIndex);
-
-    void beginUniformBlock(int ubIndex);
-
-    bool wasUpdatedUniformBlock(int ubIndex);
-
-
-
-    void setShaderTBO(int multitexNumber, GLuint tbo_tex, GLuint tbo_buf, bool isFloat);
-
-
-    void setShaderTexture(int multitexNumber, uint texId);
-
-
-    void setShaderTexture3D(int multitexNumber, uint texId);
 
 
 
@@ -374,22 +302,13 @@ public:
 
     void processInput(unsigned char key, bool keyDown, int x, int y);
 
-
-
-
-
-    void getPixData(PixData *toPixData, int _xv, int _yv, bool forceUpdate);
-
-
+	void getPixData(PixData *toPixData, int _xv, int _yv, bool forceUpdate);
 
     float getMinGeom(int baseIndex);
-
-
 
     FIVector4* getGeomRef(int templateId, int enumVal);
 
     void setFXYZWGeom(int baseIndex, FIVector4* baseVec);
-
 
     void setFXYGeom(int baseIndex, float xv, float yv);
     void setFXGeom(int baseIndex, float xv);
@@ -397,17 +316,10 @@ public:
     void setFZGeom(int baseIndex, float zv);
     void setFWGeom(int baseIndex, float wv);
 
-
     float getFXGeom(int baseIndex);
     float getFYGeom(int baseIndex);
     float getFZGeom(int baseIndex);
     float getFWGeom(int baseIndex);
-
-
-
-
-
-
 
     /////////////////////////////////////////
     //                                     //
@@ -417,24 +329,15 @@ public:
 
     void processSpecialKeys(int key, int _x, int _y);
 
-
     void keyboardUp(unsigned char key, int _x, int _y);
 
-
     void keyboardDown(unsigned char key, int _x, int _y);
-
 
     void updateCurGeom(int x, int y);
 
     void mouseMove(int _x, int _y);
 
-
-
-
-
     void mouseClick(int button, int state, int _x, int _y);
-
-
 
     /////////////////////////////////////////
     //                                     //
@@ -442,28 +345,15 @@ public:
     //                                     //
     /////////////////////////////////////////
 
-
-
     bool feetContact(BaseObj* ge);
-
-
-
 
     void flushKeyStack();
 
-
-
     void applyKeyAction(bool isReq, int actorId, uint keyFlags, float camRotX, float camRotY);
-
 
     void gatherKeyActions();
 
-
-
     void handleMovement();
-
-
-
 
     bool anyMenuVisible();
 
@@ -471,35 +361,13 @@ public:
 
     void explodeBullet(BaseObj* ge);
 
-
-    void getJVNodeByString(
-        JSONValue* rootNode,
-        JSONValue** resultNode,
-        string stringToSplit
-        //, bool dd = false
-    );
-
-
-    string makePretty(string sourceString, string remString);
-
-    void cleanJVPointer(JSONValue** jv);
+    
 
 
     void getSpecialData(int datEnum, string datString);
 
 
-    void updateStatGUI();
-
-    void updateStatusHUD();
-
-
-    void showHudMenu(bool visible);
-
-    void showStatMenu(bool visible);
-
-    // qvq
-    void refreshContainers(bool onMousePos);
-
+    
 
 
     
@@ -508,36 +376,7 @@ public:
 
     
 
-    void setGUIText(
-        string key,
-        string stringValue,
-        float floatValue=0.0f,
-        bool applyVal=false,
-        bool applyString=true
-    );
-
-    float getGUIValue(string key);
-
-    UIComponent* getGUIComp(string key);
-
-    void setGUIValue(
-        string key,
-        float floatValue,
-        bool dispatchEvent=false,
-        bool preventRefresh=false
-    );
-
-
-    void loadValuesGUI(bool applyValues=false);
-
-
-    void saveExternalJSON();
-
-
-    void saveGUIValues();
-
-
-    void updateGUI();
+    
 
 
 
@@ -756,10 +595,7 @@ public:
     bool draggingMap;
     bool guiDirty;
     bool applyToChildren;
-    bool bShiftOld;
-    bool bCtrlOld;
-    bool bCtrl;
-    bool bShift;
+    
     bool emptyVDNotReady;
     bool updateLock;
     bool isFullScreen;
@@ -771,10 +607,6 @@ public:
     bool pboSupported;
     bool notQuit;
     bool timerNotSet;
-    bool lbDown;
-    bool abDown; // lb, rb, or mb is down
-    bool rbDown;
-    bool mbDown;
     bool isBare;
     bool showMap;
     bool traceOn;
@@ -1016,10 +848,7 @@ public:
 
 
 
-    PixData spaceUpPixData;
-    PixData mouseUpPixData;
-    PixData mouseDownPixData;
-    PixData mouseMovePixData;
+    
 
 
 
@@ -1034,12 +863,10 @@ public:
     //FIVector4 moveNodes[2];
     FIVector4 voroVecArr[125];
     floatAndIndex indexArr[125];
-    FIVector4 mouseStart;
-    FIVector4 mouseEnd;
-    FIVector4 mouseMoveVec;
+    
     FIVector4 mapFreqs;
     FIVector4 mapAmps;
-    FIVector4 *mouseMoving;
+    
 
     FIVector4 rasterLowDim;
     FIVector4 bufferDim;
@@ -1124,13 +951,10 @@ public:
 
 
     VolumeWrapper* volumeWrappers[E_VW_LENGTH];
-
-    vector<CompStruct> compStack;
-    vector<int> emptyStack;
-
+	
 
     vector<string> jsonPostStack;
-    vector<string> splitStrings;
+    
     vector<string> shaderStrings;
     vector<string> shaderTextureIds;
     map<string, Shader*> shaderMap;

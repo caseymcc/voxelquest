@@ -1,5 +1,5 @@
 #include "voxelquest/gamestate.h"
-#include "voxelquest/emuns.h"
+#include "voxelquest/enums.h"
 
 int GameState::tbTicks;
 FIVector4 GameState::origin;
@@ -8,6 +8,19 @@ float GameState::subjectZoom=1.0f;
 float GameState::targetSubjectZoom=1.0f;
 bool GameState::markerFound=false;
 FIVector4 GameState::worldMarker;
+
+bool GameState::refreshPaths=false;
+
+float GameState::MAX_GPU_MEM=4096.0f;
+float GameState::VERTEX_MEM_USAGE=0.0f;
+float GameState::TOT_GPU_MEM_USAGE=0.0f;
+
+float GameState::MAX_CPU_MEM=4096.0f;
+float GameState::TOT_CPU_MEM_USAGE=0.0f;
+
+int GameState::TOT_POINT_COUNT=0;
+
+long long GameState::ENT_COUNTER=0;
 
 GameWorld* GameState::gw=nullptr;
 GameEntManager* GameState::gem=nullptr;
@@ -118,3 +131,14 @@ void GameState::init()
     dynObjects[E_OBJ_LIGHT0]->moveType=E_MT_TRACKBALL;
     cameraPos=&(dynObjects[E_OBJ_CAMERA]->pos);
 }
+
+void GameState::stopAllThreads()
+{
+	glFlush();
+	glFinish();
+	gameLogic->threadPoolPath->stopAll();
+	gameLogic->threadPoolList->stopAll();
+	glFlush();
+	glFinish();
+}
+

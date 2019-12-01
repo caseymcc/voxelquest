@@ -3,6 +3,8 @@
 
 #include "voxelquest/types.h"
 #include "voxelquest/constants.h"
+#include "voxelquest/mat.h"
+#include "voxelquest/ivec.h"
 
 //#include <LinearMath/btVector3.h>
 //#include <LinearMath/btMatrix3x3.h>
@@ -168,6 +170,9 @@ public:
 
 //    btVector3 getBTV();
 //    void setBTV(btVector3 myBTV);
+	void setVec3(vec3 v);
+	vec3 getVec3();
+	ivec3 getIVec3();
 
     void setIXYZW(int x, int y, int z, int w);
     void setIXYZ(int x, int y, int z);
@@ -363,6 +368,7 @@ private:
     iVector2 iv2;
     fVector2 fv2;
 };
+typedef Vector4 vec4;
 
 
 

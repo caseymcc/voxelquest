@@ -114,6 +114,34 @@ enum E_GUI_FLAGS
 std::string guiStringValues[E_GST_LENGTH];
 double guiFloatValues[E_GFT_LENGTH];
 
+enum eAlignH
+{
+	E_ALIGNH_LEFT,
+	E_ALIGNH_CENTER,
+	E_ALIGNH_RIGHT,
+};
+
+enum eAlignV
+{
+	E_ALIGNV_TOP,
+	E_ALIGNV_MIDDLE,
+	E_ALIGNV_BOTTOM
+};
+
+enum eFillDir
+{
+	E_FILL_HORIZONTAL,
+	E_FILL_VERTICAL
+};
+
+enum E_MAT_CODE
+{
+	E_MC_DEFAULT,
+	E_MC_HSV,
+	E_MC_MATERIAL,
+	E_MC_LENGTH
+};
+
 struct iBoundingBox
 {
 	int xMin;

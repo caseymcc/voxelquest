@@ -129,7 +129,7 @@ public:
     float roofHeightInCells;
     float wallRadInCells;
 
-
+	std::string guiSaveLoc;
     
 };
 

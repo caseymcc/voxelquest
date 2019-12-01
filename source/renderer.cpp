@@ -1,6 +1,299 @@
-#include "voxelquest/draw.h"
+#include "voxelquest/renderer.h"
 
-void Singleton::idrawCrossHairs(FIVector4 originVec, float radius)
+#include <iostream>
+
+int Renderer::currentFBOResolutionX;
+int Renderer::currentFBOResolutionY;
+
+int Renderer::shadersAreLoaded=0;
+std::map<std::string, Shader*> Renderer::shaderMap;
+std::string Renderer::curShader;
+Shader *Renderer::curShaderPtr=nullptr;
+
+void Renderer::bindShader(std::string shaderName)
+{
+	int i;
+	int totSize;
+
+	if(shaderMap.find(shaderName)==shaderMap.end())
+	{
+		std::cout<<"invalid shader name "<<shaderName<<"\n";
+		exit(0);
+	}
+
+	if(shadersAreLoaded)
+	{
+		curShader=shaderName;
+		curShaderPtr=shaderMap[curShader];
+		curShaderPtr->bind();
+
+		totSize=curShaderPtr->paramVec.size();
+
+		if(bakeParamsOn)
+		{
+
+		}
+		else
+		{
+			for(i=0; i<totSize; i++)
+			{
+
+				// if (curShaderPtr->paramVec[i].compare("lightColBNight")) {
+				// 	cout << curShaderPtr->paramMap[curShaderPtr->paramVec[i]] << "\n";
+				// }
+
+				setShaderFloat(
+					curShaderPtr->paramVec[i],
+					curShaderPtr->paramMap[curShaderPtr->paramVec[i]]
+				);
+			}
+		}
+
+	}
+
+}
+
+void Renderer::unbindShader()
+{
+	if(shadersAreLoaded)
+	{
+		curShaderPtr->unbind();
+	}
+}
+
+void Renderer::bindFBODirect(FBOSet *fbos, int doClear)
+{
+	setMatrices(fbos->width, fbos->height);
+
+	fbos->bind(doClear);
+	currentFBOResolutionX=fbos->width;
+	currentFBOResolutionY=fbos->height;
+}
+
+void Renderer::setShaderArrayfVec3(std::string paramName, float *x, int count)
+{
+	curShaderPtr->setShaderArrayfVec3(paramName, x, count);
+}
+void Renderer::setShaderArrayfVec4(std::string paramName, float *x, int count)
+{
+	curShaderPtr->setShaderArrayfVec4(paramName, x, count);
+}
+void Renderer::setShaderMatrix4x4(std::string paramName, float *x, int count)
+{
+	curShaderPtr->setShaderMatrix4x4(paramName, x, count);
+}
+void Renderer::setShaderMatrix3x3(std::string paramName, float *x, int count)
+{
+	curShaderPtr->setShaderMatrix3x3(paramName, x, count);
+}
+void Renderer::setShaderArray(std::string paramName, float *x, int count)
+{
+	curShaderPtr->setShaderArray(paramName, x, count);
+}
+
+GLint Renderer::getShaderLoc(std::string paramName)
+{
+	return curShaderPtr->getShaderLoc(paramName);
+}
+
+void Renderer::setShaderFloat(std::string paramName, float x)
+{
+	curShaderPtr->setShaderFloat(paramName, x);
+}
+void Renderer::setShaderInt(std::string paramName, int x)
+{
+	curShaderPtr->setShaderInt(paramName, x);
+}
+void Renderer::setShaderfVec2(std::string paramName, FIVector4 *v)
+{
+	curShaderPtr->setShaderfVec2(paramName, v);
+}
+void Renderer::setShaderVec2(std::string paramName, float x, float y)
+{
+	curShaderPtr->setShaderVec2(paramName, x, y);
+}
+void Renderer::setShaderVec3(std::string paramName, float x, float y, float z)
+{
+	curShaderPtr->setShaderVec3(paramName, x, y, z);
+}
+void Renderer::setShaderfVec3(std::string paramName, FIVector4 *v)
+{
+	curShaderPtr->setShaderfVec3(paramName, v);
+}
+void Renderer::setShaderbtVec3(std::string paramName, btVector3 v)
+{
+	curShaderPtr->setShaderbtVec3(paramName, v);
+}
+
+void Renderer::setShaderVec4(std::string paramName, float x, float y, float z, float w)
+{
+	curShaderPtr->setShaderVec4(paramName, x, y, z, w);
+}
+void Renderer::setShaderfVec4(std::string paramName, FIVector4 *v)
+{
+	curShaderPtr->setShaderfVec4(paramName, v);
+}
+
+
+
+void Renderer::setShaderFloatUB(std::string paramName, float x)
+{
+	curShaderPtr->setShaderFloatUB(paramName, x);
+}
+void Renderer::setShaderfVec4UB(std::string paramName, FIVector4 *v)
+{
+	curShaderPtr->setShaderfVec4UB(paramName, v);
+}
+
+
+
+void updateUniformBlock(int ubIndex, int ubDataSize=-1)
+{
+	Renderer::curShaderPtr->updateUniformBlock(ubIndex, ubDataSize);
+}
+void invalidateUniformBlock(int ubIndex)
+{
+	Renderer::curShaderPtr->invalidateUniformBlock(ubIndex);
+}
+void beginUniformBlock(int ubIndex)
+{
+	Renderer::curShaderPtr->beginUniformBlock(ubIndex);
+}
+bool Renderer::wasUpdatedUniformBlock(int ubIndex)
+{
+
+	return curShaderPtr->wasUpdatedUniformBlock(ubIndex);
+
+}
+
+
+void Renderer::setShaderTBO(int multitexNumber, GLuint tbo_tex, GLuint tbo_buf, bool isFloat)
+{
+	if(shadersAreLoaded)
+	{
+		glActiveTexture(GL_TEXTURE0+multitexNumber);
+		glBindTexture(GL_TEXTURE_2D, tbo_tex);
+		//glBindBuffer(GL_TEXTURE_BUFFER, tboIndices);
+		if(tbo_tex!=0)
+		{
+			if(isFloat)
+			{
+				glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, tbo_buf);
+			}
+			else
+			{
+				glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32UI, tbo_buf);
+			}
+
+		}
+		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+	}
+}
+
+void Renderer::setShaderTexture(int multitexNumber, uint texId)
+{
+	if(shadersAreLoaded)
+	{
+		glActiveTexture(GL_TEXTURE0+multitexNumber);
+		glBindTexture(GL_TEXTURE_2D, texId);
+		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+	}
+}
+
+void Renderer::setShaderTexture3D(int multitexNumber, uint texId)
+{
+	if(shadersAreLoaded)
+	{
+		glActiveTexture(GL_TEXTURE0+multitexNumber);
+		glBindTexture(GL_TEXTURE_3D, texId);
+		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+	}
+}
+
+void Renderer::doShaderRefresh(bool doBake)
+{
+
+	loadConstants();
+
+	LAST_COMPILE_ERROR=false;
+
+	readyToRecompile=0;
+
+	int i;
+	int j;
+
+	Shader* curShader;
+
+	refreshIncludeMap();
+
+
+	// this is expensive
+	for(i=0; i<shaderStrings.size(); i++)
+	{
+		shaderMap[shaderStrings[i]]->init(shaderStrings[i], doBake, &includeMap);
+	}
+
+	//"../src/glsl/" + shaderStrings[i] + ".c"
+
+	if(DO_SHADER_DUMP)
+	{
+		cout<<"SHADER_DUMP\n";
+		saveFileString("..\\data\\temp.txt", &globString);
+	}
+
+
+	shadersAreLoaded=1;
+	readyToRecompile=1;
+
+	if(LAST_COMPILE_ERROR)
+	{
+
+	}
+	else
+	{
+
+		// load saved data (if exists)
+		// merge saved data with existing data (if exists)
+		// save merged data to saved data
+
+
+
+		stringBuf="{\n\t\"params\":[\n";
+
+
+
+		for(i=0; i<shaderStrings.size(); i++)
+		{
+			curShader=shaderMap[shaderStrings[i]];
+
+			std::sort(curShader->paramVec.begin(), curShader->paramVec.end(), compareStruct);
+
+			for(j=0; j<curShader->paramVec.size(); j++)
+			{
+				stringBuf.append("\t\t{");
+				stringBuf.append("\"shaderName\":\""+shaderStrings[i]+"\",");
+				stringBuf.append("\"paramName\":\""+curShader->paramVec[j]+"\",");
+				stringBuf.append("\"uid\":\"$shaderParams."+shaderStrings[i]+"."+curShader->paramVec[j]+"\"");
+				stringBuf.append("},\n");
+			}
+		}
+
+		stringBuf[stringBuf.size()-2]=' ';
+
+
+		stringBuf.append("\t]\n}\n\n");
+
+		// this should automatically clear the key
+		// and deallocate existing entries
+
+		processJSONFromString(
+			&stringBuf,
+			&(externalJSON["E_SDT_SHADERPARAMS"].jv)
+		);
+	}
+}
+
+void Renderer::idrawCrossHairs(FIVector4 originVec, float radius)
 {
     FIVector4 minV;
     FIVector4 maxV;
@@ -52,7 +345,7 @@ void Singleton::idrawCrossHairs(FIVector4 originVec, float radius)
 
 }
 
-void Singleton::drawLine(FIVector4 *p0, FIVector4 *p1)
+void Renderer::drawLine(FIVector4 *p0, FIVector4 *p1)
 {
 
 
@@ -65,7 +358,7 @@ void Singleton::drawLine(FIVector4 *p0, FIVector4 *p1)
 }
 
 
-void Singleton::drawCubeCentered(FIVector4 *originVec, float radius)
+void Renderer::drawCubeCentered(FIVector4 *originVec, float radius)
 {
     FIVector4 minV;
     FIVector4 maxV;
@@ -85,7 +378,7 @@ void Singleton::drawCubeCentered(FIVector4 *originVec, float radius)
     drawBox(&minV, &maxV);
 }
 
-void Singleton::drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, float diamZ)
+void Renderer::drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, float diamZ)
 {
     FIVector4 minV;
     FIVector4 maxV;
@@ -105,7 +398,7 @@ void Singleton::drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, flo
     drawBox(&minV, &maxV);
 }
 
-void Singleton::drawBoxMinMax(
+void Renderer::drawBoxMinMax(
     btVector3 v0,
     btVector3v1
 )
@@ -115,7 +408,7 @@ void Singleton::drawBoxMinMax(
     drawBox(&tempVec1, &tempVec2);
 }
 
-void Singleton::drawBoxRad(
+void Renderer::drawBoxRad(
     btVector3 v0,
     btVector3 v1
 )
@@ -125,7 +418,7 @@ void Singleton::drawBoxRad(
     drawBox(&tempVec1, &tempVec2);
 }
 
-void Singleton::drawBox(
+void Renderer::drawBox(
     FIVector4 *v0,
     FIVector4 *v1,
     int faceFlag=2
@@ -230,7 +523,7 @@ void Singleton::drawBox(
     glEnd();
 }
 
-void Singleton::drawQuadWithCoords(
+void Renderer::drawQuadWithCoords(
     FIVector4* p0,
     FIVector4* p1,
     FIVector4* p2,
@@ -263,7 +556,7 @@ void Singleton::drawQuadWithCoords(
     glEnd();
 }
 
-void Singleton::drawQuadBounds(
+void Renderer::drawQuadBounds(
     float fx1,
     float fy1,
     float fx2,
@@ -293,13 +586,13 @@ void Singleton::drawQuadBounds(
 }
 
 
-void Singleton::drawFSQuad()
+void Renderer::drawFSQuad()
 {
     glCallList(fsqDL);
 }
 
 
-void Singleton::drawFSQuadOffset(
+void Renderer::drawFSQuadOffset(
     float xOff,
     float yOff,
     float zm
@@ -329,7 +622,7 @@ void Singleton::drawFSQuadOffset(
     glEnd();
 }
 
-void Singleton::drawFBO(string fboName, int ind, float zm, int swapFlag=-1)
+void Renderer::drawFBO(std::string fboName, int ind, float zm, int swapFlag=-1)
 {
     if(swapFlag==-1)
     {
@@ -349,7 +642,7 @@ void Singleton::drawFBO(string fboName, int ind, float zm, int swapFlag=-1)
     }
 }
 
-void Singleton::drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff, float zm)
+void Renderer::drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff, float zm)
 {
 
     glBindTexture(GL_TEXTURE_2D, fbos->fbos[ind].color_tex);
@@ -360,7 +653,7 @@ void Singleton::drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOf
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Singleton::drawFBOOffset(string fboName, int ind, float xOff, float yOff, float zm)
+void Renderer::drawFBOOffset(std::string fboName, int ind, float xOff, float yOff, float zm)
 {
     FBOSet *fbos=getFBOByName(fboName);
 

@@ -283,11 +283,34 @@ FIVector4::FIVector4() {
 		return 0.0f;
 	}
 
-	btVector3 FIVector4::getBTV() {
-		return btVector3(fv4.x,fv4.y,fv4.z);
+//	btVector3 FIVector4::getBTV() {
+//		return btVector3(fv4.x,fv4.y,fv4.z);
+//	}
+//	void FIVector4::setBTV(btVector3 myBTV) {
+//		setFXYZ(myBTV.getX(), myBTV.getY(), myBTV.getZ());
+//	}
+
+	void FIVector4::setVec3(vec3 v)
+	{
+
+		fv4.x=v.x;
+		fv4.y=v.y;
+		fv4.z=v.z;
+
+		iv4.x=fv4.x;
+		iv4.y=fv4.y;
+		iv4.z=fv4.z;
+
 	}
-	void FIVector4::setBTV(btVector3 myBTV) {
-		setFXYZ(myBTV.getX(), myBTV.getY(), myBTV.getZ());
+
+	vec3 FIVector4::getVec3()
+	{
+		return vec3(fv4.x, fv4.y, fv4.z);
+	}
+	
+	ivec3 FIVector4::getIVec3()
+	{
+		return ivec3(iv4.x, iv4.y, iv4.z);
 	}
 
 	void FIVector4::setIXYZW(int x, int y, int z, int w) {

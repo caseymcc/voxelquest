@@ -32,7 +32,7 @@ public:
 
     void fillVBO();
 
-private:
+//private:
 
     Singleton *singleton;
     VBOWrapper vboWrapper[NUM_MIP_LEVELS_WITH_FIRST];

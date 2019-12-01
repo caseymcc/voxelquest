@@ -120,7 +120,7 @@ public:
 
     unsigned char *getPixels() { return pixels; }
 
-private:
+//private:
     /* An array of the form (R1, G1, B1, R2, G2, B2, ...) indicating the
      * color of each pixel in image.  Color components range from 0 to 255.
      * The array starts the bottom-left pixel, then moves right to the end

@@ -5,11 +5,6 @@ class GameOrg
 {
 
 public:
-    float gv(float* vals);
-
-
-
-
     GameOrg();
 
 
@@ -20,20 +15,15 @@ public:
         int _subType
     );
 
-
-
-
-
+	float gv(float* vals);
 
     void jsonToNode(JSONValue** parentObj, GameOrgNode* curNode, bool notThePose);
-
 
     void setBinding(int actorId, bool val);
 
     int getPoseUID();
 
     void loadOrgFromFile(std::string fileName, bool notThePose);
-
 
     void saveOrgToFile(std::string fileName);
 
@@ -51,18 +41,13 @@ public:
 
     void nodeToJSON(JSONValue** parentObj, GameOrgNode* curNode);
 
-
     void updateHandleOffset();
-
-
 
     void initWeapon();
 
-
-
     void initHuman();
 
-private:
+//private:
     const static float baseMat;
     Singleton* singleton;
     GameOrgNode* baseNode;

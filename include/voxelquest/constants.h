@@ -84,8 +84,6 @@ const static bool USE_SPHERE_MAP=false;
 
 const static float TIME_DELTA=1.0f/60.0f;
 
-const static int THREAD_DATA_COUNT=16;
-
 const static float MASS_PER_LIMB=0.1f;
 
 // #define DEBUG_BOUNDS 1
@@ -137,7 +135,7 @@ MAX_NODE_DIRS*MAX_NODE_VALS;
 const static int TOT_MAP_DIRS=4;
 
 const static int MAX_BLOCK_STACK=10;
-const static int MAX_UI_LAYERS=4;
+
 
 // solid, water, air
 const static float CUBE_POINTS[42]={

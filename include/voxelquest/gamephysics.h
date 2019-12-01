@@ -1,6 +1,11 @@
 #ifndef _voxelquest_gamephysics_h_
 #define _voxelquest_gamephysics_h_
 
+#include "voxelquest/benchmarkdemo.h"
+#include "voxelquest/myoglapp.h"
+
+class Singleton;
+
 class GamePhysics {
 public:
     GamePhysics();
@@ -29,7 +34,7 @@ public:
 
     void updateAll();
 
-private:
+//private:
 	Singleton* singleton;
 	
 	BenchmarkDemo* example;

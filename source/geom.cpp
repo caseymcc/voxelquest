@@ -1,5 +1,7 @@
 #include "voxelquest/geom.h"
 
+#include <algorithm>
+
 const static int FLOATS_PER_TEMPLATE=((int)E_PRIMTEMP_LENGTH)*4;
 const static float defaultTemplate[FLOATS_PER_TEMPLATE]={
     -2.0,-2.0,-2.0, 0.0,
@@ -21,8 +23,8 @@ float getMinGeom(int baseIndex)
 {
     int newIndex=baseIndex*4;
 
-    return min(
-        min(
+    return std::min(
+		std::min(
         paramArrGeom[newIndex+0],
         paramArrGeom[newIndex+1]
     ),
@@ -110,3 +112,118 @@ void resetGeom()
     }
 }
 
+FIVector4* getGeomRef(int templateId, int enumVal)
+{
+	return &(primTemplateStack[templateId*E_PRIMTEMP_LENGTH+enumVal]);
+}
+
+bool getPrimTemplateString()
+{
+	primTemplateStack.clear();
+
+	JSONValue* jv=fetchJSONData("primTemplates.js", true);
+	JSONValue* jv2=jv->Child("primTemplates");
+	JSONValue* jv3=NULL;
+	JSONValue* jv4=NULL;
+
+	int i;
+	int j;
+	int k;
+
+	int tempInd;
+
+	int numTemplates=jv2->CountChildren();
+	int numProps=0;
+	int numFields=0;
+
+	int propCount=0;
+	int maxProps=numTemplates*E_PRIMTEMP_LENGTH;
+
+	float curNumber;
+
+	std::string resString="";
+	resString.append("const int PRIMS_PER_MACRO = "+i__s(gameFluid[E_FID_BIG]->primsPerMacro)+";\n");
+	resString.append("const int VECS_PER_PRIM = "+i__s(gameFluid[E_FID_BIG]->floatsPerPrimEntry/4)+";\n");
+	resString.append("const float PRIM_DIV = "+i__s(gameFluid[E_FID_BIG]->primDiv)+".0;\n");
+
+
+	for(i=0; i<numTemplates; i++)
+	{
+		jv3=jv2->Child(i);
+		numProps=jv3->CountChildren()-1; //minus one for comment
+		if(numProps!=E_PRIMTEMP_LENGTH)
+		{
+			cout<<"ERROR: invalid number of properties\n";
+			return false;
+		}
+
+		tempInd=propCount;
+
+		for(j=0; j<numProps; j++)
+		{
+			jv4=jv3->Child(j);
+			numFields=jv4->CountChildren();
+			if(numFields!=4)
+			{
+				cout<<"ERROR: invalid number of fields\n";
+				return false;
+			}
+
+			primTemplateStack.push_back(FIVector4());
+
+			for(k=0; k<numFields; k++)
+			{
+				curNumber=jv4->Child(k)->number_value;
+				primTemplateStack.back().setIndex(k, curNumber);
+			}
+
+			propCount++;
+
+		}
+
+		primTemplateStack[tempInd+E_PRIMTEMP_VISMIN].multXYZRef(
+			&(primTemplateStack[tempInd+E_PRIMTEMP_BOUNDSMIN])
+		);
+		primTemplateStack[tempInd+E_PRIMTEMP_VISMAX].multXYZRef(
+			&(primTemplateStack[tempInd+E_PRIMTEMP_BOUNDSMAX])
+		);
+
+
+	}
+
+	resString.append("const vec4 primTemp["+i__s(numTemplates*E_PRIMTEMP_LENGTH)+"] = vec4[](\n");
+
+	numFields=4;
+
+	for(i=0; i<primTemplateStack.size(); i++)
+	{
+		resString.append("vec4(");
+		for(k=0; k<numFields; k++)
+		{
+			curNumber=primTemplateStack[i][k];
+			resString.append(f__s(curNumber));
+			if(k<numFields-1)
+			{
+				resString.append(",");
+			}
+		}
+		resString.append(")");
+
+		if(i<(primTemplateStack.size()-1))
+		{
+			resString.append(",");
+		}
+
+		resString.append("\n");
+	}
+
+	resString.append(");\n");
+
+	//cout << resString << "\n";
+
+	includeMap["primTemplates"]=resString;
+
+	updatePrimTBOData();
+
+	return true;
+}

@@ -1,6 +1,8 @@
 #ifndef _voxelquest_gamelogic_h_
 #define _voxelquest_gamelogic_h_
 
+#include "voxelquest/path.h"
+
 #include <list>
 
 enum E_CLOSEST_FLAGS

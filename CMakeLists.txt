@@ -35,7 +35,6 @@ set(voxelquest_include
     include/voxelquest/bullethelpers.h
     include/voxelquest/classdefs.h
     include/voxelquest/constants.h
-    include/voxelquest/draw.h
     include/voxelquest/dynbuffer.h
     include/voxelquest/entenums.h
     include/voxelquest/enums.h
@@ -76,22 +75,25 @@ set(voxelquest_include
     include/voxelquest/geom.h
     include/voxelquest/geompage.h
     include/voxelquest/glinfo.h
-    include/voxelquest/helperclasses.h
     include/voxelquest/helperfuncs.h
     include/voxelquest/imageloader.h
     include/voxelquest/includes.h
     include/voxelquest/ivec.h
     include/voxelquest/json.h
+	include/voxelquest/jsonhelpers.h
     include/voxelquest/mat.h
     include/voxelquest/memorypool.h
     include/voxelquest/myglhelper.h
+	include/voxelquest/myoglapp.h
     include/voxelquest/myshapedrawer.h
 #    include/voxelquest/network.h #does not appear to be used
     include/voxelquest/object.h
+	include/voxelquest/oglrenderer.h
     include/voxelquest/path.h
 #    include/voxelquest/pooledresource.h #does not appear to be used
 #    include/voxelquest/poolmanager.h #does not appear to be used
 #    include/voxelquest/poolpagemanager.h #does not appear to be used
+	include/voxelquest/renderer.h
 #    include/voxelquest/rhfactory.h #does not appear to be used
     include/voxelquest/settings.h
     include/voxelquest/shader.h
@@ -106,6 +108,7 @@ set(voxelquest_include
     include/voxelquest/timer.h
     include/voxelquest/types.h
     include/voxelquest/uicomponent.h
+	include/voxelquest/uniformbuffer.h
     include/voxelquest/vbos.h
     include/voxelquest/vectors.h
     include/voxelquest/volumewrapper.h
@@ -118,7 +121,6 @@ set(voxelquest_source
     source/baseobject.cpp
     source/bullethelpers.cpp
     source/constants.cpp
-    source/draw.cpp
     source/dynbuffer.cpp
     source/fbos.cpp
     source/fileio.cpp
@@ -154,21 +156,24 @@ set(voxelquest_source
     source/gameworld.cpp
     source/geom.cpp
     source/glinfo.cpp
-    source/helperclasses.cpp
     source/helperfuncs.cpp
     source/imageloader.cpp
     source/includes.cpp
     source/ivec.cpp
     source/json.cpp
+	source/jsonhelpers.cpp
     source/mat.cpp
     source/memorypool.cpp
     source/myglhelper.cpp
+#	source/myoglapp.cpp
     source/myshapedrawer.cpp
 #    source/network.cpp #does not appear to be used
     source/object.cpp
+	source/oglrenderer.cpp
 #    source/pooledresource.cpp #does not appear to be used
 #    source/poolmanager.cpp #does not appear to be used
 #    source/poolpagemanager.cpp #does not appear to be used
+	source/renderer.cpp
 #    source/rhfactory.cpp #does not appear to be used
 	source/settings.cpp
     source/shader.cpp
@@ -179,6 +184,7 @@ set(voxelquest_source
     source/threadpoolwrapper.cpp
     source/threadwrapper.cpp
     source/timer.cpp
+	source/uniformbuffer.cpp
     source/uicomponent.cpp
     source/vbos.cpp
     source/vectors.cpp

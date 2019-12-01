@@ -261,3 +261,103 @@ bool loadJSON(
     return res;
 
 }
+
+void getJVNodeByString(
+	JSONValue* rootNode,
+	JSONValue** resultNode,
+	std::string stringToSplit
+	//, bool dd = false
+)
+{
+	//if (TEMP_DEBUG) cout << "getJVNodeByString(" << stringToSplit <<  ")\n";
+
+	int i;
+	*resultNode=rootNode;
+
+	splitStrings.clear();
+	splitStrings=split(stringToSplit, '.');
+
+	for(i=0; i<splitStrings.size(); i++)
+	{
+		//if (dd) cout << splitStrings[i] << "\n";
+
+		if(
+			(splitStrings[i][0]>='0')&&
+			(splitStrings[i][0]<='9')
+			)
+		{
+			*resultNode=(*resultNode)->Child(
+				stoi(splitStrings[i])
+			);
+		}
+		else
+		{
+			if((*resultNode)->HasChild(splitStrings[i]))
+			{
+				*resultNode=(*resultNode)->Child(splitStrings[i]);
+			}
+			else
+			{
+				std::cout<<"NULL RESULT NODE\n";
+				*resultNode=NULL;
+				return;
+			}
+		}
+
+
+
+	}
+
+}
+
+
+std::string makePretty(std::string sourceString, std::string remString)
+{
+	std::string newString=sourceString.substr(remString.size());
+
+
+	std::string::size_type i;
+
+	for(i=0; i<newString.length(); i++)
+	{
+		if(i==0)
+		{
+
+		}
+		else
+		{
+			if(newString[i-1]=='_')
+			{
+				newString[i]=toupper(newString[i]);
+			}
+			else
+			{
+				newString[i]=tolower(newString[i]);
+			}
+		}
+
+	}
+
+	for(i=0; i<newString.length(); i++)
+	{
+		if(newString[i]=='_')
+		{
+			newString[i]=' ';
+		}
+	}
+
+	return newString;
+
+}
+
+void cleanJVPointer(JSONValue** jv)
+{
+
+	if(*jv!=NULL)
+	{
+		delete *jv;
+	}
+
+	*jv=NULL;
+
+}

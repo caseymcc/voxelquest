@@ -317,7 +317,7 @@ public:
 
     void makeMazeUG();
 
-private:
+//private:
 
     Singleton *singleton;
 

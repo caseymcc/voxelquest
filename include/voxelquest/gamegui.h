@@ -7,6 +7,7 @@
 class Singleton;
 class JSONValue;
 
+const static int MAX_UI_LAYERS=4;
 
 #define E_FLOATING_MENU(DDD) \
 DDD(E_FM_MAINMENU) \
@@ -26,6 +27,24 @@ enum E_FLOATING_MENU_VALS
 	E_FLOATING_MENU(DO_ENUM)
 };
 
+#define E_GUI_CHILD_TYPE(DDD) \
+DDD(E_GCT_INV_ITEM) \
+DDD(E_GCT_SHADER_PARAM) \
+DDD(E_GCT_GENERIC) \
+DDD(E_GCT_CONTAINER) \
+DDD(E_GCT_CONTAINER_PARENT) \
+DDD(E_GCT_AUTOMATIC) \
+DDD(E_GCT_LENGTH)
+
+std::string E_GUI_CHILD_TYPE_STRINGS[]={
+	E_GUI_CHILD_TYPE(DO_DESCRIPTION)
+};
+
+enum E_GUI_CHILD_TYPE_VALS
+{
+	E_GUI_CHILD_TYPE(DO_ENUM)
+};
+
 enum E_FONT_WRAPPERS
 {
 	EFW_TEXT,
@@ -33,9 +52,36 @@ enum E_FONT_WRAPPERS
 	EFW_LENGTH
 };
 
+enum E_GUI_DATA_STRINGS
+{
+	E_GDS_DATA_SOURCE,
+	E_GDS_DATA_FILE,
+	//E_GDS_CHILD_TYPE,
+	E_GDS_CHILD_NAME,
+	E_GDS_MATERIAL,
+	E_GDS_LAST_KEY,
+	E_GDS_LENGTH
+};
+
 struct JSONStruct
 {
 	JSONValue* jv;
+};
+
+struct PixData
+{
+	FIVector4 pd[3];
+};
+
+struct CompStruct
+{
+	bool isValid;
+	UIComponent* data;
+};
+
+struct UICStruct
+{
+	int nodeId;
 };
 
 class GameGUI {
@@ -96,11 +142,51 @@ public:
 
     void renderGUI();
 
+	void updateStatGUI();
+
+	void updateStatusHUD();
+
+	void showHudMenu(bool visible);
+
+	void showStatMenu(bool visible);
+
 	void refreshContainers(bool onMousePos);
+
+	void setGUIText(
+		std::string key,
+		std::string stringValue,
+		float floatValue=0.0f,
+		bool applyVal=false,
+		bool applyString=true
+	);
+
+	float getGUIValue(std::string key);
+
+	UIComponent* getGUIComp(std::string key);
+
+	void setGUIValue(
+		std::string key,
+		float floatValue,
+		bool dispatchEvent=false,
+		bool preventRefresh=false
+	);
+
+	void loadValuesGUI(bool applyValues=false);
+
+	void saveExternalJSON();
+
+	void saveGUIValues();
+
+	void updateGUI();
 
 //private:
 	Singleton* singleton;
 
+	typedef std::map<std::string, UICStruct>::iterator itUICStruct;
+	std::map<std::string, UICStruct> compMap;
+	std::vector<CompStruct> compStack;
+	std::vector<int> emptyStack;
+	std::vector<int> guiLayers[MAX_UI_LAYERS];
 	//Image* textImage;
 	//GLuint guiTextureId;
 
@@ -118,6 +204,8 @@ public:
 	//    map<string, GameSound> soundMap;
 
 	std::map<std::string, StyleSheet> styleSheetMap;
+	
+	typedef std::map<std::string, JSONStruct>::iterator itJSStruct;
 	std::map<std::string, JSONStruct> externalJSON;
 
 
@@ -125,9 +213,12 @@ public:
 	JSONValue* jvRoot;
 	JSONValue* jvTemplates;
 	JSONValue* jvSounds;
-	
+
+	bool guiDirty;
 	bool isReady;
 	bool isLoaded;
+
+	int maxLayerOver;
 	
 	fVector2 mouseTrans;
 	
@@ -139,7 +230,32 @@ public:
 	std::string stringVals[E_GST_LENGTH];
 	double floatVals[E_GFT_LENGTH];
 
+	float guiX;
+	float guiY;
+	int guiWinW;
+	int guiWinH;
+
 	FIVector4 lastCellPos;
+
+	bool lbDown;
+	bool abDown; // lb, rb, or mb is down
+	bool rbDown;
+	bool mbDown;
+
+	bool bShiftOld;
+	bool bCtrlOld;
+	bool bCtrl;
+	bool bShift;
+
+	PixData spaceUpPixData;
+	PixData mouseUpPixData;
+	PixData mouseDownPixData;
+	PixData mouseMovePixData;
+
+	FIVector4 mouseStart;
+	FIVector4 mouseEnd;
+	FIVector4 mouseMoveVec;
+	FIVector4 *mouseMoving;
 };
 
 

@@ -8,8 +8,11 @@
 #include "voxelquest/uicomponent.h"
 #include "voxelquest/gamenetwork.h"
 #include "voxelquest/gamegui.h"
+#include "voxelquest/gamephysics.h"
+#include "voxelquest/gameworld.h"
 #include "voxelquest/entenums.h"
 #include "voxelquest/bullethelpers.h"
+#include "voxelquest/jsonhelpers.h"
 
 
 #include <iostream>
@@ -39,9 +42,85 @@ std::string dragStrings[]={
 	"E_DT_LENGTH"
 };
 
+std::string colorStrings[]={
+	"Red",
+	"Orange",
+	"Yellow",
+	"Green",
+	"Aqua",
+	"Blue",
+	"Purple",
+	"Pink",
+	"Brown",
+	"Black",
+	"Gray",
+	"White",
+	"Empty",
+	"Broken"
+};
+std::string gemStrings[]={
+	"Ruby",
+	"Citrine",
+	"Topaz",
+	"Emerald",
+	"Aquamarine",
+	"Sapphire",
+	"Amethyst",
+	"Quartz",
+	"Beryl",
+	"Onyx",
+	"Moonstone",
+	"Diamond"
+};
+std::string metalStrings[]={
+	"Copper",
+	"Silver",
+	"Gold",
+	"Platinum",
+	"Meteorite"
+};
+std::string weaponStrings[]={
+	"Sword",
+	"Axe",
+	"Spear",
+	"Dagger",
+	"Mace",
+	"Staff",
+	"Wand",
+	"Throwing Star",
+	"Bow",
+	"Knuckles",
+	"Punch Dagger"
+};
+std::string elementStrings[]={
+	"Normal",
+	"Fire",
+	"Ice",
+	"Poison",
+	"Earth",
+	"Electric",
+	"Light",
+	"Dark",
+	"Holy",
+	"Unholy",
+	"Crystal",
+	"Artifact",
+	"Artifact",
+	"Artifact",
+	"Artifact",
+	"Artifact"
+};
+
 uint naUintData[8];
 int naIntData[8];
 float naFloatData[8];
+
+std::string poseSideStrings[]={
+	"R", // right
+	"L", // left
+	"B", // both
+	"N"	 // neither
+};
 
 GameEntManager::GameEntManager()
 {
@@ -1342,7 +1421,7 @@ void GameEntManager::setSelInd(int ind)
 
 void GameEntManager::closeContainer(int i)
 {
-	GameAudio::playSoundEnt("leather0", NULL, 0.1);
+	GameAudio::playSoundEnt("leather0", NULL, 0.1f);
     gameObjects[i].isOpen=false;
     GameState::ui->refreshContainers(false);
 }
@@ -1359,7 +1438,7 @@ void GameEntManager::toggleCont(int contIndex, bool onMousePos)
         isContainer[gameObjects[contIndex].objectType]
         )
     {
-		GameAudio::playSoundEnt("leather0", NULL, 0.1);
+		GameAudio::playSoundEnt("leather0", NULL, 0.1f);
         gameObjects[contIndex].isOpen=!(gameObjects[contIndex].isOpen);
         GameState::ui->refreshContainers(onMousePos);
     }
@@ -1590,7 +1669,7 @@ BaseObj* GameEntManager::getActorRef(int uid)
 
 bool GameEntManager::combatMode()
 {
-    return (getCurActor()!=NULL)&&singleton->settings[E_BS_COMBAT]&&(!singleton->settings[E_BS_EDIT_POSE]);
+    return (getCurActor()!=NULL)&&g_settings.settings[E_BS_COMBAT]&&(!g_settings.settings[E_BS_EDIT_POSE]);
 }
 
 bool GameEntManager::isSwingingWeapon(int actorId, int handNum)
@@ -1783,8 +1862,8 @@ void GameEntManager::makeShoot(int actorId, int bulletType)
 
     int entNum;
 
-    int vx;
-    int vy;
+//    int vx;
+//    int vy;
 
 
     FIVector4 newCellPos;
@@ -1809,7 +1888,7 @@ void GameEntManager::makeShoot(int actorId, int bulletType)
         if(ca->hasBodies())
         {
 
-            newCellPos.setBTV(ca->getCenterPoint(E_BDG_CENTER));
+            newCellPos=convertToVQV(ca->getCenterPoint(E_BDG_CENTER));
 
             // vx = cos(ca->ang)*3.0f;
             // vx = vx;
@@ -1847,7 +1926,7 @@ void GameEntManager::makeShoot(int actorId, int bulletType)
 
         if(bulletType!=E_ENTTYPE_TRACE)
         {
-            singleton->playSoundEnt(
+            GameAudio::playSoundEnt(
                 "woosh0",
                 ca,
                 0.2f
@@ -2003,7 +2082,7 @@ void GameEntManager::makeGrab(int actorId, int _handNum)
             grabObj=&(gameObjects[res]);
             grabObjOrg=gameOrgs[grabObj->orgId];
 
-            singleton->playSoundEnt(
+            GameAudio::playSoundEnt(
                 "scrape0",
                 ca,
                 0.2f
@@ -2050,7 +2129,7 @@ void GameEntManager::makeDropAll(int actorId)
 void GameEntManager::makeThrow(int actorId, int _handNum)
 {
 
-    int res;
+//    int res;
 
     if(actorId<0)
     {
@@ -2094,9 +2173,9 @@ void GameEntManager::makeThrow(int actorId, int _handNum)
         {
             grabObj->applyImpulseOtherRot(
                 btVector3(
-                0.0,
-                singleton->conVals[E_CONST_THROW_STRENGTHXY],
-                singleton->conVals[E_CONST_THROW_STRENGTHZ]
+                0.0f,
+                getConst(E_CONST_THROW_STRENGTHXY),
+                getConst(E_CONST_THROW_STRENGTHZ)
             )*grabObj->getMarkerMass(),
                 ca->bodies[E_BDG_CENTER].body->getCenterOfMassTransform().getBasis(),
                 false,
@@ -2104,7 +2183,7 @@ void GameEntManager::makeThrow(int actorId, int _handNum)
             );
         }
 
-        singleton->playSoundEnt(
+        GameAudio::playSoundEnt(
             "woosh0",
             ca,
             0.2f
@@ -2132,7 +2211,7 @@ void GameEntManager::changeStatus(int actorId, int status, int modVal)
     //if (ca->uid == curActorUID) {
 
 
-    singleton->updateStatusHUD();
+    GameState::ui->updateStatusHUD();
     //}
 
 }
@@ -2140,9 +2219,9 @@ void GameEntManager::changeStatus(int actorId, int status, int modVal)
 void GameEntManager::makeSwing(int actorId, int handNum)
 {
 
-    int totCost;
+//    int totCost;
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
         return;
     }
@@ -2196,8 +2275,8 @@ void GameEntManager::makeSwing(int actorId, int handNum)
         curOrg=gameOrgs[ca->orgId];
         curOrg->stepCount=0;
         curOrg->totTime=0;
-        singleton->playSoundEnt("woosh0", ca, 0.25f);
-        singleton->playSoundEnt("gruntm0", ca, 0.25f, 0.1f);
+        GameAudio::playSoundEnt("woosh0", ca, 0.25f);
+        GameAudio::playSoundEnt("gruntm0", ca, 0.25f, 0.1f);
 
 
 
@@ -2214,7 +2293,7 @@ void GameEntManager::makeSwing(int actorId, int handNum)
         // }
 
 
-        if(singleton->settings[E_BS_TURN_BASED])
+        if(g_settings.settings[E_BS_TURN_BASED])
         {
 
             if(ca->hasAtLeast(E_STATUS_STAMINA, 5))
@@ -2350,15 +2429,15 @@ bool GameEntManager::makeMoveTB(int actorId, int modVal)
 
 
 
-    btVector3 testPos=getOffsetTB(ca->tbPos, ca->tbDir, modVal);
+    btVector3 testPos=getOffsetTB(ca->tbPos, ca->tbDir, (float)modVal);
 
 
 
     while(
-        singleton->gw->getCellAtCoords(
-        testPos.getX(),
-        testPos.getY(),
-        testPos.getZ()
+        GameState::gw->getCellAtCoords(
+        (int)testPos.getX(),
+        (int)testPos.getY(),
+        (int)testPos.getZ()
         )==E_CD_EMPTY
         )
     {
@@ -2366,10 +2445,10 @@ bool GameEntManager::makeMoveTB(int actorId, int modVal)
     }
 
     while(
-        singleton->gw->getCellAtCoords(
-        testPos.getX(),
-        testPos.getY(),
-        testPos.getZ()
+		GameState::gw->getCellAtCoords(
+        (int)testPos.getX(),
+        (int)testPos.getY(),
+        (int)testPos.getZ()
         )!=E_CD_EMPTY
         )
     {
@@ -2406,7 +2485,7 @@ bool GameEntManager::makeMoveTB(int actorId, int modVal)
     {
         if(actorId==curActorUID)
         {
-            singleton->playSoundEnt("bump0");
+            GameAudio::playSoundEnt("bump0");
         }
 
         return false;
@@ -2446,11 +2525,11 @@ void GameEntManager::makeMoveVec(int actorId, btVector3 moveVec)
 
     if(ca->baseContact())
     {
-        walkAmount=singleton->conVals[E_CONST_WALK_AMOUNT];
+        walkAmount=getConst(E_CONST_WALK_AMOUNT);
     }
     else
     {
-        walkAmount=singleton->conVals[E_CONST_WALK_AMOUNT_AIR];
+        walkAmount=getConst(E_CONST_WALK_AMOUNT_AIR);
     }
 
     if(ca->hasBodies())
@@ -2479,11 +2558,11 @@ void GameEntManager::makeMove(int actorId, btVector3 moveDir, bool relative, boo
 
     if(ca->baseContact())
     {
-        walkAmount=singleton->conVals[E_CONST_WALK_AMOUNT];
+        walkAmount=getConst(E_CONST_WALK_AMOUNT);
     }
     else
     {
-        walkAmount=singleton->conVals[E_CONST_WALK_AMOUNT_AIR];
+        walkAmount=getConst(E_CONST_WALK_AMOUNT_AIR);
     }
 
     if(ca->hasBodies())
@@ -2498,7 +2577,7 @@ void GameEntManager::makeMove(int actorId, btVector3 moveDir, bool relative, boo
             newMoveDir+=btVector3(
                 0.0f,
                 0.0f,
-                singleton->conVals[E_CONST_WALK_UP_AMOUNT]
+                getConst(E_CONST_WALK_UP_AMOUNT)
             );
         }
 
@@ -2547,7 +2626,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
         return;
     }
 
-    float jumpAmount=singleton->conVals[E_CONST_JUMP_AMOUNT]*ge->getMarkerMass()*jumpFactor;
+    float jumpAmount=getConst(E_CONST_JUMP_AMOUNT)*ge->getMarkerMass()*jumpFactor;
 
 
     if(isUp==1)
@@ -2557,10 +2636,10 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
 
 
             if(
-                singleton->gw->getCellAtCoords(
-                ge->getCenterPoint(E_BDG_CENTER).getX(),
-                ge->getCenterPoint(E_BDG_CENTER).getY(),
-                ge->getCenterPoint(E_BDG_CENTER).getZ()+1.0f
+                GameState::gw->getCellAtCoords(
+                (int)ge->getCenterPoint(E_BDG_CENTER).getX(),
+                (int)ge->getCenterPoint(E_BDG_CENTER).getY(),
+                (int)(ge->getCenterPoint(E_BDG_CENTER).getZ()+1.0f)
                 )==E_CD_EMPTY
                 )
             {
@@ -2581,7 +2660,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
 
                 ge->applyImpulse(btVector3(0.0f, 0.0f, jumpAmount), false, 0);
 
-                singleton->playSoundEnt(
+                GameAudio::playSoundEnt(
                     "bubble0",
                     ge,
                     0.3f,
@@ -2590,7 +2669,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
             }
 
             ge->setActionState(E_ACT_ISJUMPING, RLBN_NEIT, true);
-            ge->jumpCooldown=singleton->conVals[E_CONST_JUMP_COOLDOWN_MAX];
+            ge->jumpCooldown=(int)getConst(E_CONST_JUMP_COOLDOWN_MAX);
 
         }
         else
@@ -2606,7 +2685,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
                 ge->applyImpulse(btVector3(0.0f, 0.0f, jumpAmount), false, 0);
                 ge->zeroZ=true;
 
-                singleton->playSoundEnt(
+                GameAudio::playSoundEnt(
                     "jump0",
                     ge,
                     0.1f,
@@ -2614,7 +2693,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
                 );
 
                 ge->setActionState(E_ACT_ISJUMPING, RLBN_NEIT, true);
-                ge->jumpCooldown=singleton->conVals[E_CONST_JUMP_COOLDOWN_MAX];
+                ge->jumpCooldown=(int)getConst(E_CONST_JUMP_COOLDOWN_MAX);
 
             }
         }
@@ -2625,7 +2704,7 @@ void GameEntManager::makeJump(int actorId, int isUp, float jumpFactor)
         {
             ge->applyImpulse(btVector3(0.0f, 0.0f, -jumpAmount), false, 0);
 
-            singleton->playSoundEnt(
+            GameAudio::playSoundEnt(
                 "bubble0",
                 ge,
                 0.3f,
@@ -2723,11 +2802,11 @@ void GameEntManager::makeHit(
 
                         if(geWeapon!=NULL)
                         {
-                            singleton->playSoundEnt("metalhit5", geAttacker, 0.2, 0.5f);
+                            GameAudio::playSoundEnt("metalhit5", geAttacker, 0.2f, 0.5f);
 
-                            if(singleton->settings[E_BS_DESTROY_TERRAIN])
+                            if(g_settings.settings[E_BS_DESTROY_TERRAIN])
                             {
-                                tempVec1.setBTV(geWeapon->getCenterPoint(E_BDG_CENTER));
+                                tempVec1=convertToVQV(geWeapon->getCenterPoint(E_BDG_CENTER));
                                 //singleton->gameFluid[E_FID_BIG]->pushExplodeBullet(true,&tempVec1,0,4.0f);
                             }
 
@@ -2742,17 +2821,17 @@ void GameEntManager::makeHit(
 
                         if(geVictim->entType==E_ENTTYPE_WEAPON)
                         {
-                            singleton->playSoundEnt("clang0", geAttacker, 0.1, 1.0f);
+                            GameAudio::playSoundEnt("clang0", geAttacker, 0.1f, 1.0f);
                             geAttacker->setActionState(E_ACT_ISSWINGING, i, false);
                         }
 
                         if(geVictim->entType==E_ENTTYPE_NPC)
                         {
 
-                            singleton->playSoundEnt("hit0", geVictim, 0.3, 1.0f);
+                            GameAudio::playSoundEnt("hit0", geVictim, 0.3f, 1.0f);
                             if(geVictim->isAlive())
                             {
-                                singleton->playSoundEnt("grunthitm0", geVictim, 0.15, 0.2f);
+								GameAudio::playSoundEnt("grunthitm0", geVictim, 0.15f, 0.2f);
                             }
                         }
 
@@ -2763,10 +2842,10 @@ void GameEntManager::makeHit(
                         {
 
 
-                            geVictim->hitCooldown=singleton->conVals[E_CONST_HIT_COOLDOWN_MAX];
+                            geVictim->hitCooldown=(int)getConst(E_CONST_HIT_COOLDOWN_MAX);
 
                             //geVictim->setActionState(E_ACT_ISHIT,RLBN_NEIT,true);
-                            geVictim->bindingPower=singleton->conVals[E_CONST_BINDING_POW_ON_HIT];
+                            geVictim->bindingPower=getConst(E_CONST_BINDING_POW_ON_HIT);
                             lastHealth=geVictim->statSheet.curStatus[E_STATUS_HEALTH];
                             geVictim->statSheet.curStatus[E_STATUS_HEALTH]-=1;
                             if(geVictim->statSheet.curStatus[E_STATUS_HEALTH]<0)
@@ -2786,7 +2865,7 @@ void GameEntManager::makeHit(
 
                                 makeDropAll(geVictim->uid);
 
-                                singleton->playSoundEnt("dyingm0", geVictim, 0.15, 0.2f);
+                                GameAudio::playSoundEnt("dyingm0", geVictim, 0.15f, 0.2f);
 
                             }
 
@@ -2795,7 +2874,7 @@ void GameEntManager::makeHit(
                             impVec.normalize();
                             //impVec += btVector3(0.0f,0.0f,2.0f);
                             geVictim->applyImpulse(
-                                impVec*geVictim->getMarkerMass()*singleton->conVals[E_CONST_HIT_STRENGTH],
+                                impVec*geVictim->getMarkerMass()*getConst(E_CONST_HIT_STRENGTH),
                                 false,
                                 E_BDG_CENTER
                             );
@@ -2820,7 +2899,7 @@ GameOrgNode* GameEntManager::getMirroredNode(GameOrgNode* curNode)
     }
     GameOrg* testOrg=getCurOrg();
 
-    if(singleton->settings[E_BS_MIRROR_POSE])
+    if(g_settings.settings[E_BS_MIRROR_POSE])
     {
 
 
@@ -2893,7 +2972,7 @@ void GameEntManager::refreshActor(int actorId)
 
     curOrg->updateHandleOffset();
 
-    singleton->gamePhysics->addBoxFromObj(actorId, true);
+    GameState::gamePhysics->addBoxFromObj(actorId, true);
 
     transformOrg(curOrg, NULL);
 
@@ -2914,9 +2993,9 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
 
     int i;
     int j;
-    int k;
+//    int k;
 
-    int q;
+//    int q;
 
     float xm=0.0f;
     float ym=0.0f;
@@ -2941,7 +3020,7 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
         (curNode->nodeName<=E_BONE_WEAPON_BLADEL)
         )
         )&&
-        (singleton->settings[E_BS_MIRROR_POSE])
+        (g_settings.settings[E_BS_MIRROR_POSE])
         )
     {
         j=2;
@@ -2963,7 +3042,7 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
         }
 
 
-        if(singleton->abDown)
+        if(GameState::ui->abDown)
         {
             makeDirty();
         }
@@ -2971,18 +3050,18 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
         xm=dx/100.0f;
         ym=dy/100.0f;
 
-        if(singleton->bShift)
+        if(GameState::ui->bShift)
         {
 
-            if(singleton->lbDown)
+            if(GameState::ui->lbDown)
             {
                 curNode->orgVecs[E_OV_TBNRAD0].addXYZ(0.0f, xm, ym);
             }
-            if(singleton->rbDown)
+            if(GameState::ui->rbDown)
             {
                 curNode->orgVecs[E_OV_TBNRAD1].addXYZ(0.0f, xm, ym);
             }
-            if(singleton->mbDown)
+            if(GameState::ui->mbDown)
             {
                 curNode->orgVecs[E_OV_TBNRAD0].addXYZ(ym, 0.0f, 0.0f);
                 curNode->orgVecs[E_OV_TBNRAD1].addXYZ(ym, 0.0f, 0.0f);
@@ -2990,18 +3069,18 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
                 curActorNeedsRefresh=true;
             }
         }
-        else if(singleton->bCtrl)
+        else if(GameState::ui->bCtrl)
         {
-            if(singleton->lbDown)
+            if(GameState::ui->lbDown)
             {
                 curNode->orgVecs[E_OV_POWVALS].addXYZW(xm, ym, 0.0f, 0.0f);
             }
-            if(singleton->rbDown)
+            if(GameState::ui->rbDown)
             {
                 curNode->orgVecs[E_OV_POWVALS].addXYZW(0.0f, 0.0f, xm, ym);
             }
 
-            if(singleton->mbDown)
+            if(GameState::ui->mbDown)
             {
                 curNode->orgVecs[E_OV_TBNOFFSET].addXYZW(0.0f, 0.0f, 0.0f, ym);
             }
@@ -3013,16 +3092,16 @@ void GameEntManager::applyNodeChanges(GameOrgNode* _curNode, float dx, float dy)
         }
         else
         {
-            if(singleton->lbDown)
+            if(GameState::ui->lbDown)
             {
                 curNode->orgVecs[E_OV_THETAPHIRHO].addXYZ(dirMod*ym, 0.0, 0.0); //dirMod*ym
                 //curNode->orgVecs[E_OV_TBNOFFSET].addXYZ(dirMod*ym,0.0,0.0);
             }
-            if(singleton->rbDown)
+            if(GameState::ui->rbDown)
             {
                 curNode->orgVecs[E_OV_THETAPHIRHO].addXYZ(0.0, 0.0, dirMod*ym);
             }
-            if(singleton->mbDown)
+            if(GameState::ui->mbDown)
             {
                 curNode->orgVecs[E_OV_THETAPHIRHO].addXYZ(0.0, dirMod*ym, 0.0);
             }
@@ -3054,7 +3133,7 @@ void GameEntManager::transformOrg(
 
 void GameEntManager::resetActiveNode()
 {
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
 
 
@@ -3127,54 +3206,54 @@ bool GameEntManager::updateNearestOrgNode(bool setActive)
 
     bestNode=NULL;
 
-    int boneId;
+//    int boneId;
 
     highlightedLimb2=-1;
     highlightedLimb=-1;
 
-    singleton->gamePhysics->pickBody(&singleton->mouseMovePixData.pd[2]);
+    GameState::gamePhysics->pickBody(&GameState::ui->mouseMovePixData.pd[2]);
 
     if(
-        (singleton->gamePhysics->lastBodyPick==NULL)||
-        (singleton->gamePhysics->lastBodyUID==-1)||
-        (singleton->gamePhysics->lastBodyUID!=getCurActorUID())
+        (GameState::gamePhysics->lastBodyPick==NULL)||
+        (GameState::gamePhysics->lastBodyUID==-1)||
+        (GameState::gamePhysics->lastBodyUID!=getCurActorUID())
         )
     {
 
     }
     else
     {
-        highlightedLimb=singleton->gamePhysics->lastBodyPick->limbUID;
-
-        if(highlightedLimb>-1)
-        {
-            boneId=getCurActor()->bodies[highlightedLimb].boneId;
-
-
-            if(boneId>-1)
-            {
-                bestNode=testOrg->allNodes[boneId];
-
-                // if (singleton->settings[E_BS_MIRROR_POSE]) {
-                // 	mirNode = getMirroredNode(bestNode);
-
-                // 	if (mirNode == NULL) {
-
-                // 	}
-                // 	else {
-                // 		mirNode->nodeName
-                // 	}
-
-                // }
-
-                setSelNode(bestNode);
-                if(setActive)
-                {
-                    activeNode=bestNode;
-                }
-                return true;
-            }
-        }
+//        highlightedLimb=GameState::gamePhysics->lastBodyPick->limbUID;
+//
+//        if(highlightedLimb>-1)
+//        {
+//            boneId=getCurActor()->bodies[highlightedLimb].boneId;
+//
+//
+//            if(boneId>-1)
+//            {
+//                bestNode=testOrg->allNodes[boneId];
+//
+//                // if (singleton->settings[E_BS_MIRROR_POSE]) {
+//                // 	mirNode = getMirroredNode(bestNode);
+//
+//                // 	if (mirNode == NULL) {
+//
+//                // 	}
+//                // 	else {
+//                // 		mirNode->nodeName
+//                // 	}
+//
+//                // }
+//
+//                setSelNode(bestNode);
+//                if(setActive)
+//                {
+//                    activeNode=bestNode;
+//                }
+//                return true;
+//            }
+//        }
 
     }
 
@@ -3187,7 +3266,7 @@ bool GameEntManager::updateNearestOrgNode(bool setActive)
 }
 
 
-void GameEntManager::saveOrgFromMenu(string currentFieldString)
+void GameEntManager::saveOrgFromMenu(std::string currentFieldString)
 {
     if(getCurOrg()==NULL)
     {
@@ -3209,7 +3288,7 @@ void GameEntManager::saveOrgFromMenu(string currentFieldString)
     transformOrg(testOrg, NULL);
 }
 
-void GameEntManager::loadOrgFromMenu(string currentFieldString)
+void GameEntManager::loadOrgFromMenu(std::string currentFieldString)
 {
     if(getCurOrg()==NULL)
     {
@@ -3217,7 +3296,7 @@ void GameEntManager::loadOrgFromMenu(string currentFieldString)
     }
     GameOrg* testOrg=getCurOrg();
 
-    float tempVal;
+//    float tempVal;
 
     testOrg->loadOrgFromFile(currentFieldString, false);
     //orientRotation();
@@ -3294,10 +3373,10 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
     int k;
     int m;
 
-    bool doProc;
+//    bool doProc;
     bool allowLoad=true;
 
-    int numChildren;
+//    int numChildren;
     int numSteps;
 
     JSONValue* jv=NULL;
@@ -3308,12 +3387,12 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
     int rlbnRes;
     int poseCount=0;
 
-    string curString;
+    std::string curString;
 
     gamePoses.clear();
 
 
-    if(singleton->loadJSON("..\\data\\poseinfo.js", &poseRootJS))
+    if(loadJSON("..\\data\\poseinfo.js", &poseRootJS))
     {
 
         templates=poseRootJS->Child("templates");
@@ -3339,7 +3418,7 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
                 }
                 else
                 {
-                    cout<<"invalid template \n";
+                    std::cout<<"invalid template \n";
                 }
             }
 
@@ -3361,11 +3440,11 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
 
                             if(curTempl->Child(E_PIK_STRINGS[k])->IsNumber())
                             {
-                                gamePoseInfo[i].data[k]=curTempl->Child(E_PIK_STRINGS[k])->number_value;
+                                gamePoseInfo[i].data[k]=(float)curTempl->Child(E_PIK_STRINGS[k])->number_value;
                             }
                             else
                             {
-                                gamePoseInfo[i].data[k]=stringToEnum(
+                                gamePoseInfo[i].data[k]=(float)stringToEnum(
                                     E_SUBTYPE_STRINGS,
                                     E_SUB_LENGTH,
                                     curTempl->Child(E_PIK_STRINGS[k])->string_value
@@ -3378,8 +3457,8 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
                 curTempl=jv;
             }
 
-            rlbnRes=gamePoseInfo[i].data[E_PIK_RLBN];
-            numSteps=gamePoseInfo[i].data[E_PIK_NUMSTEPS];
+            rlbnRes=(int)gamePoseInfo[i].data[E_PIK_RLBN];
+            numSteps=(int)gamePoseInfo[i].data[E_PIK_NUMSTEPS];
 
             for(k=0; k<4; k++)
             {
@@ -3427,8 +3506,8 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
                         gamePoses[poseCount]->init(
                             singleton,
                             -1,
-                            gamePoseInfo[i].data[E_PIK_POSETYPE],
-                            gamePoseInfo[i].data[E_PIK_SUBTYPE]
+                            (int)gamePoseInfo[i].data[E_PIK_POSETYPE],
+                            (int)gamePoseInfo[i].data[E_PIK_SUBTYPE]
 
                         );
 
@@ -3512,7 +3591,7 @@ GameOrg* GameEntManager::getPose(
     }
 }
 
-string GameEntManager::getPoseString(
+std::string GameEntManager::getPoseString(
     int targPoseGroup,
     int targRLBN,
     int targStep
@@ -3526,7 +3605,7 @@ GameOrg* GameEntManager::getCurrentPose()
     return getPose(curPose[curPoseType].group, curPose[curPoseType].RLBN, curPose[curPoseType].step);
 }
 
-string GameEntManager::getCurrentPoseString()
+std::string GameEntManager::getCurrentPoseString()
 {
     return getPoseString(curPose[curPoseType].group, curPose[curPoseType].RLBN, curPose[curPoseType].step);
 }
@@ -3585,7 +3664,7 @@ void GameEntManager::changePose(int amount)
     {
         curPose[curPoseType].index+=amount;
 
-        cout<<"poseInd "<<" "<<curPoseType<<" "<<curPose[curPoseType].index<<"\n";
+        std::cout<<"poseInd "<<" "<<curPoseType<<" "<<curPose[curPoseType].index<<"\n";
 
         if(curPose[curPoseType].index==gamePoses.size())
         {
@@ -3593,7 +3672,7 @@ void GameEntManager::changePose(int amount)
         }
         if(curPose[curPoseType].index<0)
         {
-            curPose[curPoseType].index=gamePoses.size()-1;
+            curPose[curPoseType].index=(int)(gamePoses.size()-1);
         }
 
 
@@ -3601,10 +3680,10 @@ void GameEntManager::changePose(int amount)
 
 
 
-    int j;
-    float* curData;
+//    int j;
+//    float* curData;
 
-    cout<<"Current Pose: "<<getCurrentPoseString()<<"\n";
+    std::cout<<"Current Pose: "<<getCurrentPoseString()<<"\n";
 
     setPoseFromIndex(curPose[curPoseType].index);
 
@@ -3614,7 +3693,7 @@ void GameEntManager::changePose(int amount)
 
         testOrg->setTPG(curPose[curPoseType].group, curPose[curPoseType].RLBN);
 
-        if(singleton->settings[E_BS_EDIT_POSE])
+        if(g_settings.settings[E_BS_EDIT_POSE])
         {
             loadCurrentPose();
         }
@@ -3633,7 +3712,7 @@ void GameEntManager::saveCurrentPose()
 {
     GameOrg* testOrg=getCurOrg();
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
 
         if(testOrg!=NULL)
@@ -3642,7 +3721,7 @@ void GameEntManager::saveCurrentPose()
             getCurrentPose()->loadOrgFromFile(getCurrentPoseString(), false);
             transformOrg(getCurrentPose(), NULL);
 
-            cout<<"Saved Pose "<<getCurrentPoseString()<<"\n";
+            std::cout<<"Saved Pose "<<getCurrentPoseString()<<"\n";
 
         }
     }
@@ -3671,7 +3750,7 @@ void GameEntManager::setPoseFromIndex(int i)
 int GameEntManager::getPoseType(int poseIndex)
 {
     int testPoseInd=gamePoses[poseIndex]->basePose.group;
-    return gamePoseInfo[testPoseInd].data[E_PIK_POSETYPE];
+    return (int)gamePoseInfo[testPoseInd].data[E_PIK_POSETYPE];
 }
 
 
@@ -3698,12 +3777,12 @@ void GameEntManager::loadNonPoseData(int npdPose, int npdSide, int npdStep)
     GameOrg* testOrg=getCurOrg();
 
     int i;
-    int j;
-    int k;
+//    int j;
+//    int k;
 
-    float* curData;/// = gamePoseInfo[targetPose].data;
+//    float* curData;/// = gamePoseInfo[targetPose].data;
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
         if(testOrg!=NULL)
         {
@@ -3720,7 +3799,7 @@ void GameEntManager::loadNonPoseData(int npdPose, int npdSide, int npdStep)
                     testOrg->setToPose(getCurrentPose(), 1.0f);
                     transformOrg(testOrg, NULL);
                     makeDirty();
-                    cout<<"Loaded Non Pose "<<getCurrentPoseString()<<"\n";
+                    std::cout<<"Loaded Non Pose "<<getCurrentPoseString()<<"\n";
                     saveCurrentPose();
                 }
 
@@ -3743,7 +3822,7 @@ void GameEntManager::loadCurrentPose()
 {
     GameOrg* testOrg=getCurOrg();
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
         if(testOrg!=NULL)
         {
@@ -3753,7 +3832,7 @@ void GameEntManager::loadCurrentPose()
             testOrg->setToPose(getCurrentPose(), 1.0f);
             transformOrg(testOrg, NULL);
             makeDirty();
-            cout<<"Loaded Pose "<<getCurrentPoseString()<<"\n";
+			std:: cout<<"Loaded Pose "<<getCurrentPoseString()<<"\n";
 
         }
     }
@@ -3773,7 +3852,7 @@ int GameEntManager::numberIcons(int pCurCount, int x1, int y1, int x2, int y2)
         {
             if(curCount>=MAX_OBJ_TYPES)
             {
-                cout<<"error curCount "<<curCount<<"\n";
+                std::cout<<"error curCount "<<curCount<<"\n";
             }
             else
             {
@@ -3782,7 +3861,7 @@ int GameEntManager::numberIcons(int pCurCount, int x1, int y1, int x2, int y2)
 
             if((i+j*ITEMS_PER_ROW)>=MAX_ICON_ID)
             {
-                cout<<"error i + j * ITEMS_PER_ROW "<<(i+j*ITEMS_PER_ROW)<<"\n";
+				std::cout<<"error i + j * ITEMS_PER_ROW "<<(i+j*ITEMS_PER_ROW)<<"\n";
             }
             else
             {
@@ -3799,7 +3878,7 @@ int GameEntManager::numberIcons(int pCurCount, int x1, int y1, int x2, int y2)
 
 }
 
-string GameEntManager::getStringForObjectId(int objectId)
+std::string GameEntManager::getStringForObjectId(int objectId)
 {
     int objType=gameObjects[objectId].objectType;
     int iconNum=entIdToIcon[objType];

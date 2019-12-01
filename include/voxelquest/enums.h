@@ -130,5 +130,26 @@ enum E_FLUID_IDS
 
 //#define DEBUG_MODE 
 
+
+
+int stringToEnum(
+	std::string* enumStringArr,
+	int enumStringArrLength,
+	std::string testString
+)
+{
+	int i;
+
+	for(i=0; i<enumStringArrLength; i++)
+	{
+		if(enumStringArr[i].compare(testString)==0)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 //const static int MAX_THREADS = 8;
 #endif//_voxelquest__h_

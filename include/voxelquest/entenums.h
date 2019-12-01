@@ -47,5 +47,106 @@ enum E_WEAPON_POS
     E_WEAPON_POS_LENGTH
 };
 
+// TODO: FIX THIS SLOP
+// MUST CALL THIS, BONE NAMES GOT REVERSED
+int getCorrectedName(int curNodeName)
+{
+
+	if(curNodeName<E_BONE_C_BEG)
+	{
+		if(curNodeName<=E_BONE_L_END)
+		{
+			return (
+				curNodeName+(E_BONE_R_BEG-E_BONE_L_BEG)
+				);
+		}
+		else
+		{
+			return (
+				curNodeName-(E_BONE_R_BEG-E_BONE_L_BEG)
+				);
+		}
+	}
+	else
+	{
+		return curNodeName;
+	}
+}
+
+std::string boneStrings[]={
+
+	"E_BONE_L_BEG", ///////////////
+	"E_BONE_L_SHOULDER",
+	"E_BONE_L_UPPERARM",
+	"E_BONE_L_LOWERARM",
+	"E_BONE_L_METACARPALS",
+	"E_BONE_L_PROXIMAL0", // pinky
+	"E_BONE_L_PROXIMAL1", // ring
+	"E_BONE_L_PROXIMAL2", // middle
+	"E_BONE_L_PROXIMAL3", // index
+	"E_BONE_L_PROXIMAL4", // thumb
+	"E_BONE_L_INTER0", // pinky
+	"E_BONE_L_INTER1", // ring
+	"E_BONE_L_INTER2", // middle
+	"E_BONE_L_INTER3", // index
+	"E_BONE_L_INTER4", // thumb
+	"E_BONE_L_DISTAL0", // pinky
+	"E_BONE_L_DISTAL1", // ring
+	"E_BONE_L_DISTAL2", // middle
+	"E_BONE_L_DISTAL3", // index
+	"E_BONE_L_DISTAL4", // thumb
+	"E_BONE_L_HIP",
+	"E_BONE_L_UPPERLEG",
+	"E_BONE_L_LOWERLEG",
+	"E_BONE_L_TALUS",
+	"E_BONE_L_PHALANGE",
+	"E_BONE_L_END", //////////////
+	"E_BONE_R_BEG", //////////////
+	"E_BONE_R_SHOULDER",
+	"E_BONE_R_UPPERARM",
+	"E_BONE_R_LOWERARM",
+	"E_BONE_R_METACARPALS",
+	"E_BONE_R_PROXIMAL0", // pinky
+	"E_BONE_R_PROXIMAL1", // ring
+	"E_BONE_R_PROXIMAL2", // middle
+	"E_BONE_R_PROXIMAL3", // index
+	"E_BONE_R_PROXIMAL4", // thumb
+	"E_BONE_R_INTER0", // pinky
+	"E_BONE_R_INTER1", // ring
+	"E_BONE_R_INTER2", // middle
+	"E_BONE_R_INTER3", // index
+	"E_BONE_R_INTER4", // thumb
+	"E_BONE_R_DISTAL0", // pinky
+	"E_BONE_R_DISTAL1", // ring
+	"E_BONE_R_DISTAL2", // middle
+	"E_BONE_R_DISTAL3", // index
+	"E_BONE_R_DISTAL4", // thumb
+	"E_BONE_R_HIP",
+	"E_BONE_R_UPPERLEG",
+	"E_BONE_R_LOWERLEG",
+	"E_BONE_R_TALUS",
+	"E_BONE_R_PHALANGE",
+	"E_BONE_R_END", /////////////////
+	"E_BONE_C_BEG", /////////////////
+	"E_BONE_C_BASE",
+	"E_BONE_C_SPINE0", // tail
+	"E_BONE_C_SPINE1",
+	"E_BONE_C_SPINE2",
+	"E_BONE_C_SPINE3",
+	"E_BONE_C_SPINE4", // neck
+	"E_BONE_C_SKULL",
+
+
+	"E_BONE_WEAPON_POMMEL",
+	"E_BONE_WEAPON_HANDLE",
+	"E_BONE_WEAPON_CENTER",
+	"E_BONE_WEAPON_CROSSR",
+	"E_BONE_WEAPON_CROSSL",
+	"E_BONE_WEAPON_BLADER",
+	"E_BONE_WEAPON_BLADEL",
+	"E_BONE_WEAPON_BLADEU",
+
+	"E_BONE_C_END" //////////////////
+};
 
 #endif//_voxelquest_entenums_h_

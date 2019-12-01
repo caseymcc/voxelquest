@@ -52,7 +52,7 @@ class JSONValue
 		
 		void RemoveChild(std::string name);
 
-		std::string Stringify(int curLev) const;
+		std::string Stringify(int curLev=0) const;
 
 		static JSONValue *Parse(const char **data);
 

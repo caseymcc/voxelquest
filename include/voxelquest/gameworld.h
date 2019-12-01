@@ -3,9 +3,11 @@
 
 #include "voxelquest/baseobject.h"
 #include "voxelquest/helperfuncs.h"
+#include "voxelquest/gameblock.h"
 
 class GameOrg;
 class GameOrgNode;
+class Singleton;
 
 class GameWorld
 {

@@ -39,7 +39,7 @@ public:
     );
 
 
-private:
+//private:
     Singleton* singleton;
 
     charArr lastJSONBuffer;

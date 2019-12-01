@@ -1325,11 +1325,3 @@ void FBOManager::getMatrixFromFBO(std::string fboName)
 }
 
 
-void FBOManager::bindFBODirect(FBOSet *fbos, int doClear)
-{
-    setMatrices(fbos->width, fbos->height);
-
-    fbos->bind(doClear);
-    currentFBOResolutionX=fbos->width;
-    currentFBOResolutionY=fbos->height;
-}

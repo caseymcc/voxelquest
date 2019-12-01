@@ -1,4 +1,24 @@
-#include "gamefluid.h"
+#include "voxelquest/gamefluid.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/threadpoolwrapper.h"
+#include "voxelquest/bullethelpers.h"
+
+#include <algorithm>
+#include <stdint.h>
+
+int64_t GLOBAL_OBJ_COUNT=1LL;
+
+enum E_PUSH_MOD
+{
+	E_PM_EXPLODE_BULLET,
+	E_PM_MODIFY_UNIT,
+	E_PM_PLACE_TEMPLATE,
+	E_PM_LENGTH
+};
 
 GameFluid::GameFluid()
 {
@@ -15,8 +35,8 @@ GameFluid::GameFluid()
 
     invalidated=true;
 
-    F_UNIT_MIN=UNIT_MIN;
-    F_UNIT_MAX=UNIT_MAX;
+    F_UNIT_MIN=(float)UNIT_MIN;
+    F_UNIT_MAX=(float)UNIT_MAX;
 
     watchMinX=-1;
     watchMaxX=-1;
@@ -101,8 +121,8 @@ void GameFluid::init(Singleton* _singleton, int _mainId)
 
 
     volSizePrim=volSizes[mainId]/mipSizes[mainId];
-    cellsPerBlock=singleton->cellsPerBlock;
-    cellsPerHolder=singleton->cellsPerHolder;
+    cellsPerBlock=g_settings.cellsPerBlock;
+    cellsPerHolder=g_settings.cellsPerHolder;
 
     readyForTermination=false;
     cycleTerminated=false;
@@ -318,8 +338,8 @@ bool GameFluid::addPrimObj(FIVector4* pos, int tempId, int uid)
     float fPrimDiv=1.0f/primDiv;
     //float cornerDis = singleton->primTemplateStack[baseInd+E_PRIMTEMP_CORNERDIS].getFX();
 
-    tempBoundsMin.copyFrom(&(singleton->primTemplateStack[baseInd+E_PRIMTEMP_VISMIN]));
-    tempBoundsMax.copyFrom(&(singleton->primTemplateStack[baseInd+E_PRIMTEMP_VISMAX]));
+    tempBoundsMin.copyFrom(&(primTemplateStack[baseInd+E_PRIMTEMP_VISMIN]));
+    tempBoundsMax.copyFrom(&(primTemplateStack[baseInd+E_PRIMTEMP_VISMAX]));
 
     tempBoundsMin.addXYZRef(pos);
     tempBoundsMax.addXYZRef(pos);
@@ -348,13 +368,13 @@ bool GameFluid::addPrimObj(FIVector4* pos, int tempId, int uid)
 
 
 
-    int iMin=max(tempBoundsMin[0], 0.0f);
-    int jMin=max(tempBoundsMin[1], 0.0f);
-    int kMin=max(tempBoundsMin[2], 0.0f);
+    int iMin=(int)std::max(tempBoundsMin[0], 0.0f);
+    int jMin=(int)std::max(tempBoundsMin[1], 0.0f);
+    int kMin=(int)std::max(tempBoundsMin[2], 0.0f);
 
-    int iMax=min(tempBoundsMax[0], volSizePrimMacro-1.0f);
-    int jMax=min(tempBoundsMax[1], volSizePrimMacro-1.0f);
-    int kMax=min(tempBoundsMax[2], volSizePrimMacro-1.0f);
+    int iMax=(int)std::min(tempBoundsMax[0], volSizePrimMacro-1.0f);
+    int jMax=(int)std::min(tempBoundsMax[1], volSizePrimMacro-1.0f);
+    int kMax=(int)std::min(tempBoundsMax[2], volSizePrimMacro-1.0f);
 
     bool wasAdded=false;
 
@@ -383,10 +403,10 @@ bool GameFluid::addPrimObj(FIVector4* pos, int tempId, int uid)
                         tboData[ind+0]=pos->getFX();
                         tboData[ind+1]=pos->getFY();
                         tboData[ind+2]=pos->getFZ();
-                        tboData[ind+3]=tempId;
+                        tboData[ind+3]=(float)tempId;
 
-                        tboData[ind+4]=0;//diagCount;//;
-                        tboData[ind+5]=uid+1; // uid of 0 results in blank object
+                        tboData[ind+4]=0.0f;//diagCount;//;
+                        tboData[ind+5]=(float)(uid+1); // uid of 0 results in blank object
                         tboData[ind+6]=0.0f;
                         tboData[ind+7]=0.0f;
 
@@ -404,9 +424,9 @@ bool GameFluid::addPrimObj(FIVector4* pos, int tempId, int uid)
 void GameFluid::flushAllGeom()
 {
 
-    singleton->stopAllThreads();
-    singleton->gameLogic->holderStack.clear();
-    singleton->gameLogic->dirtyStack=true;
+    GameState::stopAllThreads();
+    GameState::gameLogic->holderStack.clear();
+    GameState::gameLogic->dirtyStack=true;
     int i;
     int j;
     int k;
@@ -435,18 +455,18 @@ void GameFluid::flushAllGeom()
 
     ObjectStruct* curObj;
 
-    for(q=0; q<singleton->tempPrimList.size(); q++)
+    for(q=0; q<tempPrimList.size(); q++)
     {
-        curObj=&(singleton->tempPrimList[q]);
+        curObj=&(tempPrimList[q]);
 
         newPos.setVec3(curObj->offset);
 
 
 
         chunkPos.copyFrom(&newPos);
-        chunkPos.intDivXYZ(singleton->cellsPerChunk);
+        chunkPos.intDivXYZ(g_settings.cellsPerChunk);
 
-        tempChunk=singleton->gw->getChunkAtCoords(
+        tempChunk=GameState::gw->getChunkAtCoords(
             chunkPos.getIX(),
             chunkPos.getIY(),
             chunkPos.getIZ(),
@@ -458,11 +478,11 @@ void GameFluid::flushAllGeom()
         boundsMin.copyFrom(&newPos);
         boundsMax.copyFrom(&newPos);
 
-        boundsMin.addXYZRef(singleton->getGeomRef(curObj->templateId, E_PRIMTEMP_VISMIN));
-        boundsMax.addXYZRef(singleton->getGeomRef(curObj->templateId, E_PRIMTEMP_VISMAX));
+        boundsMin.addXYZRef(getGeomRef(curObj->templateId, E_PRIMTEMP_VISMIN));
+        boundsMax.addXYZRef(getGeomRef(curObj->templateId, E_PRIMTEMP_VISMAX));
 
-        boundsMin.addXYZ(-singleton->paddingInCells);
-        boundsMax.addXYZ(singleton->paddingInCells);
+        boundsMin.addXYZ((float)-g_settings.paddingInCells);
+        boundsMax.addXYZ((float)g_settings.paddingInCells);
 
         holderPosMin.copyFrom(&boundsMin);
         holderPosMin.intDivXYZ(cellsPerHolder);
@@ -483,7 +503,7 @@ void GameFluid::flushAllGeom()
             {
                 for(i=minHP.x; i<=maxHP.x; i++)
                 {
-                    curHolder=singleton->gw->getHolderAtCoords(i, j, k, true);
+                    curHolder=GameState::gw->getHolderAtCoords(i, j, k, true);
 
                     curHolder->makeDirty();
 
@@ -494,7 +514,7 @@ void GameFluid::flushAllGeom()
                     loadHolder.x=i;
                     loadHolder.y=j;
                     loadHolder.z=k;
-                    singleton->gameLogic->holderStack.push_back(loadHolder);
+					GameState::gameLogic->holderStack.push_back(loadHolder);
 
 
                 }
@@ -504,12 +524,12 @@ void GameFluid::flushAllGeom()
 
 
         chunkPosMin.copyFrom(&boundsMin);
-        chunkPosMin.intDivXYZ(singleton->cellsPerChunk);
+        chunkPosMin.intDivXYZ(g_settings.cellsPerChunk);
         //chunkPosMin.addXYZ(-1.0f);
 
 
         chunkPosMax.copyFrom(&boundsMax);
-        chunkPosMax.intDivXYZ(singleton->cellsPerChunk);
+        chunkPosMax.intDivXYZ(g_settings.cellsPerChunk);
         //chunkPosMax.addXYZ(1.0f);
 
         minHP=chunkPosMin.getIVec3();
@@ -520,29 +540,18 @@ void GameFluid::flushAllGeom()
             {
                 for(i=minHP.x; i<=maxHP.x; i++)
                 {
-                    curChunk=singleton->gw->getChunkAtCoords(i, j, k, true);
+                    curChunk=GameState::gw->getChunkAtCoords(i, j, k, true);
 
                     curChunk->makeDirty();
 
                 }
             }
         }
-
-
-
     }
 
+	modifiedGeom=true;
 
-
-
-
-    modifiedGeom=true;
-
-    singleton->tempPrimList.clear();
-
-
-
-
+    tempPrimList.clear();
 }
 
 void GameFluid::addGeom(FIVector4* newPos, int templateId, int orientation)
@@ -556,11 +565,7 @@ void GameFluid::addGeom(FIVector4* newPos, int templateId, int orientation)
     os.orientation=orientation;
     os.offset=newPos->getVec3();
 
-    singleton->tempPrimList.push_back(os);
-
-
-
-
+    tempPrimList.push_back(os);
 
     // btTransform trans;
     // trans.setOrigin(btVector3(
@@ -620,7 +625,7 @@ void GameFluid::fetchGeom()
             {
 
 
-                curBlock=singleton->gw->getBlockAtCoords(
+                curBlock=GameState::gw->getBlockAtCoords(
                     camBlockPos.getIX()+i,
                     camBlockPos.getIY()+j,
                     camBlockPos.getIZ()+k,
@@ -796,7 +801,7 @@ bool GameFluid::updateAll()
 
                     if(modifiedGeom)
                     { //modifiedUnit||
-                        singleton->refreshPaths=true;
+                        GameState::refreshPaths=true;
                     }
 
                     //DirtyRegion
@@ -813,11 +818,11 @@ bool GameFluid::updateAll()
                         {
                             writeMIP.copyFrom(&volMinInPixels); //volMinInPixels
 
-                            if(singleton->settings[E_BS_UPDATE_FLUID])
+                            if(g_settings.settings[E_BS_UPDATE_FLUID])
                             {
                                 //if (mainId == E_FID_SML) {
-                                singleton->gameLogic->threadPoolPath->stopAll();
-                                singleton->gameLogic->threadPoolList->stopAll();
+                                GameState::gameLogic->threadPoolPath->stopAll();
+                                GameState::gameLogic->threadPoolList->stopAll();
                                 writeFluidData();
                                 //}
                             }
@@ -1036,7 +1041,7 @@ void GameFluid::updateTBOData(bool firstTime, bool reloadTemplates)
 
     if(firstTime||reloadTemplates)
     {
-        if(singleton->getPrimTemplateString())
+        if(getPrimTemplateString())
         {
 
         }
@@ -1130,7 +1135,7 @@ bool GameFluid::tryToEndRead()
 void GameFluid::tryToEndThreads()
 {
 
-    if(singleton->gameLogic->anyThreadsRunning())
+    if(GameState::gameLogic->anyThreadsRunning())
     {
 
     }
@@ -1140,7 +1145,7 @@ void GameFluid::tryToEndThreads()
         // singleton->gameLogic->threadPoolPath->stopAll();
         // singleton->gameLogic->threadPoolList->stopAll();
         prereadFluidData();
-        singleton->gameLogic->allowThreadCreation=true;
+		GameState::gameLogic->allowThreadCreation=true;
 
         startTL();
     }
@@ -1156,16 +1161,16 @@ void GameFluid::proceedWithRead()
     proceedingToRead=true;
     //
     camPosVPInPixels.copyFrom(&campPosVPDump);
-    camPosVPInPixels.multXYZ(cellsPerHolder);
+    camPosVPInPixels.multXYZ((float)cellsPerHolder);
     volMinInPixels.copyFrom(&camPosVPInPixels);
     volMaxInPixels.copyFrom(&camPosVPInPixels);
-    volMaxInPixels.addXYZ(volSizePrim);
+    volMaxInPixels.addXYZ((float)volSizePrim);
     //
 
 
     readMIP.copyFrom(&volMinInPixels);
 
-    singleton->gameLogic->allowThreadCreation=false;
+	GameState::gameLogic->allowThreadCreation=false;
 
     waitingOnThreads=true;
 
@@ -1202,20 +1207,20 @@ void GameFluid::shiftRegion()
 {
 
 
-    bool notThirdPerson=(singleton->gem->getCurActor()==NULL);
+    bool notThirdPerson=(GameState::gem->getCurActor()==NULL);
 
     if(notThirdPerson)
     {
-        newCamPos.copyFrom(singleton->cameraGetPosNoShake());
+        newCamPos.copyFrom(GameState::cameraGetPosNoShake());
     }
     else
     {
-        newCamPos.setBTV(singleton->gem->getCurActor()->getCenterPoint(0));
+        newCamPos=convertToVQV(GameState::gem->getCurActor()->getCenterPoint(0));
     }
 
     if(notThirdPerson&&(volSizePrim<512))
     { // && (mainId==E_FID_SML)
-        newCamPos.addXYZRef(&singleton->lookAtVec, volSizePrim*0.4f);
+        newCamPos.addXYZRef(&GameState::lookAtVec, volSizePrim*0.4f);
     }
 
     camPosVP.copyFrom(&newCamPos);
@@ -1249,7 +1254,7 @@ void GameFluid::funcFT()
 {
     threadFluid.setRunningLocked(true);
 
-    if(singleton->settings[E_BS_UPDATE_FLUID])
+    if(g_settings.settings[E_BS_UPDATE_FLUID])
     {
         //if (mainId==E_FID_SML) {
         fluidChanged=updateFluidData();
@@ -1423,7 +1428,7 @@ void GameFluid::getPrimData(int n)
     int i;
     int j;
     int k;
-    int c;
+//    int c;
 
     uint v0;
     uint v1;
@@ -1432,8 +1437,8 @@ void GameFluid::getPrimData(int n)
 
     uint maxVal=255;
 
-    int indAbove;
-    int indBelow;
+//    int indAbove;
+//    int indBelow;
 
     int indSrc;
     int indDest;
@@ -1458,7 +1463,7 @@ void GameFluid::getPrimData(int n)
     }
 
 
-    float NEW_UNIT_MAX=UNIT_MAX+1;
+    float NEW_UNIT_MAX=(float)(UNIT_MAX+1);
 
     uint* vdpPtr=(volDataPrim[n]);
 
@@ -1490,10 +1495,10 @@ void GameFluid::getPrimData(int n)
                     //indBelow = indSrc-volSizePrimBuf*volSizePrimBuf*4;
                     indDest=((i-bufAmount)+(j-bufAmount)*volSizePrim+(k-bufAmount)*volSizePrim*volSizePrim);
 
-                    v0=((fluidData[indSrc+0]+1)*255)/NEW_UNIT_MAX;
-                    v1=((fluidData[indSrc+1]+1)*255)/NEW_UNIT_MAX;
-                    v2=((fluidData[indSrc+2]+1)*255)/NEW_UNIT_MAX;
-                    v3=((fluidData[indSrc+3]+1)*255)/NEW_UNIT_MAX;
+                    v0=(uint)(((fluidData[indSrc+0]+1)*255)/NEW_UNIT_MAX);
+                    v1=(uint)(((fluidData[indSrc+1]+1)*255)/NEW_UNIT_MAX);
+                    v2=(uint)(((fluidData[indSrc+2]+1)*255)/NEW_UNIT_MAX);
+                    v3=(uint)(((fluidData[indSrc+3]+1)*255)/NEW_UNIT_MAX);
 
 
                     // if (
@@ -1519,8 +1524,8 @@ void GameFluid::getPrimData(int n)
                         v2=(v2+510)/3;
                     }
 
-                    v1=min(v1, maxVal);
-                    v2=min(v2, maxVal);
+                    v1=std::min(v1, maxVal);
+                    v2=std::min(v2, maxVal);
 
                     vdpPtr[indDest]=
                         (v0)|
@@ -1593,7 +1598,7 @@ void GameFluid::writeFluidData()
 
                     ind=(i+j*volSizePrimBuf+k*volSizePrimBuf*volSizePrimBuf)*4;
 
-                    singleton->gw->setArrAtCoords(
+                    GameState::gw->setArrAtCoords(
                         i-bufAmount+ox,
                         j-bufAmount+oy,
                         k-bufAmount+oz,
@@ -1608,8 +1613,8 @@ void GameFluid::writeFluidData()
 
     }
 
-    singleton->refreshPaths=false;
-    singleton->gameLogic->testPath.searchedForPath=false;
+    GameState::refreshPaths=false;
+    GameState::gameLogic->testPath.searchedForPath=false;
 }
 
 void GameFluid::prereadFluidData()
@@ -1620,7 +1625,7 @@ void GameFluid::prereadFluidData()
     int i;
     int j;
     int k;
-    int q;
+//    int q;
 
     int ox=readMIP.getIX()/cellsPerHolder;
     int oy=readMIP.getIY()/cellsPerHolder;
@@ -1640,7 +1645,7 @@ void GameFluid::prereadFluidData()
             {
 
 
-                curHolder=singleton->gw->getHolderAtCoords(
+                curHolder=GameState::gw->getHolderAtCoords(
                     i+ox,
                     j+oy,
                     k+oz,
@@ -1677,7 +1682,7 @@ void GameFluid::readFluidData()
 
 
     int ind;
-    int ind2;
+//    int ind2;
 
 
 
@@ -1709,7 +1714,7 @@ void GameFluid::readFluidData()
 
                 ind=(i+j*volSizePrimBuf+k*volSizePrimBuf*volSizePrimBuf)*4;
 
-                singleton->gw->getArrAtCoords(
+                GameState::gw->getArrAtCoords(
                     (i-bufAmount)+readMIP.getIX(),
                     (j-bufAmount)+readMIP.getIY(),
                     (k-bufAmount)+readMIP.getIZ(),
@@ -1758,18 +1763,18 @@ bool GameFluid::updateFluidData()
 
     //maxDirtyRegion(); // todo: utilize dirty regions instad?
 
-    int indAbove;
-    int indBelow;
-    int indSrc;
+//    int indAbove;
+//    int indBelow;
+//    int indSrc;
 
     int i;
     int j;
     int k;
-    int c;
+//    int c;
     int dir;
     int n;
     int p;
-    int q;
+//    int q;
 
     int tempv;
 
@@ -1783,23 +1788,23 @@ bool GameFluid::updateFluidData()
     int numCells;
 
     int ind;
-    int ind2;
+//    int ind2;
 
     int totWat;
 
-    float fVSP=volSizePrimBuf;
+    float fVSP=(float)volSizePrimBuf;
 
-    bool doProc;
+//    bool doProc;
 
-    float fi;
-    float fj;
+//    float fi;
+//    float fj;
     float fk;
 
-    int ox;
-    int oy;
-    int oz;
+//    int ox;
+//    int oy;
+//    int oz;
 
-    int curId;
+//    int curId;
     int tempi;
 
     int* bldVal;
@@ -1807,10 +1812,10 @@ bool GameFluid::updateFluidData()
     int* watVal;
     int* watVal2;
     int* watVal3;
-    int* terVal2;
-    int* bldVal2;
+//    int* terVal2;
+//    int* bldVal2;
     int* ideVal;
-    int* edgVal;
+//    int* edgVal;
 
     int curCollectedWater;
 
@@ -1819,26 +1824,26 @@ bool GameFluid::updateFluidData()
 
     // k is largest at the top
 
-    bool bTouchesAir;
+//    bool bTouchesAir;
 
     // float fSimp[4];
     // int iSimp[4];
 
-    float disFromTop;
-    float disFromBot;
+//    float disFromTop;
+//    float disFromBot;
     float spanZ;
     float minZ;
     float maxZ;
 
     float maxDif=1.0f/4.0f;// /8.0f;
 
-    float zv;
+//    float zv;
 
     bool isAir;
     bool isEmptyWater;
     bool didPrint=false;
 
-    bool isInBounds;
+//    bool isInBounds;
 
     int minV0=0;//min( ((curTick)*totSize)/maxTicks, totSize-1 );
     int minV1=totSize;//min( ((curTick+1)*totSize)/maxTicks, totSize-1 );
@@ -1906,7 +1911,7 @@ bool GameFluid::updateFluidData()
             notFound=false;
         }
     }
-    immobileHeight=max((ind/(volSizePrimBuf*volSizePrimBuf)), 0);
+    immobileHeight=std::max((ind/(volSizePrimBuf*volSizePrimBuf)), 0);
     immobileInd=immobileHeight*(volSizePrimBuf*volSizePrimBuf);
 
 
@@ -1934,8 +1939,8 @@ bool GameFluid::updateFluidData()
     if((maxWaterHeight-immobileHeight)<=1)
     {
 
-        tempMin2.setFXYZ(0, 0, 0);
-        tempMax2.setFXYZ(volSizePrimBuf, volSizePrimBuf, maxWaterHeight+1);
+        tempMin2.setFXYZ(0.0f, 0.0f, 0.0f);
+        tempMax2.setFXYZ((float)volSizePrimBuf, (float)volSizePrimBuf, (float)(maxWaterHeight+1));
 
 
         return false;
@@ -2033,9 +2038,9 @@ bool GameFluid::updateFluidData()
                 // int intArray[SIZE] = {5, 3, 32, -1, 1, 104, 53};
                 // sort(intArray, intArray + SIZE);
 
-                j=fsVec.size()-1;
+                j=(int)(fsVec.size()-1);
 
-                sort(fidGetBeg(j), fidGetEnd(j));
+                std::sort(fidGetBeg(j), fidGetEnd(j));
 
                 fluidBodyCount++;
             }
@@ -2053,7 +2058,7 @@ bool GameFluid::updateFluidData()
     for(n=0; n<fsVec.size(); n++)
     {
 
-        spanZ=fsVec[n].maxZ-fsVec[n].minZ;
+        spanZ=(float)(fsVec[n].maxZ-fsVec[n].minZ);
 
 #ifdef DEBUG_BOUNDS
         isInBounds=false;
@@ -2162,7 +2167,7 @@ bool GameFluid::updateFluidData()
     for(n=0; n<fsVec.size(); n++)
     {
 
-        spanZ=fsVec[n].maxZ-fsVec[n].minZ;
+        spanZ=(float)(fsVec[n].maxZ-fsVec[n].minZ);
 
 #ifdef DEBUG_BOUNDS
         isInBounds=false;
@@ -2261,8 +2266,8 @@ bool GameFluid::updateFluidData()
             fsVec[n].collectedWater=0;
             curCollectedWater=0;
 
-            minZ=fsVec[n].minZ;
-            maxZ=fsVec[n].maxZ;
+            minZ=(float)fsVec[n].minZ;
+            maxZ=(float)fsVec[n].maxZ;
             spanZ=maxZ-minZ;
 
 #ifdef DEBUG_BOUNDS
@@ -2283,7 +2288,7 @@ bool GameFluid::updateFluidData()
                 isInBounds=isInBounds||inBounds(i, j, k);
 #endif
 
-                fk=k;
+                fk=(float)k;
 
 
 
@@ -2408,12 +2413,12 @@ bool GameFluid::updateFluidData()
             }
             else
             {
-                curCollectedWater=fsVec[n].collectedWater/numCells;
+                curCollectedWater=(int)(fsVec[n].collectedWater/numCells);
             }
 
             //cout << "curCollectedWater " << curCollectedWater << "\n";
 
-            curCollectedWater=curCollectedWater*maxDif;
+            curCollectedWater=(int)(curCollectedWater*maxDif);
 
 #ifdef DEBUG_BOUNDS
             isInBounds=false;
@@ -2439,7 +2444,7 @@ bool GameFluid::updateFluidData()
                 if(curCollectedWater>0)
                 {
 
-                    tempi=min(UNIT_MAX-*watVal, curCollectedWater);
+                    tempi=std::min(UNIT_MAX-*watVal, curCollectedWater);
 
                     *watVal+=tempi;
                     fsVec[n].collectedWater-=tempi;
@@ -2478,7 +2483,7 @@ bool GameFluid::updateFluidData()
         if(passesCheck(n))
         {
             curCollectedWater=0;
-            minZ=fsVec[n].minZ;
+            minZ=(float)fsVec[n].minZ;
 
 
             while(fsVec[n].collectedWater>0)
@@ -2501,13 +2506,13 @@ bool GameFluid::updateFluidData()
                     }
                     else
                     {
-                        tempv=fsVec[n].collectedWater;
+                        tempv=(int)fsVec[n].collectedWater;
                     }
 
                     //if (fluidData[ind*4+E_PTT_TER] == UNIT_MIN) {
 
-                    curCollectedWater=min(
-                        ((int)((UNIT_MAX-max(*watVal, 0))*maxDif+1.0f)),
+                    curCollectedWater=std::min(
+                        ((int)((UNIT_MAX-std::max(*watVal, 0))*maxDif+1.0f)),
                         tempv
                     );
 
@@ -2518,7 +2523,7 @@ bool GameFluid::updateFluidData()
                             *watVal=0;
                         }
 
-                        tempi=min(UNIT_MAX-*watVal, curCollectedWater);
+                        tempi=std::min(UNIT_MAX-*watVal, curCollectedWater);
 
                         *watVal+=tempi;
                         fsVec[n].collectedWater-=tempi;
@@ -2557,11 +2562,11 @@ bool GameFluid::updateFluidData()
     /////////////
 
 
-    tempMax.setFXYZ(vspMin);
-    tempMin.setFXYZ(vspMax);
+    tempMax.setFXYZ((float)vspMin);
+    tempMin.setFXYZ((float)vspMax);
 
-    tempMax2.setFXYZ(vspMin);
-    tempMin2.setFXYZ(vspMax);
+    tempMax2.setFXYZ((float)vspMin);
+    tempMin2.setFXYZ((float)vspMax);
 
     for(n=0; n<fsVec.size(); n++)
     {
@@ -2738,17 +2743,17 @@ bool GameFluid::findStableRegions(int startInd, int newId)
     int testInd;
     int testInd2;
     int* bldVal;
-    int* bldVal2;
+//    int* bldVal2;
     int* terVal;
-    int* terVal2;
+//    int* terVal2;
     int* watVal;
-    int* watVal2;
+//    int* watVal2;
     int* ideVal;
 
     int i;
     int j;
     int k;
-    int n;
+//    int n;
 
 
     int foundInd;
@@ -2757,22 +2762,22 @@ bool GameFluid::findStableRegions(int startInd, int newId)
     int testJ;
     int testK;
 
-    bool notFound;
-    bool isAir;
-    bool terBelow;
+//    bool notFound;
+//    bool isAir;
+//    bool terBelow;
 
-    int watCount;
+//    int watCount;
     int maxSize;
 
-    long long int totWat;
-    long long int totWat2;
-    long long int divWat;
+//    long long int totWat;
+//    long long int totWat2;
+//    long long int divWat;
 
     fluidPlane.planeIds.clear();
 
     int emptyWaterCount=0;
     int airCount=0;
-    int targWat;
+//    int targWat;
 
     while(indexStack.size()>0)
     {
@@ -2847,7 +2852,7 @@ bool GameFluid::findStableRegions(int startInd, int newId)
     }
 
 
-    maxSize=fluidPlane.planeIds.size();
+    maxSize=(int)fluidPlane.planeIds.size();
 
 
 
@@ -3003,7 +3008,7 @@ bool GameFluid::floodFillId(int startInd, int newId)
     FluidStruct* fsPtr=&(fsVec.back());
     FluidStruct* fsPtrLast;
 
-    int groupId=fsVec.size()-1;
+    int groupId=(int)(fsVec.size()-1);
 
 
     if(groupId==0)
@@ -3246,13 +3251,13 @@ void GameFluid::roundBox(
     newP.powXYZ(powX, powX, 1.0f);
     //newP.x = pow( newP.x + newP.y, 1.0/box_power.x );
     newP.setFX(newP[0]+newP[1]);
-    newP.powXYZ(1.0/powX, 1.0f, 1.0f);
+    newP.powXYZ(1.0f/powX, 1.0f, 1.0f);
 
     //newP.xz = pow(newP.xz, box_power.yy );
     newP.powXYZ(powY, 1.0f, powY);
     //newP.x = pow( newP.x + newP.z, 1.0/box_power.y );
     newP.setFX(newP[0]+newP[2]);
-    newP.powXYZ(1.0/powY, 1.0f, 1.0f);
+    newP.powXYZ(1.0f/powY, 1.0f, 1.0f);
 
     //newP.setFX(newP.length());
 
@@ -3311,7 +3316,7 @@ void GameFluid::fillCurrentGeom(int templateId, FIVector4* templatePos)
     int k;
 
 
-    FIVector4* paramArrGeom=&(singleton->primTemplateStack[templateId*E_PRIMTEMP_LENGTH]);
+    FIVector4* paramArrGeom=&(primTemplateStack[templateId*E_PRIMTEMP_LENGTH]);
 
     FIVector4 innerBoxRad;
     FIVector4 absVecFromCenter;
@@ -3385,7 +3390,7 @@ void GameFluid::fillCurrentGeom(int templateId, FIVector4* templatePos)
             for(i=iMin; i<iMax; i++)
             {
 
-                curCoord.setFXYZ(i, j, k);
+                curCoord.setFXYZ((float)i, (float)j, (float)k);
                 curCoord.addXYZ(0.5f);
                 absVecFromCenter.copyFrom(&curCoord);
                 absVecFromCenter.addXYZRef(&baseVec, -1.0f);
@@ -3453,8 +3458,8 @@ void GameFluid::fillCurrentGeom(int templateId, FIVector4* templatePos)
 void GameFluid::resetDirtyRegion()
 {
 
-    dirtyMax.setFXYZ(vspMin);
-    dirtyMin.setFXYZ(vspMax);
+    dirtyMax.setFXYZ((float)vspMin);
+    dirtyMin.setFXYZ((float)vspMax);
 }
 void GameFluid::shrinkDirtyRegion()
 {
@@ -3480,8 +3485,8 @@ void GameFluid::shrinkDirtyRegion()
 
 void GameFluid::maxDirtyRegion()
 {
-    dirtyMax.setFXYZ(vspMax);
-    dirtyMin.setFXYZ(vspMin);
+    dirtyMax.setFXYZ((float)vspMax);
+    dirtyMin.setFXYZ((float)vspMin);
 }
 
 // void modifyUnit(

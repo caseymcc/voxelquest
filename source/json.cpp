@@ -712,7 +712,7 @@ JSONValue* JSONValue::Child(string name)
  *
  * @return std::string Returns the JSON string
  */
-std::string JSONValue::Stringify(int curLev = 0) const
+std::string JSONValue::Stringify(int curLev) const
 {
 	std::string ret_string;
 	

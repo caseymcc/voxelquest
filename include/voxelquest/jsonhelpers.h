@@ -30,5 +30,17 @@ bool loadJSON(
     JSONValue** destObj
 );
 
+void getJVNodeByString(
+	JSONValue* rootNode,
+	JSONValue** resultNode,
+	std::string stringToSplit
+	//, bool dd = false
+);
+
+std::vector<std::string> splitStrings;
+
+std::string makePretty(std::string sourceString, std::string remString);
+
+void cleanJVPointer(JSONValue** jv);
 
 #endif//_voxelquest_jsonhelpers_h_

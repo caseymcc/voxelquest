@@ -4,6 +4,9 @@
 #include "voxelquest/enums.h"
 #include "voxelquest/gameent.h"
 
+#include <string>
+#include <map>
+
 enum E_MOVE_TYPES
 {
 	E_MT_NONE,
@@ -20,6 +23,7 @@ class GameLogic;
 class GameNetwork;
 class GameAI;
 class GameGUI;
+class Shader;
 
 class GameState
 {
@@ -36,8 +40,11 @@ public:
     static bool &forceGetPD() { return singleton()->m_forceGetPD; }
     static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
 
+	static void stopAllThreads();
+
 	static int tbTicks;
 
+	static FIVector4 lookAtVec;
 	static FIVector4 origin;
 	
 	static bool markerFound;
@@ -45,6 +52,19 @@ public:
 
 	static float subjectZoom;
 	static float targetSubjectZoom;
+
+	static bool refreshPaths;
+
+	static float MAX_GPU_MEM;
+	static float VERTEX_MEM_USAGE;
+	static float TOT_GPU_MEM_USAGE;
+
+	static float MAX_CPU_MEM;
+	static float TOT_CPU_MEM_USAGE;
+
+	static int TOT_POINT_COUNT;
+
+	static long long ENT_COUNTER;
 
 	static GameWorld* gw;
 	static GameEntManager* gem;
@@ -67,7 +87,7 @@ private:
     FIVector4 targetCameraPos;
     FIVector4 baseCameraPos;
 
-    int TOT_POINT_COUNT=0;
+    
 
     bool m_wsBufferInvalid;
     bool m_forceGetPD;
