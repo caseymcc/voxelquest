@@ -1,4 +1,8 @@
-#include "gamenetwork.h"
+#include "voxelquest/gamenetwork.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+
+#include <iostream>
 
 GameNetwork::GameNetwork()
 {
@@ -50,7 +54,7 @@ void GameNetwork::getIntFloatLen(int opCode, int* uintLen, int* intLen, int* flo
         *floatLen=3;
         break;
     default:
-        cout<<"Unsupported net operation\n";
+        std::cout<<"Unsupported net operation\n";
         break;
 
     }
@@ -184,13 +188,13 @@ void GameNetwork::applyNetworkActions()
             );
             break;
         case E_NO_ADD_ENT:
-            singleton->gem->placeNewEnt(false, *(intPtr[0]), &(tempVecs[0]));
+            GameState::gem->placeNewEnt(false, *(intPtr[0]), &(tempVecs[0]));
             break;
         case E_NO_REM_ENT:
-            singleton->gem->removeEntity(false, *(intPtr[0]));
+            GameState::gem->removeEntity(false, *(intPtr[0]));
             break;
         case E_NO_DRAG_ENT:
-            singleton->gem->performDrag(
+            GameState::gem->performDrag(
                 false,
                 *(intPtr[0]),
                 *(intPtr[1]),

@@ -460,7 +460,7 @@ void GameGUI::addChildFromJSON(
 
                     case E_GCT_CONTAINER:
 
-                        // curIcon = singleton->gem->entIdToIcon[
+                        // curIcon = GameState::gem->entIdToIcon[
                         // 	(int)(curData->Child("objectType")->number_value)
                         // ];
                         objectId=(int)curData->Child("objectId")->number_value;
@@ -485,7 +485,7 @@ void GameGUI::addChildFromJSON(
                     case E_GCT_AUTOMATIC:
                         //numEntries = curData->CountChildren();
                         // for (q = 0; q < numEntries; q++) {
-                        // 	jvChildTemplate->Child("label")->string_value = singleton->gem->getStringForObjectId(objectId);
+                        // 	jvChildTemplate->Child("label")->string_value = GameState::gem->getStringForObjectId(objectId);
                         // }
 
                         for(

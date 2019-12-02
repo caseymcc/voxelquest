@@ -524,7 +524,7 @@ void GameBlock::init(
 
 
                 // if (
-                // 	singleton->getHeightAtPixelPos(lotX*singleton->cellsPerHolder,lotY*singleton->cellsPerHolder) <=
+                // 	singleton->getHeightAtPixelPos(lotX*g_settings.cellsPerHolder,lotY*g_settings.cellsPerHolder) <=
                 // 	singleton->getSeaHeightScaled()  + 1.0f
                 // ) {
                 // 	curType = E_CT_DOCK;

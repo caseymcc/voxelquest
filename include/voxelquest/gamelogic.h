@@ -2,6 +2,7 @@
 #define _voxelquest_gamelogic_h_
 
 #include "voxelquest/path.h"
+#include "voxelquest/vectors.h"
 
 #include <list>
 
@@ -29,6 +30,7 @@ struct LoadHolderStruct
 
 class GamePageHolder;
 class ThreadPoolWrapper;
+class Singleton;
 
 class GameLogic
 {
@@ -172,6 +174,8 @@ public:
     bool dirtyStack;
 
     bool allowThreadCreation;
+
+	FIVector4 colVecs[16];
 };
 
 

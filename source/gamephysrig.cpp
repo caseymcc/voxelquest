@@ -19,11 +19,11 @@ GamePhysRig::GamePhysRig(
     origOffset=positionOffset;// - btVector3(0.0f,0.0f,16.0f);
 
 
-    baseOrg=singleton->gem->gameOrgs[
-        singleton->gem->gameObjects[geId].orgId
+    baseOrg=GameState::gem->gameOrgs[
+        GameState::gem->gameObjects[geId].orgId
     ];
 
-    baseEnt=&(singleton->gem->gameObjects[geId]);
+    baseEnt=&(GameState::gem->gameObjects[geId]);
 
     initFromOrg(
         baseOrg->baseNode,

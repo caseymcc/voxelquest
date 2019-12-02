@@ -981,7 +981,7 @@ void GameFluid::copyPrimTexture(int ox, int oy, int oz, int dim, uint** myData)
 // 		for (j = -1; j <= 1; j++) {
 // 			for (k = -1; k <= 1; k++) {
 
-// 				curBlock = singleton->gw->getBlockAtCoords(
+// 				curBlock = GameState::gw->getBlockAtCoords(
 // 					camBlockPos.getIX()+i,
 // 					camBlockPos.getIY()+j,
 // 					camBlockPos.getIZ()+k,

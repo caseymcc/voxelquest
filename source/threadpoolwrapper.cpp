@@ -76,7 +76,7 @@ void ThreadPoolWrapper::funcTP(int threadId)
     {
     case E_TT_GENPATHS:
     case E_TT_GENLIST:
-        curHolder=singleton->gw->getHolderAtId(
+        curHolder=GameState::gw->getHolderAtId(
             threadPool[threadId].threadDataInt[1],
             threadPool[threadId].threadDataInt[2],
             threadPool[threadId].threadDataInt[3]
@@ -147,7 +147,7 @@ bool ThreadPoolWrapper::stopTP(int threadId)
         {
         case E_TT_GENPATHS:
         case E_TT_GENLIST:
-            curHolder=singleton->gw->getHolderAtId(
+            curHolder=GameState::gw->getHolderAtId(
                 threadPool[threadId].threadDataInt[1],
                 threadPool[threadId].threadDataInt[2],
                 threadPool[threadId].threadDataInt[3]
@@ -167,7 +167,7 @@ bool ThreadPoolWrapper::stopTP(int threadId)
             //cout << "unlocking pdPool " << curHolder->curPD << "\n";
 
             curHolder->listGenerated=true;
-            curChunk=singleton->gw->getChunkAtId(curHolder->blockId, curHolder->chunkId);
+            curChunk=GameState::gw->getChunkAtId(curHolder->blockId, curHolder->chunkId);
 
             if(curHolder->listEmpty)
             {
@@ -261,7 +261,7 @@ bool ThreadPoolWrapper::startThread(bool checkAvail=true)
     {
     case E_TT_GENPATHS:
     case E_TT_GENLIST:
-        curHolder=singleton->gw->getHolderAtId(
+        curHolder=GameState::gw->getHolderAtId(
             threadPool[curId].threadDataInt[1],
             threadPool[curId].threadDataInt[2],
             threadPool[curId].threadDataInt[3]

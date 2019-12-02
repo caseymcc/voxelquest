@@ -1,15 +1,17 @@
-#include "gamemusic.h"
+#include "voxelquest/gamemusic.h"
+
+#include <iostream>
 
 GameMusic::GameMusic()
 {
 
 }
 
-void GameMusic::init(string path)
+void GameMusic::init(std::string path)
 {
     if(!sound.openFromFile(path))
     {
-        cout<<"error loading music";
+		std::cout<<"error loading music";
         return;
     }
 
@@ -25,14 +27,14 @@ void GameMusic::stop()
     sound.stop();
 }
 
-void GameMusic::setVolume(float _volume=1.0f)
+void GameMusic::setVolume(float _volume)
 {
     volume=_volume;
-    int intVol=_volume*100.0f;
+    float intVol=_volume*100.0f;
     sound.setVolume(intVol);
 }
 
-void GameMusic::play(float _volume=1.0f)
+void GameMusic::play(float _volume)
 {
     setVolume(_volume);
     sound.play();

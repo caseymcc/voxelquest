@@ -153,8 +153,8 @@ void MyShapeDrawer::setId(
 
 )
 {
-    singleton->setShaderFloat("bodyUID", bodyUID);
-    singleton->setShaderFloat("limbUID", limbUID);
+    Renderer::setShaderFloat("bodyUID", bodyUID);
+    Renderer::setShaderFloat("limbUID", limbUID);
 }
 
 
@@ -162,7 +162,7 @@ void MyShapeDrawer::updateMat2()
 {
 
     glGetFloatv(GL_MODELVIEW_MATRIX, singleton->viewMatrix.get());
-    singleton->setShaderMatrix4x4("objmat", singleton->viewMatrix.get(), 1);
+    Renderer::setShaderMatrix4x4("objmat", singleton->viewMatrix.get(), 1);
 }
 
 void MyShapeDrawer::updateMat()
@@ -176,20 +176,20 @@ void MyShapeDrawer::updateMat()
         singleton->curObjMatrix*=singleton->objMatrixStack[i];
     }
     //glGetFloatv(GL_MODELVIEW_MATRIX, singleton->viewMatrix.get());
-    singleton->setShaderMatrix4x4("objmat", singleton->curObjMatrix.get(), 1);
+    Renderer::setShaderMatrix4x4("objmat", singleton->curObjMatrix.get(), 1);
 
     singleton->curObjMatrix3.set4(singleton->curObjMatrix.get());
     singleton->curObjMatrix3.invert();
     singleton->curObjMatrix3.transpose();
 
-    singleton->setShaderMatrix3x3("normalRot", singleton->curObjMatrix3.get(), 1);
+    Renderer::setShaderMatrix3x3("normalRot", singleton->curObjMatrix3.get(), 1);
 
 
 
     //btTransform tr;
     // tr.setFromOpenGLMatrix(singleton->curObjMatrix.get());
     // btQuaternion orn = tr.getRotation();
-    // singleton->setShaderVec4("objQuat",orn.getX(),orn.getY(),orn.getZ(),orn.getW());
+    // Renderer::setShaderVec4("objQuat",orn.getX(),orn.getY(),orn.getZ(),orn.getW());
 
 }
 
@@ -230,7 +230,7 @@ void MyShapeDrawer::drawOrient(int uid)
 {
 
 
-    if(uid==singleton->gem->getCurActorUID())
+    if(uid==GameState::gem->getCurActorUID())
     {
 
     }
@@ -245,21 +245,21 @@ void MyShapeDrawer::drawOrient(int uid)
 
     //setId(0);
 
-    singleton->setShaderVec3("matVal", 255, 0, 0);
+    Renderer::setShaderVec3("matVal", 255, 0, 0);
     glBegin(GL_LINES);
     //glNormal3f(0, 0, 1);
     glVertex3d(0, 0, 0);
     glVertex3d(4, 0, 0);
     glEnd();
 
-    singleton->setShaderVec3("matVal", 0, 255, 0);
+    Renderer::setShaderVec3("matVal", 0, 255, 0);
     glBegin(GL_LINES);
     //glNormal3f(0, 0, 1);
     glVertex3d(0, 0, 0);
     glVertex3d(0, 4, 0);
     glEnd();
 
-    singleton->setShaderVec3("matVal", 0, 0, 255);
+    Renderer::setShaderVec3("matVal", 0, 0, 255);
     glBegin(GL_LINES);
     //glNormal3f(0, 0, 1);
     glVertex3d(0, 0, 0);
@@ -267,7 +267,7 @@ void MyShapeDrawer::drawOrient(int uid)
     glEnd();
 
     //setId(oldUID);
-    singleton->setShaderVec3("matVal", 1, 1, 1);
+    Renderer::setShaderVec3("matVal", 1, 1, 1);
 
 }
 
@@ -343,7 +343,7 @@ void MyShapeDrawer::drawOpenGL(
     //btglMultMatrix(m);
     //updateMat2();
     pushNewMat(m);
-    //singleton->gem->gameObjects[uid].rotMat = singleton->curObjMatrix3;
+    //GameState::gem->gameObjects[uid].rotMat = singleton->curObjMatrix3;
 
 
     if(shape->getShapeType()==UNIFORM_SCALING_SHAPE_PROXYTYPE)
@@ -952,7 +952,7 @@ void MyShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWor
 
         if(body->bodyUID>=0)
         {
-            BaseObj* ge=&(singleton->gem->gameObjects[body->bodyUID]);
+            BaseObj* ge=&(GameState::gem->gameObjects[body->bodyUID]);
 
             if(body->limbUID>=0)
             {
@@ -967,7 +967,7 @@ void MyShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWor
 
 
         // if (
-        // 	(body->bodyUID == singleton->gem->getCurActorUID())&&singleton->orgOn
+        // 	(body->bodyUID == GameState::gem->getCurActorUID())&&singleton->orgOn
         // ) {
 
         // }

@@ -22,6 +22,17 @@ int GameState::TOT_POINT_COUNT=0;
 
 long long GameState::ENT_COUNTER=0;
 
+double GameState::timeDelta;
+double GameState::curTime;
+float GameState::smoothTime=0.0f;
+double GameState::pauseTime;
+double GameState::clickTime;
+double GameState::mdTime;
+double GameState::muTime;
+
+int GameState::pathFindingStep=0;
+FIVector4 GameState::lastHolderPos;
+
 GameWorld* GameState::gw=nullptr;
 GameEntManager* GameState::gem=nullptr;
 GamePhysics* GameState::gamePhysics=nullptr;

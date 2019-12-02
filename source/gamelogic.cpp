@@ -1,4 +1,18 @@
-#include "gamelogic.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/threadpoolwrapper.h"
+#include "voxelquest/constants.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gameblock.h"
+#include "voxelquest/gamechunk.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/renderer.h"
+#include "voxelquest/bullethelpers.h"
+#include "voxelquest/memorypool.h"
+
+#include <iostream>
 
 GameLogic::GameLogic() {
 	dirtyStack = false;
@@ -14,8 +28,8 @@ void GameLogic::setEntTargPath(int sourceUID, int destUID) {
 		return;
 	}
 		
-	BaseObj* sEnt = &(singleton->gem->gameObjects[sourceUID]);
-	BaseObj* dEnt = &(singleton->gem->gameObjects[destUID]);
+	BaseObj* sEnt = &(GameState::gem->gameObjects[sourceUID]);
+	BaseObj* dEnt = &(GameState::gem->gameObjects[destUID]);
 
 	sEnt->targPath.points[0] = sEnt->tbPos;
 	sEnt->targPath.points[1] = dEnt->tbPos;
@@ -49,7 +63,7 @@ void GameLogic::init(Singleton* _singleton) {
 	
 	
 void GameLogic::applyTBBehavior() {
-	BaseObj* ca = singleton->gem->getActiveActor();
+	BaseObj* ca = GameState::gem->getActiveActor();
 		
 	if (ca == NULL) {
 		return;
@@ -82,7 +96,7 @@ void GameLogic::applyTBBehavior() {
 		
 	btVector3 actorFinalVec;
 		
-	nearestEnemyInd = singleton->gem->getClosestActor(
+	nearestEnemyInd = GameState::gem->getClosestActor(
 			ca->uid,
 			E_ENTTYPE_NPC,
 			200.0f,
@@ -90,20 +104,20 @@ void GameLogic::applyTBBehavior() {
 	);
 	if (nearestEnemyInd > 0) {
 		// hostiles nearby
-		nearestEnemy = &(singleton->gem->gameObjects[nearestEnemyInd]);
-		xyzDisEnemy = singleton->gem->getUnitDistance(ca->uid, nearestEnemy->uid);
-		xyDisEnemy = (xyzDisEnemy.getX() + xyzDisEnemy.getY());
+		nearestEnemy = &(GameState::gem->gameObjects[nearestEnemyInd]);
+		xyzDisEnemy = GameState::gem->getUnitDistance(ca->uid, nearestEnemy->uid);
+		xyDisEnemy = (int)(xyzDisEnemy.getX() + xyzDisEnemy.getY());
 			
-		nearestWeaponInd = singleton->gem->getClosestActor(
+		nearestWeaponInd = GameState::gem->getClosestActor(
 				ca->uid,
 				E_ENTTYPE_WEAPON,
 				200.0f,
 				E_CF_NOTGRABBED
 		);
 		if (nearestWeaponInd > 0) {
-			nearestWeapon = &(singleton->gem->gameObjects[nearestWeaponInd]);
-			xyzDisWeapon = singleton->gem->getUnitDistance(ca->uid, nearestWeapon->uid);
-			xyDisWeapon = (xyzDisWeapon.getX() + xyzDisWeapon.getY());
+			nearestWeapon = &(GameState::gem->gameObjects[nearestWeaponInd]);
+			xyzDisWeapon = GameState::gem->getUnitDistance(ca->uid, nearestWeapon->uid);
+			xyDisWeapon = (int)(xyzDisWeapon.getX() + xyzDisWeapon.getY());
 				
 				
 			if (ca->holdingWeapon(-1)) {
@@ -120,8 +134,8 @@ void GameLogic::applyTBBehavior() {
 			
 		if (findWeapon) {
 			if (xyDisWeapon <= 1) {
-				singleton->gem->makeTurnTowardsTB(ca->uid, nearestWeapon->tbPos);
-				singleton->gem->makeGrab(ca->uid, -1);
+				GameState::gem->makeTurnTowardsTB(ca->uid, nearestWeapon->tbPos);
+				GameState::gem->makeGrab(ca->uid, -1);
 			}
 			else {
 				setEntTargPath(ca->uid,nearestWeapon->uid);
@@ -130,8 +144,8 @@ void GameLogic::applyTBBehavior() {
 		}
 		else {
 			if (xyDisEnemy <= 1) {
-				singleton->gem->makeTurnTowardsTB(ca->uid, nearestEnemy->tbPos);
-				singleton->gem->makeSwing(ca->uid, iGenRand(0,1));
+				GameState::gem->makeTurnTowardsTB(ca->uid, nearestEnemy->tbPos);
+				GameState::gem->makeSwing(ca->uid, iGenRand(0,1));
 			}
 			else {
 				setEntTargPath(ca->uid,nearestEnemy->uid);
@@ -153,7 +167,7 @@ void GameLogic::applyTBBehavior() {
 			for (i = 0; i < ca->targPath.finalPoints.size(); i++) {
 					
 				if (
-					singleton->gem->getUnitDisXY(
+					GameState::gem->getUnitDisXY(
 						ca->targPath.finalPoints[i],
 						ca->tbPos
 					) == 0
@@ -171,8 +185,8 @@ void GameLogic::applyTBBehavior() {
 			else {
 				ca->targPath.nextInd = i;
 					
-				singleton->gem->makeTurnTowardsTB(ca->uid, ca->targPath.finalPoints[ca->targPath.nextInd]);
-				singleton->gem->makeMoveTB(ca->uid, 1);
+				GameState::gem->makeTurnTowardsTB(ca->uid, ca->targPath.finalPoints[ca->targPath.nextInd]);
+				GameState::gem->makeMoveTB(ca->uid, 1);
 					
 			}
 				
@@ -180,7 +194,7 @@ void GameLogic::applyTBBehavior() {
 				
 		}
 		else {
-			cout << "did not find path\n";
+			std::cout << "did not find path\n";
 		}
 	}
 		
@@ -203,7 +217,7 @@ void GameLogic::applyBehavior() {
 	float deltaAng;
 	float curDis;
 		
-	int curActor = singleton->gem->getCurActorUID();
+	int curActor = GameState::gem->getCurActorUID();
 		
 	btVector3 tVec;
 	btVector3 offsetVec;
@@ -213,9 +227,9 @@ void GameLogic::applyBehavior() {
 	BaseObj* writeObj;
 	BaseObj* readObj;
 		
-	for (i = 0; i < singleton->gem->visObjects.size(); i++) {
-		writeObj = &(singleton->gem->gameObjects[
-			singleton->gem->visObjects[i]	
+	for (i = 0; i < GameState::gem->visObjects.size(); i++) {
+		writeObj = &(GameState::gem->gameObjects[
+			GameState::gem->visObjects[i]	
 		]);
 		writeObj->npcRepel = btVector3(0.0f,0.0f,0.0f);
 		writeObj->behaviorTarget = btVector3(0.0f,0.0f,0.0f);
@@ -238,9 +252,9 @@ void GameLogic::applyBehavior() {
 			bestWepUID = -1;
 			bestNPCUID = -1;
 				
-			for (j = 0; j < singleton->gem->visObjects.size(); j++) {
-				readObj = &(singleton->gem->gameObjects[
-					singleton->gem->visObjects[j]
+			for (j = 0; j < GameState::gem->visObjects.size(); j++) {
+				readObj = &(GameState::gem->gameObjects[
+					GameState::gem->visObjects[j]
 				]);
 					
 				if (
@@ -347,9 +361,9 @@ void GameLogic::applyBehavior() {
 	}
 		
 		
-	for (i = 0; i < singleton->gem->visObjects.size(); i++) {
-		writeObj = &(singleton->gem->gameObjects[
-			singleton->gem->visObjects[i]	
+	for (i = 0; i < GameState::gem->visObjects.size(); i++) {
+		writeObj = &(GameState::gem->gameObjects[
+			GameState::gem->visObjects[i]	
 		]);
 			
 		if (
@@ -360,11 +374,11 @@ void GameLogic::applyBehavior() {
 		}
 		else {
 				
-			writeObj->bindingPower += singleton->conVals[E_CONST_BINDING_POW_INC];
+			writeObj->bindingPower += getConst(E_CONST_BINDING_POW_INC);
 				
 			if (writeObj->isDead()) {
 				writeObj->bindingPower += (
-					singleton->conVals[E_CONST_BINDING_POW_ON_DEATH] -
+					getConst(E_CONST_BINDING_POW_ON_DEATH) -
 					writeObj->bindingPower						
 				)/128.0f;
 			}
@@ -397,16 +411,16 @@ void GameLogic::applyBehavior() {
 				
 			if (writeObj->isAlive()) {
 					
-				if (singleton->settings[E_BS_TURN_BASED]) {
+				if (g_settings.settings[E_BS_TURN_BASED]) {
 						
 					deltaAng = writeObj->turnTowardsTargAng(TBDIR_ARR[writeObj->tbDir]);
 						
-					singleton->gem->makeTurn(writeObj->uid,deltaAng*4.0f);
+					GameState::gem->makeTurn(writeObj->uid,deltaAng*4.0f);
 						
 					// tVec = (writeObj->tbPos+btVector3(0.5f,0.5f,0.5f))-writeObj->getCenterPoint(E_BDG_CENTER);
 					// tVec *= btVector3(1.0f,1.0f,0.0f);
 						
-					// singleton->gem->makeMoveVec(
+					// GameState::gem->makeMoveVec(
 					// 	writeObj->uid,
 					// 	tVec
 					// );
@@ -418,21 +432,21 @@ void GameLogic::applyBehavior() {
 					else {
 						deltaAng = writeObj->turnTowardsPointDelta(writeObj->behaviorTarget);
 							
-						singleton->gem->makeTurn(writeObj->uid,deltaAng*16.0f);
+						GameState::gem->makeTurn(writeObj->uid,deltaAng*16.0f);
 							
 						curDis = writeObj->behaviorTarget.distance(writeObj->getCenterPoint(E_BDG_CENTER));
 							
-						if (curDis > singleton->conVals[E_CONST_AI_SEEK_THRESH]) {
-							singleton->gem->makeMove(writeObj->uid, btVector3(0.0f,1.0f,0.0f), true, true);
+						if (curDis > getConst(E_CONST_AI_SEEK_THRESH)) {
+							GameState::gem->makeMove(writeObj->uid, btVector3(0.0f,1.0f,0.0f), true, true);
 						}
-						if (curDis < singleton->conVals[E_CONST_AI_REPEL_THRESH]) {
-							singleton->gem->makeMove(writeObj->uid, btVector3(0.0f,-1.0f,0.0f), true, true);
+						if (curDis <getConst(E_CONST_AI_REPEL_THRESH)) {
+							GameState::gem->makeMove(writeObj->uid, btVector3(0.0f,-1.0f,0.0f), true, true);
 						}
 							
-						singleton->gem->makeMoveVec(writeObj->uid,writeObj->npcRepel);
+						GameState::gem->makeMoveVec(writeObj->uid,writeObj->npcRepel);
 							
 						if (curDis > 6.0f) {
-							writeObj->blockCount += clampfZO(1.0 - abs(curDis - writeObj->lastBlockDis)*100.0f);
+							writeObj->blockCount += clampfZO(1.0f - abs(curDis - writeObj->lastBlockDis)*100.0f);
 								
 						}
 							
@@ -443,9 +457,9 @@ void GameLogic::applyBehavior() {
 							) {
 								writeObj->swingCount += 1.0f;
 								
-								if (writeObj->swingCount > singleton->conVals[E_CONST_SWING_DELAY]) {
+								if (writeObj->swingCount >getConst(E_CONST_SWING_DELAY)) {
 									writeObj->swingCount = 0.0f;
-									singleton->gem->makeSwing(writeObj->uid,iGenRand(0,1));
+									GameState::gem->makeSwing(writeObj->uid,iGenRand(0,1));
 								}
 									
 							}
@@ -455,7 +469,7 @@ void GameLogic::applyBehavior() {
 								(curDis > 1.0f) &&
 								(curDis < 4.0f)	
 							) {
-								singleton->gem->makeGrab(writeObj->uid, -1);
+								GameState::gem->makeGrab(writeObj->uid, -1);
 							}
 						}
 							
@@ -463,7 +477,7 @@ void GameLogic::applyBehavior() {
 							
 						if (writeObj->blockCount > 100.0f) {
 							writeObj->blockCount = 0.0f;
-							singleton->gem->makeJump(writeObj->uid, true,
+							GameState::gem->makeJump(writeObj->uid, true,
 								clampfZO(curDis-6.0f)*0.75f + 0.25f	
 							);
 						}
@@ -477,11 +491,11 @@ void GameLogic::applyBehavior() {
 			}
 			else { // is dead
 				if (writeObj->holdingWeapon(RLBN_LEFT)) {
-					singleton->gem->makeGrab(writeObj->uid, RLBN_LEFT);
+					GameState::gem->makeGrab(writeObj->uid, RLBN_LEFT);
 				}
 					
 				if (writeObj->holdingWeapon(RLBN_RIGT)) {
-					singleton->gem->makeGrab(writeObj->uid, RLBN_RIGT);
+					GameState::gem->makeGrab(writeObj->uid, RLBN_RIGT);
 				}
 			}
 				
@@ -501,7 +515,7 @@ GamePageHolder* GameLogic::getHolderById(int blockId, int chunkId, int holderId)
 		return NULL;
 	}
 		
-	GameBlock* curBlock = singleton->gw->blockData[blockId];
+	GameBlock* curBlock = GameState::gw->blockData[blockId];
 	GamePageHolder* curHolder;
 	GameChunk* curChunk;
 	if (curBlock != NULL) {
@@ -526,10 +540,10 @@ GamePageHolder* GameLogic::getHolderByPR(PathResult* pr) {
 	// int blockId = pr->blockId;
 	// int holderId = pr->holderId;
 		
-	return singleton->gw->getHolderAtId(pr->blockId,pr->chunkId,pr->holderId);
+	return GameState::gw->getHolderAtId(pr->blockId,pr->chunkId,pr->holderId);
 		
 	// GamePageHolder* curHolder;
-	// GameBlock* curBlock = singleton->gw->blockData[blockId];
+	// GameBlock* curBlock = GameState::gw->blockData[blockId];
 	// if (curBlock != NULL) {
 	// 	curHolder = curBlock->holderData[holderId];
 	// 	return curHolder;
@@ -594,7 +608,7 @@ void GameLogic::fillAllPaths(
 		notFound = true;
 			
 		for (i = 0; i < NUM_ORIENTATIONS; i++) {
-			testHolder = singleton->gw->getHolderAtCoords(
+			testHolder = GameState::gw->getHolderAtCoords(
 				curHolder->offsetInHolders.getIX()+DIR_VECS_I[i][0],
 				curHolder->offsetInHolders.getIY()+DIR_VECS_I[i][1],
 				curHolder->offsetInHolders.getIZ()+DIR_VECS_I[i][2],
@@ -906,8 +920,8 @@ bool GameLogic::findNaivePath(PathInfo* pathInfo) {
 			testPos.setZ(tempBTV.getZ());
 		}
 			
-		deltaX = (destPos.getX() - testPos.getX());
-		deltaY = (destPos.getY() - testPos.getY());
+		deltaX = (int)(destPos.getX() - testPos.getX());
+		deltaY = (int)(destPos.getY() - testPos.getY());
 		deltaXA = abs(deltaX);
 		deltaYA = abs(deltaY);
 			
@@ -920,7 +934,7 @@ bool GameLogic::findNaivePath(PathInfo* pathInfo) {
 		if ( (toggleMod%2) == 0 ) {
 			if (deltaXA > 0) {
 				testPos += btVector3(
-					qSign(deltaX),
+					qSign((float)deltaX),
 					0.0f,
 					0.0f
 				);
@@ -928,7 +942,7 @@ bool GameLogic::findNaivePath(PathInfo* pathInfo) {
 			else if (deltaYA > 0) {
 				testPos += btVector3(
 					0.0f,
-					qSign(deltaY),
+					qSign((float)deltaY),
 					0.0f
 				);
 			}
@@ -937,13 +951,13 @@ bool GameLogic::findNaivePath(PathInfo* pathInfo) {
 			if (deltaYA > 0) {
 				testPos += btVector3(
 					0.0f,
-					qSign(deltaY),
+					qSign((float)deltaY),
 					0.0f
 				);
 			}
 			else if (deltaXA > 0) {
 				testPos += btVector3(
-					qSign(deltaX),
+					qSign((float)deltaX),
 					0.0f,
 					0.0f
 				);
@@ -1026,12 +1040,12 @@ void GameLogic::drawFinalPath(PathInfo* pathInfo) {
 	int bestInd = getClosestPathRad(pathInfo->points[0], closestHolder);
 	int bestInd2 = getClosestPathRad(pathInfo->points[1], closestHolder2);
 		
-	drawPointAtIndex(closestHolder, bestInd, 0,128+singleton->smoothTime*127.0f,0, singleton->smoothTime);
-	drawPointAtIndex(closestHolder2, bestInd2, 128+singleton->smoothTime*127.0f,0,0, singleton->smoothTime);
+	drawPointAtIndex(closestHolder, bestInd, 0, 128+(int)(GameState::smoothTime*127.0f), 0, GameState::smoothTime);
+	drawPointAtIndex(closestHolder2, bestInd2, 128+(int)(GameState::smoothTime*127.0f), 0, 0, GameState::smoothTime);
 		
 	int i;
 		
-	singleton->setShaderVec3("matVal", 255, 0, 255);
+	Renderer::setShaderVec3("matVal", 255, 0, 255);
 		
 	float curRad;
 	double fi;
@@ -1039,16 +1053,16 @@ void GameLogic::drawFinalPath(PathInfo* pathInfo) {
 	for (i = 0; i < pathInfo->finalPoints.size(); i++) {
 		fi = i;
 			
-		curRad = 0.25f + 0.15*sin( fi*0.5 + singleton->curTime/200.0 );
+		curRad = 0.25f + 0.15f*sinf( (float)fi*0.5f + (float)(GameState::curTime/200.0) );
 			
 		if (i == pathInfo->nextInd) {
-			singleton->setShaderVec3("matVal", 0, 255, 255);
+			Renderer::setShaderVec3("matVal", 0, 255, 255);
 		}
 			
-		singleton->drawBoxRad(pathInfo->finalPoints[i],btVector3(curRad,curRad,curRad));
+		Renderer::drawBoxRad(pathInfo->finalPoints[i],btVector3(curRad,curRad,curRad));
 			
 		if (i == pathInfo->nextInd) {
-			singleton->setShaderVec3("matVal", 255, 0, 255);
+			Renderer::setShaderVec3("matVal", 255, 0, 255);
 		}
 			
 	}
@@ -1061,13 +1075,13 @@ void GameLogic::getPath(PathInfo* pathInfo) {
 	pathInfo->finalPoints.clear();
 		
 	int i;
-	int j;
-	int k;
+//	int j;
+//	int k;
 		
-	// GamePageHolder* curHolder = singleton->gw->getHolderAtCoords(
-	// 	singleton->lastHolderPos.getIX(),
-	// 	singleton->lastHolderPos.getIY(),
-	// 	singleton->lastHolderPos.getIZ(),
+	// GamePageHolder* curHolder = GameState::gw->getHolderAtCoords(
+	// 	GameState::lastHolderPos.getIX(),
+	// 	GameState::lastHolderPos.getIY(),
+	// 	GameState::lastHolderPos.getIZ(),
 	// 	true
 	// );
 		
@@ -1084,17 +1098,17 @@ void GameLogic::getPath(PathInfo* pathInfo) {
 	GamePageHolder* conHolder2;
 		
 	GamePageHolder* tempHolder;
-	GamePageHolder* tempHolder2;
+//	GamePageHolder* tempHolder2;
 		
 	int tempInd;
-	int tempInd2;
+//	int tempInd2;
 		
 	GamePageHolder* closestHolder;
 	GamePageHolder* closestHolder2;
-	GamePageHolder* closestHolder3;
+//	GamePageHolder* closestHolder3;
 	int bestInd;
 	int bestInd2;
-	int bestInd3;
+//	int bestInd3;
 	PathResult* curPR;
 		
 	//pathCount = 0;
@@ -1111,8 +1125,8 @@ void GameLogic::getPath(PathInfo* pathInfo) {
 	// bestInd3 = getClosestPathRad(&(singleton->mouseMovePixData.pd[0]), closestHolder3);
 		
 		
-	//drawPointAtIndex(closestHolder, bestInd, 0,128+singleton->smoothTime*127.0f,0, singleton->smoothTime);
-	//drawPointAtIndex(closestHolder2, bestInd2, 128+singleton->smoothTime*127.0f,0,0, singleton->smoothTime);
+	//drawPointAtIndex(closestHolder, bestInd, 0,128+GameState::smoothTime*127.0f,0, GameState::smoothTime);
+	//drawPointAtIndex(closestHolder2, bestInd2, 128+GameState::smoothTime*127.0f,0,0, GameState::smoothTime);
 		
 		
 		
@@ -1173,7 +1187,7 @@ void GameLogic::getPath(PathInfo* pathInfo) {
 					if ((tempHolder != NULL)) {
 						tempInd = tempHolder->groupInfoStack[curPR->groupId].centerInd;
 						// if (tempInd > -1) {
-						// 	drawPointAtIndex(tempHolder, tempInd, 255, 128, 0, singleton->smoothTime);	
+						// 	drawPointAtIndex(tempHolder, tempInd, 255, 128, 0, GameState::smoothTime);	
 						// }
 					}
 						
@@ -1221,7 +1235,7 @@ void GameLogic::getPath(PathInfo* pathInfo) {
 	// 			cout << closestHolder3->holderId << " " <<
 	// 				closestHolder3->getInfo(bestInd3)->groupId << " " <<
 	// 				closestHolder3->getInfoPD(bestInd3) << " " <<
-	// 				bestInd3 << "/" << singleton->cellsPerHolder*singleton->cellsPerHolder*singleton->cellsPerHolder << " " <<
+	// 				bestInd3 << "/" << g_settings.cellsPerHolder*g_settings.cellsPerHolder*g_settings.cellsPerHolder << " " <<
 	// 				closestHolder3->groupInfoStack.size() << " " << 
 	// 				"\n";
 					
@@ -1264,11 +1278,11 @@ void GameLogic::update() {
 		int i;
 		BaseObj* ca;
 			
-		if (singleton->settings[E_BS_PATH_FINDING]) {
+		if (g_settings.settings[E_BS_PATH_FINDING]) {
 				
-			if (singleton->settings[E_BS_PATH_FINDING_TEST]) {
+			if (g_settings.settings[E_BS_PATH_FINDING_TEST]) {
 				if (
-					(!testPath.searchedForPath) && (singleton->pathFindingStep == 2)
+					(!testPath.searchedForPath) && (GameState::pathFindingStep == 2)
 				) {
 					getPath(&testPath);
 				}
@@ -1276,10 +1290,10 @@ void GameLogic::update() {
 			}
 				
 				
-			if (singleton->settings[E_BS_DRAW_TARG_PATHS]) {
-				for (i = 0; i < singleton->gem->turnList.size(); i++) {
+			if (g_settings.settings[E_BS_DRAW_TARG_PATHS]) {
+				for (i = 0; i < GameState::gem->turnList.size(); i++) {
 						
-					ca = &(singleton->gem->gameObjects[ singleton->gem->turnList[i] ]); 
+					ca = &(GameState::gem->gameObjects[ GameState::gem->turnList[i] ]); 
 						
 					if (ca->isHidden) {
 							
@@ -1322,12 +1336,12 @@ void GameLogic::drawLineAtIndices(
 	int jj;
 	int kk;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	FIVector4 pVec1;
 	FIVector4 pVec2;
 		
-	//singleton->setShaderVec3("matVal", r, g, b);
+	//Renderer::setShaderVec3("matVal", r, g, b);
 	// draw highlighted cube here if necessary
 		
 	kk = curPointIndex/(cellsPerHolder*cellsPerHolder);
@@ -1335,7 +1349,7 @@ void GameLogic::drawLineAtIndices(
 	ii = curPointIndex-(kk*cellsPerHolder*cellsPerHolder + jj*cellsPerHolder);
 		
 	pVec1.copyFrom(&(curPointHolder->gphMinInCells));
-	pVec1.addXYZ(ii,jj,kk);
+	pVec1.addXYZ((float)ii, (float)jj, (float)kk);
 	pVec1.addXYZ(0.5f);
 		
 	kk = curPointIndex2/(cellsPerHolder*cellsPerHolder);
@@ -1343,11 +1357,11 @@ void GameLogic::drawLineAtIndices(
 	ii = curPointIndex2-(kk*cellsPerHolder*cellsPerHolder + jj*cellsPerHolder);
 		
 	pVec2.copyFrom(&(curPointHolder2->gphMinInCells));
-	pVec2.addXYZ(ii,jj,kk);
+	pVec2.addXYZ((float)ii, (float)jj, (float)kk);
 	pVec2.addXYZ(0.5f);
 		
 		
-	singleton->drawLine(&pVec1, &pVec2);
+	Renderer::drawLine(&pVec1, &pVec2);
 }
 	
 btVector3 GameLogic::holderIndToBTV(GamePageHolder* curPointHolder, int curPointIndex, bool addHalfOff) {
@@ -1355,7 +1369,7 @@ btVector3 GameLogic::holderIndToBTV(GamePageHolder* curPointHolder, int curPoint
 	int jj;
 	int kk;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	btVector3 pVec1;
 		
@@ -1363,8 +1377,8 @@ btVector3 GameLogic::holderIndToBTV(GamePageHolder* curPointHolder, int curPoint
 	jj = (curPointIndex-kk*cellsPerHolder*cellsPerHolder)/cellsPerHolder;
 	ii = curPointIndex-(kk*cellsPerHolder*cellsPerHolder + jj*cellsPerHolder);
 		
-	pVec1 = curPointHolder->gphMinInCells.getBTV();
-	pVec1 += btVector3(ii,jj,kk);
+	pVec1 = convertToBTV(curPointHolder->gphMinInCells);
+	pVec1 += btVector3((float)ii, (float)jj, (float)kk);
 		
 	if (addHalfOff) {
 		pVec1 += btVector3(0.5f,0.5f,0.5f);
@@ -1387,11 +1401,11 @@ void GameLogic::drawPointAtIndex(GamePageHolder* curPointHolder, int curPointInd
 	int jj;
 	int kk;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	FIVector4 pVec1;
 		
-	singleton->setShaderVec3("matVal", r, g, b);
+	Renderer::setShaderVec3("matVal", (float)r, (float)g, (float)b);
 	// draw highlighted cube here if necessary
 		
 	kk = curPointIndex/(cellsPerHolder*cellsPerHolder);
@@ -1399,9 +1413,9 @@ void GameLogic::drawPointAtIndex(GamePageHolder* curPointHolder, int curPointInd
 	ii = curPointIndex-(kk*cellsPerHolder*cellsPerHolder + jj*cellsPerHolder);
 		
 	pVec1.copyFrom(&(curPointHolder->gphMinInCells));
-	pVec1.addXYZ(ii,jj,kk);
+	pVec1.addXYZ((float)ii, (float)jj, (float)kk);
 	pVec1.addXYZ(0.5f);
-	singleton->drawCubeCentered(&pVec1, rad);
+	Renderer::drawCubeCentered(&pVec1, rad);
 }
 	
 	
@@ -1459,12 +1473,12 @@ void GameLogic::getPointsForPath(GamePageHolder* curHolderFrom, int _curInd, Pat
 		tempStack.clear();
 	}
 		
-	btVector3 newMin = curHolderFrom->gphMinInCells.getBTV();
+	btVector3 newMin = convertToBTV(curHolderFrom->gphMinInCells);
 		
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
-	//singleton->setShaderVec3("matVal", rr, gg, bb);
+	//Renderer::setShaderVec3("matVal", rr, gg, bb);
 		
 		
 	if (curHolderFrom->getInfo(curInd) != NULL) {
@@ -1524,7 +1538,7 @@ void GameLogic::getPointsForPath(GamePageHolder* curHolderFrom, int _curInd, Pat
 			// pVec2.addXYZ(ii2,jj2,kk2);
 			// pVec2.addXYZ(0.5f);
 				
-			// singleton->drawLine(&pVec1, &pVec2);
+			// Renderer::drawLine(&pVec1, &pVec2);
 				
 				
 				
@@ -1535,7 +1549,7 @@ void GameLogic::getPointsForPath(GamePageHolder* curHolderFrom, int _curInd, Pat
 	}
 		
 	if (reverseOrder) {
-		for (i = (tempStack.size()-1); i >= 0; i--) {
+		for (i = ((int)tempStack.size()-1); i >= 0; i--) {
 			pathInfo->finalPoints.push_back(tempStack[i]);
 		}
 	}
@@ -1545,7 +1559,7 @@ void GameLogic::getPointsForPath(GamePageHolder* curHolderFrom, int _curInd, Pat
 		
 	// if (totPath == 0) {
 			
-	// 	drawPointAtIndex(curHolderFrom, curInd, 0, 255, 255, singleton->smoothTime);	
+	// 	drawPointAtIndex(curHolderFrom, curInd, 0, 255, 255, GameState::smoothTime);	
 			
 			
 	// 	// cout << "0 path " << cameFromInd << " " << curInd << "\n";
@@ -1570,40 +1584,40 @@ void GameLogic::drawRegions(
 		
 		
 		
-	int i;
-	int j;
-	int k;
-	int n;
+//	int i;
+//	int j;
+//	int k;
+//	int n;
 	int q;
 		
 	int ii;
 	int jj;
 	int kk;
-	int ii2;
-	int jj2;
-	int kk2;
+//	int ii2;
+//	int jj2;
+//	int kk2;
 		
-	int ind;
+//	int ind;
 	int lastId;
 	int curId;
 	int curInd;
-	int cameFromInd;
-	int cellVal;
+//	int cameFromInd;
+//	int cellVal;
 		
-	int targetGroup;
-	int targetBlockId;
-	int targetHolderId;
+//	int targetGroup;
+//	int targetBlockId;
+//	int targetHolderId;
 		
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	bool doProc = false;
 		
 	FIVector4 lhPos;
-	lhPos.copyFrom(&(singleton->lastHolderPos));
-	lhPos.addXYZ(offX,offY,offZ);
+	lhPos.copyFrom(&(GameState::lastHolderPos));
+	lhPos.addXYZ((float)offX, (float)offY, (float)offZ);
 		
-	GamePageHolder* curHolderFrom = singleton->gw->getHolderAtCoords(
+	GamePageHolder* curHolderFrom = GameState::gw->getHolderAtCoords(
 		lhPos.getIX(),
 		lhPos.getIY(),
 		lhPos.getIZ(),
@@ -1615,7 +1629,7 @@ void GameLogic::drawRegions(
 		
 	minv.copyFrom(&(curHolderFrom->gphMinInCells));
 	maxv.copyFrom(&minv);
-	maxv.addXYZ(cellsPerHolder);
+	maxv.addXYZ((float)cellsPerHolder);
 		
 	if (curHolderFrom->pathsReady) {
 			
@@ -1640,11 +1654,11 @@ void GameLogic::drawRegions(
 		curInd = curHolderFrom->groupIdStack[q].ind;
 			
 		if (lastId != curId) {
-			singleton->setShaderfVec3("matVal", &(singleton->colVecs[curId%16]));
+			Renderer::setShaderfVec3("matVal", &colVecs[curId%16]);
 		}
 			
 		// if (curInd == curHolderFrom->groupInfoStack[curId].centerInd) {
-		// 	singleton->setShaderVec3("matVal", 254, 128, 0);
+		// 	Renderer::setShaderVec3("matVal", 254, 128, 0);
 		// }
 			
 		kk = curInd/(cellsPerHolder*cellsPerHolder);
@@ -1652,20 +1666,20 @@ void GameLogic::drawRegions(
 		ii = curInd-(kk*cellsPerHolder*cellsPerHolder + jj*cellsPerHolder);
 			
 		pVec1.copyFrom(&minv);
-		pVec1.addXYZ(ii,jj,kk);
+		pVec1.addXYZ((float)ii, (float)jj, (float)kk);
 		pVec1.addXYZ(0.5f);
 			
 		if (curHolderFrom->getInfo(curInd) != NULL) {
-			curPathCost = curHolderFrom->getInfo(curInd)->pathCost;
-			singleton->drawCubeCentered(
+			curPathCost =(float)curHolderFrom->getInfo(curInd)->pathCost;
+			Renderer::drawCubeCentered(
 				&pVec1, 
-				0.15//mixf(0.05f,0.45f,clampfZO(curPathCost/32.0f))
+				0.15f//mixf(0.05f,0.45f,clampfZO(curPathCost/32.0f))
 			);
 		}
 			
 			
 		// if (curInd == curHolderFrom->groupInfoStack[curId].centerInd) {
-		// 	singleton->setShaderfVec3("matVal", &(singleton->colVecs[curId%16]));
+		// 	Renderer::setShaderfVec3("matVal", &(singleton->colVecs[curId%16]));
 		// }
 			
 		lastId = curId;
@@ -1673,7 +1687,7 @@ void GameLogic::drawRegions(
 		
 		
 		
-	singleton->setShaderVec3("matVal", singleton->smoothTime*255.0f, 0, 0);
+	Renderer::setShaderVec3("matVal", GameState::smoothTime*255.0f, 0, 0);
 		
 	for (q = 0; q < curHolderFrom->bestConnectingNodes.size(); q++) {
 			
@@ -1715,27 +1729,27 @@ int GameLogic::getClosestPathRad(btVector3 cpBTV, GamePageHolder* &closestHolder
 	//FIVector4 closestPoint;
 	//
 		
-	int i;
-	int j;
-	int k;
-	int n;
+//	int i;
+//	int j;
+//	int k;
+//	int n;
 	int q;
-	int ind;
+//	int ind;
 		
-	int testInd;
-	int testDis;
+//	int testInd;
+//	int testDis;
 	int bestDis = 99999;
 	int bestInd = -1;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 	int curInd;
 		
 		
 	for (q = -rad; q <= rad; q++) {
-		newCoord = cpBTV + btVector3(0.0f,0.0f,q);
+		newCoord = cpBTV + btVector3(0.0f, 0.0f, (float)q);
 		//closestPoint.setBTV(newCoord);
 			
-		curInd = singleton->gw->getCellInd(newCoord, closestHolder);
+		curInd = GameState::gw->getCellInd(newCoord, closestHolder);
 			
 		if (closestHolder != NULL) {
 			if (closestHolder->idealPathsReady) {
@@ -1767,14 +1781,14 @@ void GameLogic::freePD() {
 	GamePageHolder* curHolder;
 		
 	for (q = 0; q < MAX_PDPOOL_SIZE; q++) {
-		if (singleton->pdPool[q].isFree) {
+		if (MemoryPool::pd(q).isFree) {
 				
 		}
 		else {
 			curHolder = getHolderById(
-				singleton->pdPool[q].boundToHolder.v0,
-				singleton->pdPool[q].boundToHolder.v1,
-				singleton->pdPool[q].boundToHolder.v2
+				MemoryPool::pd(q).boundToHolder.v0,
+				MemoryPool::pd(q).boundToHolder.v1,
+				MemoryPool::pd(q).boundToHolder.v2
 					
 			);
 			if (curHolder != NULL) {
@@ -1797,7 +1811,7 @@ void GameLogic::freePD() {
 	
 	
 void GameLogic::processCurHolder(GamePageHolder* curHolder, bool doPaths) {
-	int q;
+//	int q;
 		
 		
 		
@@ -1807,14 +1821,14 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 		
 	int p;
 	int q;
-	int r;
+//	int r;
 		
 	//int holdersPerBlock = singleton->holdersPerBlock;
 		
-	int i, j, k;
+//	int i, j, k;
 	int ii, jj, kk;
-	int ii2, jj2, kk2;
-	int ii3, jj3, kk3;
+//	int ii2, jj2, kk2;
+//	int ii3, jj3, kk3;
 	int incVal;
 	int readyCount = 0;
 	int maxLoadRad = 0;
@@ -1828,13 +1842,13 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 	int curLoadRadius;
 	int radStep = 1;
 	int curPD;
-	intPair curId;
+//	intPair curId;
 		
-	float maxStackDis = singleton->conVals[E_CONST_MAX_STACK_DIS];
+	float maxStackDis =getConst(E_CONST_MAX_STACK_DIS);
 		
 	FIVector4 tempFIV;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	bool doPaths;
 		
@@ -1859,14 +1873,14 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 		return;
 	}
 		
-	int maxGen = singleton->iGetConst(E_CONST_MAX_HOLDER_GEN);
+	int maxGen = iGetConst(E_CONST_MAX_HOLDER_GEN);
 	//int genMod = 1;
 		
 
 	GamePageHolder* curHolder;
-	GameBlock *curBlock;
+//	GameBlock *curBlock;
 
-	singleton->gw->ensureBlocks();
+	GameState::gw->ensureBlocks();
 		
 	LoadHolderStruct loadHolder;
 		
@@ -1913,7 +1927,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 			maxLoadRad = 0;
 		}
 			
-		tempFIV.copyFrom(&(singleton->gw->camHolderPos));
+		tempFIV.copyFrom(&(GameState::gw->camHolderPos));
 	}
 		
 	for (p = 0; p < numPasses; p++) {
@@ -1933,7 +1947,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 				
 			loadHolder = holderStack.front();
 				
-			curHolder = singleton->gw->getHolderAtCoords(loadHolder.x, loadHolder.y, loadHolder.z, true);
+			curHolder = GameState::gw->getHolderAtCoords(loadHolder.x, loadHolder.y, loadHolder.z, true);
 				
 			if (curHolder->listGenerated) {
 					
@@ -1948,10 +1962,10 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 			
 		for (curLoadRadius = 0; curLoadRadius < maxLoadRad; curLoadRadius++) {
 				
-			mink = max(tempFIV.getIZ() - curLoadRadius,0);
-			maxk = min(
+			mink = std::max(tempFIV.getIZ() - curLoadRadius,0);
+			maxk = std::min(
 				tempFIV.getIZ() + curLoadRadius,
-				singleton->holdersPerWorld - 1
+				g_settings.holdersPerWorld - 1
 			);
 			minj = tempFIV.getIY() - curLoadRadius;
 			maxj = tempFIV.getIY() + curLoadRadius;
@@ -1979,8 +1993,8 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 						
 					for (kk = mink; kk <= maxk; kk += radStep) {
 							
-						curHolder = singleton->gw->getHolderAtCoords(ii, jj, kk, true);
-						// curBlock = singleton->gw->getBlockAtId(curHolder->blockId);
+						curHolder = GameState::gw->getHolderAtCoords(ii, jj, kk, true);
+						// curBlock = GameState::gw->getBlockAtId(curHolder->blockId);
 							
 						// if ((curHolder->listGenerated)&&(curHolder->isDirty)) {
 						// 	readyCount++;
@@ -1991,7 +2005,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 								
 							if (
 								// (curLoadRadius < 2) &&
-								(singleton->settings[E_BS_PATH_FINDING_GEN]) && 
+								(g_settings.settings[E_BS_PATH_FINDING_GEN]) && 
 								doPaths
 							) {
 								if (curHolder->pathsReady || curHolder->lockWrite) {
@@ -2035,7 +2049,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 										
 									curPD = -1;
 									for (q = 0; q < MAX_PDPOOL_SIZE; q++) {
-										if (singleton->pdPool[q].isFree) {
+										if (MemoryPool::pd(q).isFree) {
 											curPD = q;
 											break;
 										}
@@ -2103,7 +2117,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 											
 									}
 									else {
-										if (curHolder->offsetInHolders.distance(&(singleton->gw->camHolderPos)) < maxStackDis) {
+										if (curHolder->offsetInHolders.distance(&(GameState::gw->camHolderPos)) < maxStackDis) {
 											curHolder->wasStacked = true;
 												
 											loadHolder.blockId = curHolder->blockId;
@@ -2154,7 +2168,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 		}
 			
 		// for (it=holderStack.begin(); it != holderStack.end(); ++it) {
-		// 	curHolder = singleton->gw->getHolderAtCoords(
+		// 	curHolder = GameState::gw->getHolderAtCoords(
 		// 		it->x,
 		// 		it->y,
 		// 		it->z,
@@ -2172,7 +2186,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 		// if (holderStack.size() == readyCount) {
 				
 		// 	for (it=holderStack.begin(); it != holderStack.end(); ++it) {
-		// 		curHolder = singleton->gw->getHolderAtCoords(
+		// 		curHolder = GameState::gw->getHolderAtCoords(
 		// 			it->x,
 		// 			it->y,
 		// 			it->z,
@@ -2193,18 +2207,18 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 		
 	// FIVector4 tempFIV;
 		
-	// int minK = singleton->gw->camBlockPos.getIZ() - rad;
-	// int maxK = singleton->gw->camBlockPos.getIZ() + rad;
-	// int minJ = singleton->gw->camBlockPos.getIY() - rad;
-	// int maxJ = singleton->gw->camBlockPos.getIY() + rad;
-	// int minI = singleton->gw->camBlockPos.getIX() - rad;
-	// int maxI = singleton->gw->camBlockPos.getIX() + rad;
+	// int minK = GameState::gw->camBlockPos.getIZ() - rad;
+	// int maxK = GameState::gw->camBlockPos.getIZ() + rad;
+	// int minJ = GameState::gw->camBlockPos.getIY() - rad;
+	// int maxJ = GameState::gw->camBlockPos.getIY() + rad;
+	// int minI = GameState::gw->camBlockPos.getIX() - rad;
+	// int maxI = GameState::gw->camBlockPos.getIX() + rad;
 		
 		
 	// for (kk = minK; kk < maxK; kk++) {
 	// 	for (jj = minJ; jj < maxJ; jj++) {
 	// 		for (ii = minI; ii < maxI; ii++) {
-	// 			curBlock = singleton->gw->getBlockAtCoords(ii,jj,kk,true);
+	// 			curBlock = GameState::gw->getBlockAtCoords(ii,jj,kk,true);
 					
 	// 			if (curBlock->readyToRender) {
 						
@@ -2221,7 +2235,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 	// 							jj3 = jj2 + jj*holdersPerBlock;
 	// 							ii3 = ii2 + ii*holdersPerBlock;
 									
-	// 							curHolder = singleton->gw->getHolderAtCoords(ii3, jj3, kk3, true);
+	// 							curHolder = GameState::gw->getHolderAtCoords(ii3, jj3, kk3, true);
 									
 									
 	// 							//////////
@@ -2232,7 +2246,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 										
 	// 								if (
 	// 									// (curLoadRadius < 2) &&
-	// 									(singleton->settings[E_BS_PATH_FINDING_GEN]) && 
+	// 									(g_settings.settings[E_BS_PATH_FINDING_GEN]) && 
 	// 									doPaths
 	// 								) {
 	// 									if (curHolder->pathsReady || curHolder->lockWrite) {
@@ -2344,8 +2358,8 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 			
 			
 			
-	// 	//curHolder = singleton->gw->getHolderAtCoords(ii, jj, kk, true);
-	// 	//curBlock = singleton->gw->getBlockAtId(curHolder->blockId);
+	// 	//curHolder = GameState::gw->getHolderAtCoords(ii, jj, kk, true);
+	// 	//curBlock = GameState::gw->getBlockAtId(curHolder->blockId);
 			
 			
 	// 	// if (curBlock == NULL) {

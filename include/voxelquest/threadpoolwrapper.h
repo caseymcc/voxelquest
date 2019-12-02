@@ -5,6 +5,14 @@
 
 #include <vector>
 
+enum E_THREAD_TYPE
+{
+	E_TT_GENPATHS,
+	E_TT_GENLIST,
+	E_TT_SPEECH,
+	E_TT_LENGTH
+};
+
 class Singleton;
 
 class ThreadPoolWrapper
@@ -32,7 +40,7 @@ public:
 
     void stopAll();
 
-private:
+//private:
     int maxThreads;
     int intData[THREAD_DATA_COUNT];
     std::string stringData[THREAD_DATA_COUNT];

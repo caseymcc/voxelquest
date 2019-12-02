@@ -183,7 +183,7 @@ void GameOrg::setBinding(int actorId, bool val)
     int i;
     for(i=0; i<RLBN_LENGTH; i++)
     {
-        singleton->gem->bindPose(actorId, i, val);
+        GameState::gem->bindPose(actorId, i, val);
     }
 }
 
@@ -192,20 +192,20 @@ int GameOrg::getPoseUID()
 
     BaseObj* ca;
 
-    if(singleton->gem->curActorUID<0)
+    if(GameState::gem->curActorUID<0)
     {
         return -1;
     }
     else
     {
-        ca=&(singleton->gem->gameObjects[singleton->gem->curActorUID]);
+        ca=&(GameState::gem->gameObjects[GameState::gem->curActorUID]);
         if(ca->entType!=E_ENTTYPE_NPC)
         {
             return -1;
         }
     }
 
-    return singleton->gem->curActorUID;
+    return GameState::gem->curActorUID;
 }
 
 void GameOrg::loadOrgFromFile(string fileName, bool notThePose)
@@ -266,7 +266,7 @@ BaseObj* GameOrg::getOwner()
         return NULL;
     }
 
-    return &(singleton->gem->gameObjects[ownerUID]);
+    return &(GameState::gem->gameObjects[ownerUID]);
 }
 
 void GameOrg::setTPG(int _targetPoseGroup, int _targetPoseRLBN)
@@ -379,7 +379,7 @@ void GameOrg::updatePose(double curTimeStep)
         if(targetPose.group>-1)
         {
 
-            curData=&(singleton->gem->gamePoseInfo[targetPose.group].data[0]);
+            curData=&(GameState::gem->gamePoseInfo[targetPose.group].data[0]);
 
 
             lerpSpeed=curData[E_PIK_LERPSPEED]*singleton->conVals[E_CONST_ANIMLERP_MULT];
@@ -426,7 +426,7 @@ void GameOrg::updatePose(double curTimeStep)
                 if(stepCount>(curData[E_PIK_NUMSTEPS]+curData[E_PIK_EXTRASTEPS]))
                 {
 
-                    actionToStop=singleton->gem->getActionStateFromPose(targetPose.group);
+                    actionToStop=GameState::gem->getActionStateFromPose(targetPose.group);
 
                     curOwner->setActionState(
                         actionToStop,
@@ -464,7 +464,7 @@ void GameOrg::updatePose(double curTimeStep)
 
             setToPose(
 
-                singleton->gem->getPose(
+                GameState::gem->getPose(
                 targetPose.group, targetPose.RLBN, targetPose.step
             ),
 
@@ -476,7 +476,7 @@ void GameOrg::updatePose(double curTimeStep)
 
 
 
-    singleton->gem->transformOrg(this, NULL);
+    GameState::gem->transformOrg(this, NULL);
 
 }
 

@@ -467,7 +467,7 @@ int GameWorld::getCellInd(
 	int yv = cParam.getY();
 	int zv = cParam.getZ();
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	int newX = wrapCoord(xv,cellsPerWorld);
 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -504,7 +504,7 @@ int GameWorld::getCellInd(
 		
 		
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	int newX = wrapCoord(xv,cellsPerWorld);
 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -540,7 +540,7 @@ int GameWorld::getCellInd(
 // void setCellAtCoords(
 // 	int xv, int yv, int zv
 // ) {
-// 	int cellsPerHolder = singleton->cellsPerHolder;
+// 	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 // 	int newX = wrapCoord(xv,cellsPerWorld);
 // 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -573,7 +573,7 @@ int GameWorld::getCellAtCoords(
 	int zv
 ) {
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	int newX = wrapCoord(xv,cellsPerWorld);
 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -665,7 +665,7 @@ btVector3 GameWorld::getNormalAtCoord(btVector3 coord, float* cellVal) {
 	int q;
 		
 	for (q = 0; q < 4; q++) {
-		cellVal[q] = singleton->gw->getCellAtCoordsLin(
+		cellVal[q] = GameState::gw->getCellAtCoordsLin(
 			coord + offsetVal[q]
 		);
 	}
@@ -688,7 +688,7 @@ void GameWorld::setArrAtCoords(
 	int* tempCellData,
 	int* tempCellData2
 ) {
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	int newX = wrapCoord(xv,cellsPerWorld);
 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -732,7 +732,7 @@ void GameWorld::getArrAtCoords(
 	int* tempCellData2
 ) {
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 	int newX = wrapCoord(xv,cellsPerWorld);
 	int newY = wrapCoord(yv,cellsPerWorld);
@@ -769,7 +769,7 @@ void GameWorld::getArrAtCoords(
 	
 	
 void GameWorld::fireEvent(BaseObjType uid, int opCode, float fParam) {
-	BaseObj* ge = &(singleton->gem->gameObjects[uid]);
+	BaseObj* ge = &(GameState::gem->gameObjects[uid]);
 	switch (opCode) {
 		case EV_COLLISION:
 			
@@ -799,9 +799,9 @@ void GameWorld::doMedian() {
 		singleton->bindFBO("resultFBO",activeFBO);
 		singleton->sampleFBO("resultFBO", 0, activeFBO);
 		singleton->sampleFBO("solidTargFBO", 1);
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		//singleton->setShaderfVec2("bufferDim", &(singleton->bufferDim) );
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		//Renderer::setShaderfVec2("bufferDim", &(singleton->bufferDim) );
 			
 			
 		singleton->drawFSQuad();
@@ -826,14 +826,14 @@ void GameWorld::preUpdate() {
 	camBlockPos.copyFrom( singleton->cameraGetPosNoShake() );
 	camBlockPos.intDivXYZ(singleton->cellsPerBlock);
 
-	if (singleton->gem->getCurActor() == NULL) {
+	if (GameState::gem->getCurActor() == NULL) {
 		camHolderPos.copyFrom( singleton->cameraGetPosNoShake() );
-		camHolderPos.intDivXYZ(singleton->cellsPerHolder);
+		camHolderPos.intDivXYZ(g_settings.cellsPerHolder);
 		camHolderPos.addXYZRef(&(singleton->lookAtVec),4.0);
 	}
 	else {
-		camHolderPos.setBTV(singleton->gem->getCurActor()->getCenterPoint(0));
-		camHolderPos.intDivXYZ(singleton->cellsPerHolder);
+		camHolderPos.setBTV(GameState::gem->getCurActor()->getCenterPoint(0));
+		camHolderPos.intDivXYZ(g_settings.cellsPerHolder);
 	}
 
 		
@@ -1027,7 +1027,7 @@ void GameWorld::update() {
 		// 		drawPolys(polyFBOStrings[0], 0, 0,true);
 		// 	}
 		// 	if (POLY_COLLISION) {
-		// 		drawPolys(polyFBOStrings[0], 0, DEF_VOL_SIZE/singleton->cellsPerHolder + 1,false);
+		// 		drawPolys(polyFBOStrings[0], 0, DEF_VOL_SIZE/g_settings.cellsPerHolder + 1,false);
 		// 	}
 				
 		// 	singleton->perspectiveOn = false;
@@ -1049,7 +1049,7 @@ void GameWorld::update() {
 		//singleton->copyFBO2("solidBaseTargFBO","solidTargFBO");
 			
 		singleton->bindShader("SolidCombineShader");
-		singleton->setShaderInt("skippedPrim", (int)(skippedPrim));
+		Renderer::setShaderInt("skippedPrim", (int)(skippedPrim));
 		singleton->bindFBO("solidTargFBO");//, -1, 0);
 		singleton->sampleFBO("solidBaseTargFBO",0);
 		singleton->sampleFBO("geomTargFBO",2);
@@ -1175,7 +1175,7 @@ void GameWorld::ensureBlocks() {
 // 	intPair curId;
 		
 // 	tempVec.copyFrom(testPoint);
-// 	tempVec.intDivXYZ(singleton->cellsPerHolder);
+// 	tempVec.intDivXYZ(g_settings.cellsPerHolder);
 
 
 // 	GamePageHolder* curHolder;
@@ -1330,45 +1330,45 @@ void GameWorld::drawVol(
 	singleton->sampleFBO("hmFBOLinearBig",2);
 		
 	if (!getVoro) {
-		singleton->setShaderTexture3D(13, singleton->volumeWrappers[E_VW_VORO]->volId);
+		Renderer::setShaderTexture3D(13, singleton->volumeWrappers[E_VW_VORO]->volId);
 	}
 		
 		
 		
 	// if (!getBlockHolders) {
-	// 	singleton->setShaderTexture3D(14, singleton->volumeWrappers[E_VW_WORLD]->volId);
+	// 	Renderer::setShaderTexture3D(14, singleton->volumeWrappers[E_VW_WORLD]->volId);
 	// }
 		
-	singleton->setShaderTexture(15, singleton->imageVoro->tid);
+	Renderer::setShaderTexture(15, singleton->imageVoro->tid);
 		
-	singleton->setShaderfVec3("bufferDim", &(curVW->terGenDim) );
+	Renderer::setShaderfVec3("bufferDim", &(curVW->terGenDim) );
 		
-	singleton->setShaderFloat("voroSize",singleton->volumeWrappers[E_VW_VORO]->terGenDim.getFZ());
+	Renderer::setShaderFloat("voroSize",singleton->volumeWrappers[E_VW_VORO]->terGenDim.getFZ());
 		
-	singleton->setShaderFloat("mapPitch", singleton->mapPitch);
-	singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-	singleton->setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
-	singleton->setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
-	singleton->setShaderfVec4("mapAmps", &(singleton->mapAmps) );
+	Renderer::setShaderFloat("mapPitch", singleton->mapPitch);
+	Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+	Renderer::setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
+	Renderer::setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
+	Renderer::setShaderfVec4("mapAmps", &(singleton->mapAmps) );
 		
-	singleton->setShaderfVec3("volMinReadyInPixels", &(curVW->genPosMin) );
-	singleton->setShaderfVec3("volMaxReadyInPixels", &(curVW->genPosMax) );
-	//singleton->setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinInPixels) );
-	//singleton->setShaderfVec3("volMaxReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMaxInPixels) );
+	Renderer::setShaderfVec3("volMinReadyInPixels", &(curVW->genPosMin) );
+	Renderer::setShaderfVec3("volMaxReadyInPixels", &(curVW->genPosMax) );
+	//Renderer::setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinInPixels) );
+	//Renderer::setShaderfVec3("volMaxReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMaxInPixels) );
 		
-	singleton->setShaderInt("getVoro", (int)(getVoro));
-	singleton->setShaderInt("getBlockHolders", (int)(false));
+	Renderer::setShaderInt("getVoro", (int)(getVoro));
+	Renderer::setShaderInt("getBlockHolders", (int)(false));
 		
-	singleton->setShaderFloat("cellsPerWorld", cellsPerWorld );
+	Renderer::setShaderFloat("cellsPerWorld", cellsPerWorld );
 		
 	singleton->fsQuad.draw();
 		
-	singleton->setShaderTexture(15, 0);
+	Renderer::setShaderTexture(15, 0);
 	// if (!getBlockHolders) {
-	// 	singleton->setShaderTexture3D(14, 0);
+	// 	Renderer::setShaderTexture3D(14, 0);
 	// }
 	if (!getVoro) {
-		singleton->setShaderTexture3D(13, 0);
+		Renderer::setShaderTexture3D(13, 0);
 	}
 	singleton->unsampleFBO("hmFBOLinearBig",2);
 	singleton->unbindFBO();
@@ -1458,8 +1458,8 @@ void GameWorld::updateLimbTBOData(bool showLimbs) {
 		
 		
 		
-	for (i = 0; i < singleton->gem->visObjects.size(); i++) {
-		ge = &(singleton->gem->gameObjects[singleton->gem->visObjects[i]]);
+	for (i = 0; i < GameState::gem->visObjects.size(); i++) {
+		ge = &(GameState::gem->gameObjects[GameState::gem->visObjects[i]]);
 			
 		if (
 			(!(ge->isHidden)) &&
@@ -1493,10 +1493,10 @@ void GameWorld::updateLimbTBOData(bool showLimbs) {
 			// }
 				
 				
-			curOrg = singleton->gem->gameOrgs[ge->orgId];
+			curOrg = GameState::gem->gameOrgs[ge->orgId];
 				
 			if (ge->isGrabbedById > -1) {
-				grabber = &(singleton->gem->gameObjects[ge->isGrabbedById]);
+				grabber = &(GameState::gem->gameObjects[ge->isGrabbedById]);
 			}
 			else {
 				grabber = ge;
@@ -1512,8 +1512,8 @@ void GameWorld::updateLimbTBOData(bool showLimbs) {
 				
 				
 			if (
-				singleton->gem->firstPerson &&
-				(ge->uid == singleton->gem->getCurActorUID())
+				GameState::gem->firstPerson &&
+				(ge->uid == GameState::gem->getCurActorUID())
 			) {
 					
 			}
@@ -1776,10 +1776,10 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		
 		
 		
-	singleton->setShaderTexture3D(0, singleton->gameFluid[E_FID_BIG]->volIdPrim[0]);
+	Renderer::setShaderTexture3D(0, singleton->gameFluid[E_FID_BIG]->volIdPrim[0]);
 		
 	if (doPrim) {
-		singleton->setShaderTBO(
+		Renderer::setShaderTBO(
 			1,
 			singleton->gameFluid[E_FID_BIG]->tboWrapper.tbo_tex,
 			singleton->gameFluid[E_FID_BIG]->tboWrapper.tbo_buf,
@@ -1787,7 +1787,7 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		);
 	}
 	else {
-		singleton->setShaderTBO(
+		Renderer::setShaderTBO(
 			1,
 			singleton->limbTBO.tbo_tex,
 			singleton->limbTBO.tbo_buf,
@@ -1816,12 +1816,12 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		singleton->sampleFBO("prmTargFBO",7, -1, 0, 6);
 	}
 		
-	singleton->setShaderTexture3D(13, singleton->volumeWrappers[E_VW_VORO]->volId);
-	//singleton->setShaderTexture3D(14, singleton->volumeWrappers[E_VW_WORLD]->volId);
+	Renderer::setShaderTexture3D(13, singleton->volumeWrappers[E_VW_VORO]->volId);
+	//Renderer::setShaderTexture3D(14, singleton->volumeWrappers[E_VW_WORLD]->volId);
 		
 		
 	//singleton->sampleFBO("noiseFBOLinear", 15);
-	singleton->setShaderTexture(15, singleton->imageVoro->tid);
+	Renderer::setShaderTexture(15, singleton->imageVoro->tid);
 		
 	// if (!doPoly) {
 	// 	singleton->sampleFBO(polyFBOStrings[NUM_POLY_STRINGS],14);
@@ -1830,76 +1830,76 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		
 		
 		
-	if ((singleton->gem->getCurActor() == NULL)||singleton->gem->firstPerson) {
-		singleton->setShaderFloat("thirdPerson", 0.0f);
-		//singleton->setShaderFloat("CAM_BOX_SIZE", 0.5f);
+	if ((GameState::gem->getCurActor() == NULL)||GameState::gem->firstPerson) {
+		Renderer::setShaderFloat("thirdPerson", 0.0f);
+		//Renderer::setShaderFloat("CAM_BOX_SIZE", 0.5f);
 	}
 	else {
-		singleton->setShaderFloat("thirdPerson", 1.0f);
-		//singleton->setShaderFloat("CAM_BOX_SIZE", 0.5f);
-		singleton->setShaderfVec3("entPos", singleton->gem->getCurActor()->getCenterPointFIV(0));
+		Renderer::setShaderFloat("thirdPerson", 1.0f);
+		//Renderer::setShaderFloat("CAM_BOX_SIZE", 0.5f);
+		Renderer::setShaderfVec3("entPos", GameState::gem->getCurActor()->getCenterPointFIV(0));
 	}
 		
 		
-	singleton->setShaderFloat("isUnderWater", -(singleton->getUnderWater()-0.5f)*2.0f );
+	Renderer::setShaderFloat("isUnderWater", -(singleton->getUnderWater()-0.5f)*2.0f );
 		
 		
-	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
-	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-	//singleton->setShaderInt("readPoly", (int)(readPoly));
-	singleton->setShaderInt("depthInvalidMove", (int)(singleton->depthInvalidMove));
-	singleton->setShaderInt("depthInvalidRotate", (int)(singleton->depthInvalidRotate));
+	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+	//Renderer::setShaderInt("readPoly", (int)(readPoly));
+	Renderer::setShaderInt("depthInvalidMove", (int)(singleton->depthInvalidMove));
+	Renderer::setShaderInt("depthInvalidRotate", (int)(singleton->depthInvalidRotate));
 		
-	singleton->setShaderFloat("voroSize",singleton->volumeWrappers[E_VW_VORO]->terGenDim.getFZ());
+	Renderer::setShaderFloat("voroSize",singleton->volumeWrappers[E_VW_VORO]->terGenDim.getFZ());
 		
-	singleton->setShaderInt("actorCount",singleton->actorCount);
-	singleton->setShaderInt("MAX_PRIM_IDS", min(curGeomCount,MAX_PRIM_IDS));
-	singleton->setShaderInt("MAX_PRIMTEST", min(curGeomCount,MAX_PRIMTEST));
+	Renderer::setShaderInt("actorCount",singleton->actorCount);
+	Renderer::setShaderInt("MAX_PRIM_IDS", min(curGeomCount,MAX_PRIM_IDS));
+	Renderer::setShaderInt("MAX_PRIMTEST", min(curGeomCount,MAX_PRIMTEST));
 		
 		
-	singleton->setShaderFloat("invalidCount", invalidCount/invalidCountMax);
-	singleton->setShaderInt("doSphereMap",
+	Renderer::setShaderFloat("invalidCount", invalidCount/invalidCountMax);
+	Renderer::setShaderInt("doSphereMap",
 		// (int)(doSphereMap)
 		(int)(singleton->sphereMapOn)
 	);
-	singleton->setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
-	singleton->setShaderInt("skipPrim", (int)(skipPrim));
-	singleton->setShaderInt("placingGeom", (int)(singleton->settings[E_BS_PLACING_GEOM]));
+	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("skipPrim", (int)(skipPrim));
+	Renderer::setShaderInt("placingGeom", (int)(singleton->settings[E_BS_PLACING_GEOM]));
 		
 		
 		
-	singleton->setShaderfVec3("waterMin", &(singleton->gameFluid[E_FID_BIG]->curWaterMin) );
-	singleton->setShaderfVec3("waterMax", &(singleton->gameFluid[E_FID_BIG]->curWaterMax) );
+	Renderer::setShaderfVec3("waterMin", &(singleton->gameFluid[E_FID_BIG]->curWaterMin) );
+	Renderer::setShaderfVec3("waterMax", &(singleton->gameFluid[E_FID_BIG]->curWaterMax) );
 		
 		
-	singleton->setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinReadyInPixels) );
-	singleton->setShaderfVec3("volMaxReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMaxReadyInPixels) );
+	Renderer::setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinReadyInPixels) );
+	Renderer::setShaderfVec3("volMaxReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMaxReadyInPixels) );
 		
 		
-	singleton->setShaderFloat("mapPitch", singleton->mapPitch);
-	singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-	singleton->setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
-	singleton->setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
-	singleton->setShaderfVec4("mapAmps", &(singleton->mapAmps) );
+	Renderer::setShaderFloat("mapPitch", singleton->mapPitch);
+	Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+	Renderer::setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
+	Renderer::setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
+	Renderer::setShaderfVec4("mapAmps", &(singleton->mapAmps) );
 		
-	singleton->setShaderFloat("SPHEREMAP_SCALE_FACTOR", SPHEREMAP_SCALE_FACTOR);
-	singleton->setShaderFloat("UNIT_MAX", FLUID_UNIT_MAX + 1);
-	singleton->setShaderFloat("waterLerp", singleton->gameFluid[E_FID_BIG]->waterLerp); //todo: E_FID_SML?
-	singleton->setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
-	singleton->setShaderFloat("curTime", singleton->pauseTime/1000.0f);
-	singleton->setShaderfVec2("bufferDim", &(singleton->bufferRenderDim) );
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
-	singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-	singleton->setShaderFloat("cellsPerWorld", cellsPerWorld );
+	Renderer::setShaderFloat("SPHEREMAP_SCALE_FACTOR", SPHEREMAP_SCALE_FACTOR);
+	Renderer::setShaderFloat("UNIT_MAX", FLUID_UNIT_MAX + 1);
+	Renderer::setShaderFloat("waterLerp", singleton->gameFluid[E_FID_BIG]->waterLerp); //todo: E_FID_SML?
+	Renderer::setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
+	Renderer::setShaderFloat("curTime", singleton->pauseTime/1000.0f);
+	Renderer::setShaderfVec2("bufferDim", &(singleton->bufferRenderDim) );
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
+	Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+	Renderer::setShaderFloat("cellsPerWorld", cellsPerWorld );
 		
-	// singleton->setShaderFloat("volSizePrimSmall", singleton->gameFluid[E_FID_SML]->volSizePrim);
-	// singleton->setShaderfVec3("volMinReadyInPixelsSmall", &(singleton->gameFluid[E_FID_SML]->volMinReadyInPixels) );
-	// singleton->setShaderfVec3("volMaxReadyInPixelsSmall", &(singleton->gameFluid[E_FID_SML]->volMaxReadyInPixels) );
+	// Renderer::setShaderFloat("volSizePrimSmall", singleton->gameFluid[E_FID_SML]->volSizePrim);
+	// Renderer::setShaderfVec3("volMinReadyInPixelsSmall", &(singleton->gameFluid[E_FID_SML]->volMinReadyInPixels) );
+	// Renderer::setShaderfVec3("volMaxReadyInPixelsSmall", &(singleton->gameFluid[E_FID_SML]->volMaxReadyInPixels) );
 		
-	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
 		
 		
 	//paramFetch1: x,y,z: position; w: template number
@@ -1910,32 +1910,32 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 	tempVec1.copyFrom(&(singleton->geomPoints[0]));
 	tempVec1.addXYZRef(&(singleton->geomOrigOffset));
 	tempVec2.setFXYZW(0.0f,-99.0f,0.0f,0.0f);
-	singleton->setShaderfVec4("paramFetch1", &tempVec1 );
-	singleton->setShaderfVec4("paramFetch2", &tempVec2 );
-	singleton->setShaderArrayfVec4("paramArrGeom", singleton->paramArrGeom, E_PRIMTEMP_LENGTH);
+	Renderer::setShaderfVec4("paramFetch1", &tempVec1 );
+	Renderer::setShaderfVec4("paramFetch2", &tempVec2 );
+	Renderer::setShaderArrayfVec4("paramArrGeom", singleton->paramArrGeom, E_PRIMTEMP_LENGTH);
 		
 		
-	if (singleton->gem->getCurActor() != NULL) {
+	if (GameState::gem->getCurActor() != NULL) {
 			
-		singleton->splashArr[0] = singleton->gem->getCurActor()->getCenterPointFIV(0)->getFX();
-		singleton->splashArr[1] = singleton->gem->getCurActor()->getCenterPointFIV(0)->getFX();
-		singleton->splashArr[2] = singleton->gem->getCurActor()->getCenterPointFIV(0)->getFX();
-		singleton->splashArr[3] = singleton->gem->getCurActor()->getVel(0)->length();
+		singleton->splashArr[0] = GameState::gem->getCurActor()->getCenterPointFIV(0)->getFX();
+		singleton->splashArr[1] = GameState::gem->getCurActor()->getCenterPointFIV(0)->getFX();
+		singleton->splashArr[2] = GameState::gem->getCurActor()->getCenterPointFIV(0)->getFX();
+		singleton->splashArr[3] = GameState::gem->getCurActor()->getVel(0)->length();
 			
-		singleton->setShaderInt("numSplashes", 1);
-		singleton->setShaderArrayfVec4("splashArr", singleton->splashArr, MAX_SPLASHES);
+		Renderer::setShaderInt("numSplashes", 1);
+		Renderer::setShaderArrayfVec4("splashArr", singleton->splashArr, MAX_SPLASHES);
 	}
 	else {
-		singleton->setShaderInt("numSplashes", 0);
+		Renderer::setShaderInt("numSplashes", 0);
 	}
 		
 		
 		
 	if (singleton->settings[E_BS_WATER_BULLET]) {
-		singleton->setShaderInt("numExplodes", 0);
+		Renderer::setShaderInt("numExplodes", 0);
 	}
 	else {
-		singleton->setShaderInt("numExplodes", singleton->sphereStack.size());
+		Renderer::setShaderInt("numExplodes", singleton->sphereStack.size());
 			
 		if ( singleton->sphereStack.size() > 0) {
 			for (i = 0; i < singleton->sphereStack.size();i++) {
@@ -1944,7 +1944,7 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 				singleton->explodeArr[i*4+2] = singleton->sphereStack[i].position[2];
 				singleton->explodeArr[i*4+3] = singleton->sphereStack[i].curRad;
 			}
-			singleton->setShaderArrayfVec4("explodeArr", singleton->explodeArr, MAX_EXPLODES);
+			Renderer::setShaderArrayfVec4("explodeArr", singleton->explodeArr, MAX_EXPLODES);
 		}
 	}
 		
@@ -1962,9 +1962,9 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		
 		
 	//singleton->unsampleFBO("noiseFBOLinear", 15);
-	singleton->setShaderTexture(15, 0);
-	//singleton->setShaderTexture3D(14, 0);
-	singleton->setShaderTexture3D(13, 0);
+	Renderer::setShaderTexture(15, 0);
+	//Renderer::setShaderTexture3D(14, 0);
+	Renderer::setShaderTexture3D(13, 0);
 		
 		
 	if (doPrim) {
@@ -1983,8 +1983,8 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 	//singleton->unsampleFBO("terDepthFBO",3);
 	singleton->unsampleFBO("hmFBOLinearBig",2);
 		
-	singleton->setShaderTBO(1,0,0,true);
-	singleton->setShaderTexture3D(1, 0);
+	Renderer::setShaderTBO(1,0,0,true);
+	Renderer::setShaderTexture3D(1, 0);
 		
 	singleton->unbindFBO();
 	singleton->unbindShader();
@@ -2027,20 +2027,20 @@ void GameWorld::drawOrg(GameOrg* curOrg, bool drawAll) {
 		
 		
 	// tangents
-	singleton->setShaderVec3("matVal", 255, 0, 0 );
+	Renderer::setShaderVec3("matVal", 255, 0, 0 );
 	drawNodeEnt((curOrg->baseNode),&(curOrg->basePosition), scale, 0, drawAll);
 		
 	// bitangents
-	singleton->setShaderVec3("matVal", 0, 255, 0);
+	Renderer::setShaderVec3("matVal", 0, 255, 0);
 	drawNodeEnt((curOrg->baseNode),&(curOrg->basePosition), scale, 1, drawAll);
 		
 	// normals
-	singleton->setShaderVec3("matVal", 0, 0, 255);
+	Renderer::setShaderVec3("matVal", 0, 0, 255);
 	drawNodeEnt((curOrg->baseNode),&(curOrg->basePosition), scale, 2, drawAll);
 		
 	if (drawAll) {
 		// nodes
-		singleton->setShaderVec3("matVal", 254, 254, 254);
+		Renderer::setShaderVec3("matVal", 254, 254, 254);
 		drawNodeEnt((curOrg->baseNode),&(curOrg->basePosition), scale, 3, drawAll);
 	}
 		
@@ -2067,7 +2067,7 @@ void GameWorld::drawNodeEnt(
 		doProc = true;
 	}
 	else {
-		if (curNode == singleton->gem->selectedNode) {
+		if (curNode == GameState::gem->selectedNode) {
 			doProc = true;
 		}
 	}
@@ -2090,14 +2090,14 @@ void GameWorld::drawNodeEnt(
 			lineSeg[1].addXYZRef(&(lineSeg[0]));
 		//}
 			
-		if (singleton->gem->getCurActor() != NULL) {
+		if (GameState::gem->getCurActor() != NULL) {
 				
 				
-			if (singleton->gem->getCurActor()->isGrabbedById > -1) {
-				grabber = &(singleton->gem->gameObjects[singleton->gem->getCurActor()->isGrabbedById]);
+			if (GameState::gem->getCurActor()->isGrabbedById > -1) {
+				grabber = &(GameState::gem->gameObjects[GameState::gem->getCurActor()->isGrabbedById]);
 			}
 			else {
-				grabber = singleton->gem->getCurActor();
+				grabber = GameState::gem->getCurActor();
 			}
 				
 				
@@ -2112,10 +2112,10 @@ void GameWorld::drawNodeEnt(
 			case 0: // tangents
 			case 1: // bitangents
 			case 2: // normals
-				singleton->drawLine(&(lineSeg[0]),&(lineSeg[1]));
+				Renderer::drawLine(&(lineSeg[0]),&(lineSeg[1]));
 			break;
 			case 3: // nodes
-				singleton->drawCubeCentered(&(lineSeg[1]),0.0125f*scale);
+				Renderer::drawCubeCentered(&(lineSeg[1]),0.0125f*scale);
 			break;
 				
 		}
@@ -2168,28 +2168,28 @@ void drawPolys(
 		
 	//singleton->sampleFBO("polyFBO",0,fboNum);
 		
-	///singleton->setShaderTexture3D(0, singleton->gameFluid[E_FID_BIG]->volIdPrim[0]);
+	///Renderer::setShaderTexture3D(0, singleton->gameFluid[E_FID_BIG]->volIdPrim[0]);
 	//singleton->sampleFBO("hmFBOLinearBig",2);
-	//singleton->setShaderTexture3D(13, curVW->volId);
+	//Renderer::setShaderTexture3D(13, curVW->volId);
 		
 	if (polyFBOStrings[0].compare(fboName) == 0) {
-		singleton->setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
+		Renderer::setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
 	}
 	else {
-		singleton->setShaderVec4("maskVals", 0.0f, 1.0f, 0.0f, 0.0f);
+		Renderer::setShaderVec4("maskVals", 0.0f, 1.0f, 0.0f, 0.0f);
 	}
 		
-	singleton->setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
-	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-	singleton->setShaderfVec2("bufferDim", &(singleton->bufferRenderDim) );
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinReadyInPixels) );
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
+	Renderer::setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
+	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+	Renderer::setShaderfVec2("bufferDim", &(singleton->bufferRenderDim) );
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("volMinReadyInPixels", &(singleton->gameFluid[E_FID_BIG]->volMinReadyInPixels) );
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
 		
-	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
 		
 	// if (isBlockHolder) {
 	// 	rasterWorldPolys();
@@ -2200,9 +2200,9 @@ void drawPolys(
 		
 		
 		
-	// singleton->setShaderTexture3D(13, 0);
+	// Renderer::setShaderTexture3D(13, 0);
 	// singleton->unsampleFBO("hmFBOLinearBig",2);
-	// singleton->setShaderTexture3D(0,0);
+	// Renderer::setShaderTexture3D(0,0);
 		
 	//singleton->unsampleFBO("polyFBO",0,fboNum);
 	singleton->unbindFBO();
@@ -2244,7 +2244,7 @@ void drawPolys(
 // 		int jj;
 // 		int kk;
 		
-// 		int cellsPerHolder = singleton->cellsPerHolder;
+// 		int cellsPerHolder = g_settings.cellsPerHolder;
 		
 // 		GamePageHolder* curHolder;
 		
@@ -2568,7 +2568,7 @@ void drawPolys(
 // 	int jj;
 // 	int kk;
 		
-// 	int cellsPerHolder = singleton->cellsPerHolder;
+// 	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 		
 		
@@ -2584,9 +2584,9 @@ void drawPolys(
 // 	int pCount = 0;
 		
 		
-// 	int bi = singleton->lastHolderPos.getIX();
-// 	int bj = singleton->lastHolderPos.getIY();
-// 	int bk = singleton->lastHolderPos.getIZ();
+// 	int bi = GameState::lastHolderPos.getIX();
+// 	int bj = GameState::lastHolderPos.getIY();
+// 	int bk = GameState::lastHolderPos.getIZ();
 		
 // 	int curRad = 0;
 		
@@ -2619,19 +2619,19 @@ void drawPolys(
 			
 // 		// switch(q) {
 // 		// 	case 0:
-// 		// 		singleton->setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
+// 		// 		Renderer::setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
 // 		// 	break;
 // 		// 	case 1:
-// 		// 		singleton->setShaderVec4("maskVals", 0.0f, 1.0f, 0.0f, 0.0f);
+// 		// 		Renderer::setShaderVec4("maskVals", 0.0f, 1.0f, 0.0f, 0.0f);
 // 		// 	break;
 // 		// 	case 2:
-// 		// 		singleton->setShaderVec4("maskVals", 0.0f, 0.0f, 1.0f, 0.0f);
+// 		// 		Renderer::setShaderVec4("maskVals", 0.0f, 0.0f, 1.0f, 0.0f);
 // 		// 	break;
 // 		// 	case 3:
-// 		// 		singleton->setShaderVec4("maskVals", 0.0f, 0.0f, 0.0f, 1.0f);
+// 		// 		Renderer::setShaderVec4("maskVals", 0.0f, 0.0f, 0.0f, 1.0f);
 // 		// 	break;
 // 		// 	case 4:
-// 		// 		singleton->setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
+// 		// 		Renderer::setShaderVec4("maskVals", 1.0f, 0.0f, 0.0f, 0.0f);
 // 		// 	break;
 // 		// }
 			
@@ -2675,10 +2675,10 @@ void drawPolys(
 									
 // 								pCount++;
 									
-// 								// singleton->setShaderFloat("volSizePrim", singleton->cellsPerHolder);
-// 								// singleton->setShaderfVec3("volMinReadyInPixels", &(curHolder->gphMinInCells) );
-// 								// singleton->setShaderfVec3("volMaxReadyInPixels", &(curHolder->gphMaxInCells) );
-// 								// singleton->setShaderTexture3D(0, curHolder->terVW->volId);
+// 								// Renderer::setShaderFloat("volSizePrim", g_settings.cellsPerHolder);
+// 								// Renderer::setShaderfVec3("volMinReadyInPixels", &(curHolder->gphMinInCells) );
+// 								// Renderer::setShaderfVec3("volMaxReadyInPixels", &(curHolder->gphMaxInCells) );
+// 								// Renderer::setShaderTexture3D(0, curHolder->terVW->volId);
 									
 									
 // 								if (doPoints) {
@@ -2706,9 +2706,9 @@ void drawPolys(
 // 	}
 		
 		
-// 	// singleton->setShaderTexture3D(13, 0);
+// 	// Renderer::setShaderTexture3D(13, 0);
 // 	// singleton->unsampleFBO("hmFBOLinearBig",2);
-// 	// singleton->setShaderTexture3D(0,0);
+// 	// Renderer::setShaderTexture3D(0,0);
 		
 // 	// singleton->unbindShader();
 		
@@ -2746,7 +2746,7 @@ void GameWorld::renderGeom()
 	int curInd;
 	int cameFromInd;
 		
-	int cellsPerHolder = singleton->cellsPerHolder;
+	int cellsPerHolder = g_settings.cellsPerHolder;
 		
 		
 	float frameMod;
@@ -2777,19 +2777,19 @@ void GameWorld::renderGeom()
 
 	// singleton->bindShader("GeomShader");
 	// singleton->bindFBO("geomBaseTargFBO");
-	// singleton->setShaderFloat("objectId",0.0);
-	// singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	// singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	// singleton->setShaderFloat("isWire", 0.0);
-	// singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-	// singleton->setShaderfVec3("offsetPos",&(singleton->origin));
-	// singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	// singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	// Renderer::setShaderFloat("objectId",0.0);
+	// Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	// Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	// Renderer::setShaderFloat("isWire", 0.0);
+	// Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+	// Renderer::setShaderfVec3("offsetPos",&(singleton->origin));
+	// Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	// Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
 		
 		
 		
 		
-	// singleton->setShaderVec3("matVal", 30, 30, 30);
+	// Renderer::setShaderVec3("matVal", 30, 30, 30);
 		
 		
 	// //singleton->gamePhysics->example->renderScene();
@@ -2797,9 +2797,9 @@ void GameWorld::renderGeom()
 		
 		
 		
-	// for(i = 0; i < singleton->gem->visObjects.size(); i++) {
+	// for(i = 0; i < GameState::gem->visObjects.size(); i++) {
 			
-	// 	curObj = &(singleton->gem->gameObjects[visObjects[i]]);
+	// 	curObj = &(GameState::gem->gameObjects[visObjects[i]]);
 			
 	// 	objCount++;
 			
@@ -2819,13 +2819,13 @@ void GameWorld::renderGeom()
 	// 		// tempVec3.copyFrom(curObj->getCenterPointFIV(0));
 	// 		// tempVec3.setFW(curObj->ang);
 				
-	// 		// singleton->setShaderfVec4("rotationZ",&tempVec3);
+	// 		// Renderer::setShaderfVec4("rotationZ",&tempVec3);
 				
 	// 		doProc = false;
 				
 	// 		if (visObjects[i] == singleton->actObjInd) {
 					
-	// 			if (!singleton->gem->firstPerson) {
+	// 			if (!GameState::gem->firstPerson) {
 						
 	// 				// singleton->drawBox(
 	// 				// 	&tempVec1,
@@ -2837,7 +2837,7 @@ void GameWorld::renderGeom()
 						
 						
 						
-	// 				// singleton->setShaderFloat("objectId",0);
+	// 				// Renderer::setShaderFloat("objectId",0);
 						
 	// 				// tempVec1.copyFrom( curObj->getCenterPointFIV(0) );
 						
@@ -2846,25 +2846,25 @@ void GameWorld::renderGeom()
 	// 				// tempVec2.setFXYZRef( &(singleton->dirVecs[curOr]) );
 	// 				// tempVec2.multXYZ(2.0f);
 	// 				// tempVec2.addXYZRef(&tempVec1);
-	// 				// singleton->setShaderVec3("matVal", 255, 0, 0);
-	// 				// singleton->drawLine(&tempVec1,&tempVec2);
+	// 				// Renderer::setShaderVec3("matVal", 255, 0, 0);
+	// 				// Renderer::drawLine(&tempVec1,&tempVec2);
 						
 	// 				// curOr = curObj->orientationXYZ.getIY();
 	// 				// tempVec2.setFXYZRef( &(singleton->dirVecs[curOr]) );
 	// 				// tempVec2.multXYZ(2.0f);
 	// 				// tempVec2.addXYZRef(&tempVec1);
-	// 				// singleton->setShaderVec3("matVal", 0, 255, 0);
-	// 				// singleton->drawLine(&tempVec1,&tempVec2);
+	// 				// Renderer::setShaderVec3("matVal", 0, 255, 0);
+	// 				// Renderer::drawLine(&tempVec1,&tempVec2);
 						
 	// 				// curOr = curObj->orientationXYZ.getIZ();
 	// 				// tempVec2.setFXYZRef( &(singleton->dirVecs[curOr]) );
 	// 				// tempVec2.multXYZ(2.0f);
 	// 				// tempVec2.addXYZRef(&tempVec1);
-	// 				// singleton->setShaderVec3("matVal", 0, 0, 255);
-	// 				// singleton->drawLine(&tempVec1,&tempVec2);
+	// 				// Renderer::setShaderVec3("matVal", 0, 0, 255);
+	// 				// Renderer::drawLine(&tempVec1,&tempVec2);
 						
 						
-	// 				// singleton->setShaderVec3("matVal", 30, 30, 30);
+	// 				// Renderer::setShaderVec3("matVal", 30, 30, 30);
 	// 			}
 					
 					
@@ -2876,8 +2876,8 @@ void GameWorld::renderGeom()
 	// 				(curObj->entType == E_ENTTYPE_BULLET) ||
 	// 				(curObj->entType == E_ENTTYPE_TRACE) ||
 	// 				(
-	// 					(singleton->gem->firstPerson) &&
-	// 					(curObj->uid == singleton->gem->getCurActorUID())
+	// 					(GameState::gem->firstPerson) &&
+	// 					(curObj->uid == GameState::gem->getCurActorUID())
 	// 				)
 	// 			) {
 						
@@ -2896,7 +2896,7 @@ void GameWorld::renderGeom()
 				
 	// 		if (doProc) {
 					
-	// 			singleton->setShaderFloat("objectId",visObjects[i]);
+	// 			Renderer::setShaderFloat("objectId",visObjects[i]);
 					
 	// 			// if (curObj->body != NULL) {
 	// 			// 	glBegin( GL_TRIANGLES );
@@ -2917,16 +2917,16 @@ void GameWorld::renderGeom()
 		
 		
 	// tempVec3.setFXYZW(0.0f,0.0f,0.0f,0.0f);
-	// singleton->setShaderfVec4("rotationZ",&tempVec3);
-	// singleton->setShaderFloat("objectId",0.0);
+	// Renderer::setShaderfVec4("rotationZ",&tempVec3);
+	// Renderer::setShaderFloat("objectId",0.0);
 		
 
 
 
 
 		
-	// // singleton->setShaderFloat("isWire", 1.0);
-	// // singleton->setShaderVec3("matVal", 255, 0, 0);
+	// // Renderer::setShaderFloat("isWire", 1.0);
+	// // Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// // minv.setFXYZRef(&(singleton->gameFluid[E_FID_BIG]->curDirtyMin));
 	// // maxv.setFXYZRef(&(singleton->gameFluid[E_FID_BIG]->curDirtyMax));
 	// // minv.addXYZRef(&(singleton->gameFluid[E_FID_BIG]->volMinReadyInPixels));
@@ -2936,8 +2936,8 @@ void GameWorld::renderGeom()
 	// // singleton->drawBox(&minv, &maxv);
 		
 		
-	// // singleton->setShaderFloat("isWire", 1.0);
-	// // singleton->setShaderVec3("matVal", 255, 0, 0);
+	// // Renderer::setShaderFloat("isWire", 1.0);
+	// // Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// // minv.setFXYZRef(&(singleton->gameFluid[E_FID_BIG]->curWaterMin));
 	// // maxv.setFXYZRef(&(singleton->gameFluid[E_FID_BIG]->curWaterMax));
 	// // minv.addXYZ(-4.0f,-4.0f,0.0f);
@@ -2957,12 +2957,12 @@ void GameWorld::renderGeom()
 	// 	// if (singleton->settings[E_BS_PLACING_GEOM]) {
 				
 				
-	// 	// 	singleton->setShaderVec3("matVal", 255, 0, 0);
-	// 	// 	singleton->setShaderFloat("isWire", 0.0);
+	// 	// 	Renderer::setShaderVec3("matVal", 255, 0, 0);
+	// 	// 	Renderer::setShaderFloat("isWire", 0.0);
 				
 	// 	// 	for (i = 0; i <= singleton->geomStep; i++) {
 					
-	// 	// 		singleton->drawCubeCentered(
+	// 	// 		Renderer::drawCubeCentered(
 	// 	// 			&singleton->geomPoints[i],
 	// 	// 			0.25f	
 	// 	// 		);
@@ -2975,15 +2975,15 @@ void GameWorld::renderGeom()
 			
 			
 	// 	if (singleton->earthMod == E_PTT_TER) {
-	// 		singleton->setShaderVec3("matVal", 255, 0, 0);
+	// 		Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// 	}
 	// 	else {
-	// 		singleton->setShaderVec3("matVal", 0, 0, 255);
+	// 		Renderer::setShaderVec3("matVal", 0, 0, 255);
 	// 	}
 			
 			
-	// 	singleton->setShaderFloat("isWire", 1.0);
-	// 	singleton->drawCubeCentered(
+	// 	Renderer::setShaderFloat("isWire", 1.0);
+	// 	Renderer::drawCubeCentered(
 	// 		&lastUnitPos,
 	// 		((int)singleton->curBrushRad)
 	// 	);
@@ -3002,8 +3002,8 @@ void GameWorld::renderGeom()
 	// 	}
 	// 	else
 	// 	{
-	// 		singleton->setShaderVec3("matVal", 254, 254, 254);
-	// 		singleton->setShaderFloat("isWire", 1.0);
+	// 		Renderer::setShaderVec3("matVal", 254, 254, 254);
+	// 		Renderer::setShaderFloat("isWire", 1.0);
 
 	// 		minv.setFXYZRef(singleton->highlightedEnt->getVisMinInPixelsT());
 	// 		maxv.setFXYZRef(singleton->highlightedEnt->getVisMaxInPixelsT());
@@ -3021,8 +3021,8 @@ void GameWorld::renderGeom()
 	// 	}
 	// 	else
 	// 	{
-	// 		singleton->setShaderVec3("matVal", 255, 255, 0);
-	// 		singleton->setShaderFloat("isWire", 1.0);
+	// 		Renderer::setShaderVec3("matVal", 255, 255, 0);
+	// 		Renderer::setShaderFloat("isWire", 1.0);
 
 	// 		minv.setFXYZRef(singleton->selectedEnts.getSelectedEnt()->getVisMinInPixelsT());
 	// 		maxv.setFXYZRef(singleton->selectedEnts.getSelectedEnt()->getVisMaxInPixelsT());
@@ -3066,10 +3066,10 @@ void GameWorld::renderGeom()
 
 	// 			if (doProc)
 	// 			{
-	// 				singleton->setShaderFloat("objectId",i);
-	// 				singleton->setShaderfVec3("matVal", &(singleton->dynObjects[i]->color) );
+	// 				Renderer::setShaderFloat("objectId",i);
+	// 				Renderer::setShaderfVec3("matVal", &(singleton->dynObjects[i]->color) );
 	// 				curBoxPos = &(singleton->dynObjects[i]->pos);
-	// 				singleton->drawCubeCentered(curBoxPos, singleton->dynObjects[i]->radius);
+	// 				Renderer::drawCubeCentered(curBoxPos, singleton->dynObjects[i]->radius);
 
 
 	// 				if (i == singleton->activeObject)
@@ -3084,8 +3084,8 @@ void GameWorld::renderGeom()
 	// }
 		
 		
-	// // singleton->setShaderVec3("matVal", 254, 0, 0);
-	// // singleton->setShaderFloat("isWire", 1.0);
+	// // Renderer::setShaderVec3("matVal", 254, 0, 0);
+	// // Renderer::setShaderFloat("isWire", 1.0);
 	// // for (i = 0; i < singleton->nearestLights.selEntList.size(); i++) {
 			
 
@@ -3115,15 +3115,15 @@ void GameWorld::renderGeom()
 		
 	singleton->bindShader("BoxShader");
 	singleton->bindFBO("geomBaseTargFBO");//, -1, 0); //solidTargFBO
-	singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-	singleton->setShaderFloat("objectId",0.0);
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	singleton->setShaderFloat("isWire", 0.0);
-	singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
-	singleton->setShaderVec3("matVal", 1, 1, 1);
+	Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+	Renderer::setShaderFloat("objectId",0.0);
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderFloat("isWire", 0.0);
+	Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	Renderer::setShaderVec3("matVal", 1, 1, 1);
 					
 	// glBegin( GL_TRIANGLES );
 	// //m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true);
@@ -3164,15 +3164,15 @@ void GameWorld::renderGeom()
 		
 	// singleton->bindShader("CylBBShader");
 	// singleton->bindFBO("geomBaseTargFBO", -1, 0);
-	// singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim) );
-	// singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-	// singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	// singleton->setShaderFloat("curTime", singleton->pauseTime/1000.0f);
-	// singleton->setShaderTexture(0,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
+	// Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim) );
+	// Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+	// Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	// Renderer::setShaderFloat("curTime", singleton->pauseTime/1000.0f);
+	// Renderer::setShaderTexture(0,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
 		
-	// for(i = 0; i < singleton->gem->visObjects.size(); i++) {
+	// for(i = 0; i < GameState::gem->visObjects.size(); i++) {
 			
-	// 	curObj = &(singleton->gem->gameObjects[visObjects[i]]);
+	// 	curObj = &(GameState::gem->gameObjects[visObjects[i]]);
 			
 	// 	eqObj = singleton->getEquipped(curObj);
 			
@@ -3180,8 +3180,8 @@ void GameWorld::renderGeom()
 	// 		curObj->isHidden ||
 	// 		(eqObj == NULL) ||
 	// 		(
-	// 			(singleton->gem->firstPerson) &&
-	// 			(curObj->uid == singleton->gem->getCurActorUID())
+	// 			(GameState::gem->firstPerson) &&
+	// 			(curObj->uid == GameState::gem->getCurActorUID())
 	// 		)
 	// 	) {
 				
@@ -3202,8 +3202,8 @@ void GameWorld::renderGeom()
 	// 		rotVec.copyFrom(curObj->getCenterPointFIV(0));
 	// 		//rotVec.addXYZ(0.0,2.0,0.0);
 	// 		rotVec.setFW( curObj->ang + curObj->angRelative );
-	// 		singleton->setShaderfVec4("rotZ",&rotVec);
-	// 		singleton->setShaderfVec4("rotZ2",&tempVec2);
+	// 		Renderer::setShaderfVec4("rotZ",&rotVec);
+	// 		Renderer::setShaderfVec4("rotZ2",&tempVec2);
 				
 	// 		p0.copyFrom(&tempVec2);
 	// 		p1.copyFrom(&tempVec2);
@@ -3220,7 +3220,7 @@ void GameWorld::renderGeom()
 				
 				
 	// 		tempCS = &(singleton->fontWrappers[EFW_ICONS]->charVals[
-	// 			singleton->gem->entIdToIcon[eqObj->objectType] 
+	// 			GameState::gem->entIdToIcon[eqObj->objectType] 
 	// 		]);
 	// 		frameMod = 0;
 	// 		if (eqObj->maxFrames != 0) {
@@ -3262,7 +3262,7 @@ void GameWorld::renderGeom()
 			
 			
 	// }
-	// singleton->setShaderTexture(0,0);
+	// Renderer::setShaderTexture(0,0);
 	// singleton->unbindFBO();
 	// singleton->unbindShader();
 		
@@ -3281,35 +3281,35 @@ void GameWorld::renderGeom()
 		
 		
 	// singleton->bindShader("BillboardShader");
-	// singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim) );
-	// singleton->setShaderFloat("cellsPerHolder",cellsPerHolder);
-	// singleton->setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
-	// singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-	// singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	// singleton->setShaderTexture(0,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
+	// Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim) );
+	// Renderer::setShaderFloat("cellsPerHolder",cellsPerHolder);
+	// Renderer::setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
+	// Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+	// Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	// Renderer::setShaderTexture(0,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
 	// singleton->sampleFBO("geomBaseTargFBO",1);
 	// singleton->bindFBO("geomTargFBO", -1, 0);
 		
 		
 	// glBegin(GL_POINTS);
 		
-	// for(i = 0; i < singleton->gem->visObjects.size(); i++) {
+	// for(i = 0; i < GameState::gem->visObjects.size(); i++) {
 			
-	// 	curObj = &(singleton->gem->gameObjects[visObjects[i]]);
+	// 	curObj = &(GameState::gem->gameObjects[visObjects[i]]);
 			
 	// 	if (
 	// 		curObj->isHidden ||
 	// 		(curObj->objectType <= 0) ||
 	// 		(
-	// 			(singleton->gem->firstPerson) &&
-	// 			(curObj->uid == singleton->gem->getCurActorUID())
+	// 			(GameState::gem->firstPerson) &&
+	// 			(curObj->uid == GameState::gem->getCurActorUID())
 	// 		)
 	// 	) {
 				
 	// 	}
 	// 	else {
 	// 		tempCS = &(singleton->fontWrappers[EFW_ICONS]->charVals[
-	// 			singleton->gem->entIdToIcon[curObj->objectType] 
+	// 			GameState::gem->entIdToIcon[curObj->objectType] 
 	// 		]);
 	// 		frameMod = 0;
 	// 		if (curObj->maxFrames != 0) {
@@ -3349,7 +3349,7 @@ void GameWorld::renderGeom()
 		
 		
 	// singleton->unsampleFBO("geomBaseTargFBO",1);
-	// singleton->setShaderTexture(0,0);
+	// Renderer::setShaderTexture(0,0);
 	// singleton->unbindFBO();
 	// singleton->unbindShader();
 		
@@ -3800,7 +3800,7 @@ void GameWorld::initMap()
 			
 		singleton->bindShader("Simplex2D");
 		singleton->bindFBO("simplexFBO");
-		singleton->setShaderFloat("curTime", fGenRand() * 100.0f);
+		Renderer::setShaderFloat("curTime", fGenRand() * 100.0f);
 		singleton->drawFSQuad();
 		singleton->unbindFBO();
 		singleton->unbindShader();
@@ -3808,15 +3808,15 @@ void GameWorld::initMap()
 		singleton->bindShader("TerrainMix");
 		singleton->bindFBO("hmFBOLinear");
 		singleton->sampleFBO("simplexFBO", 0);
-		singleton->setShaderTexture(1, singleton->imageHM0->tid);
-		singleton->setShaderTexture(2, singleton->imageHM1->tid);
-		singleton->setShaderInt("passNum",q);
-		singleton->setShaderVec2("minAndMax",((float)minSL)/255.0f,((float)maxSL)/255.0f);
-		singleton->setShaderArrayfVec3("paramArrMap", singleton->paramArrMap, 16 );
-		//singleton->setShaderFloat("mapSampScale", 1.0f); //singleton->mapSampScale
+		Renderer::setShaderTexture(1, singleton->imageHM0->tid);
+		Renderer::setShaderTexture(2, singleton->imageHM1->tid);
+		Renderer::setShaderInt("passNum",q);
+		Renderer::setShaderVec2("minAndMax",((float)minSL)/255.0f,((float)maxSL)/255.0f);
+		Renderer::setShaderArrayfVec3("paramArrMap", singleton->paramArrMap, 16 );
+		//Renderer::setShaderFloat("mapSampScale", 1.0f); //singleton->mapSampScale
 		singleton->drawFSQuad();
-		singleton->setShaderTexture(2, 0);
-		singleton->setShaderTexture(1, 0);
+		Renderer::setShaderTexture(2, 0);
+		Renderer::setShaderTexture(1, 0);
 		singleton->unsampleFBO("simplexFBO", 0);
 		singleton->unbindFBO();
 		singleton->unbindShader();
@@ -3952,9 +3952,9 @@ void GameWorld::initMap()
 
 		singleton->bindFBO("swapFBO", mapSwapFlag);
 		singleton->sampleFBO("swapFBO", 0, mapSwapFlag);
-		singleton->setShaderFloat("seaSlack", ((float)seaSlack) / 255.0 );
-		singleton->setShaderFloat("mapStep", mapStep);
-		singleton->setShaderFloat("texPitch", w);
+		Renderer::setShaderFloat("seaSlack", ((float)seaSlack) / 255.0 );
+		Renderer::setShaderFloat("mapStep", mapStep);
+		Renderer::setShaderFloat("texPitch", w);
 		singleton->drawFSQuad();
 		singleton->unsampleFBO("swapFBO", 0, mapSwapFlag);
 		singleton->unbindFBO();
@@ -3973,9 +3973,9 @@ void GameWorld::initMap()
 
 		singleton->bindFBO("swapFBO", mapSwapFlag);
 		singleton->sampleFBO("swapFBO", 0, mapSwapFlag);
-		singleton->setShaderFloat("seaSlack", ((float)seaSlack) / 255.0 );
-		singleton->setShaderFloat("mapStep", -mapStep);
-		singleton->setShaderFloat("texPitch", w);
+		Renderer::setShaderFloat("seaSlack", ((float)seaSlack) / 255.0 );
+		Renderer::setShaderFloat("mapStep", -mapStep);
+		Renderer::setShaderFloat("texPitch", w);
 		singleton->drawFSQuad();
 		singleton->unsampleFBO("swapFBO", 0, mapSwapFlag);
 		singleton->unbindFBO();
@@ -4374,10 +4374,10 @@ void GameWorld::initMap()
 		singleton->bindFBO("swapFBO", mapSwapFlag);
 		singleton->sampleFBO("swapFBO", 0, mapSwapFlag);
 		singleton->sampleFBO("hmFBO", 1);
-		singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-		singleton->setShaderFloat("mapStep", 1.0);
-		singleton->setShaderFloat("doDilate", 1.0);
-		singleton->setShaderFloat("texPitch", w);
+		Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+		Renderer::setShaderFloat("mapStep", 1.0);
+		Renderer::setShaderFloat("doDilate", 1.0);
+		Renderer::setShaderFloat("texPitch", w);
 		singleton->drawFSQuad();
 		singleton->unsampleFBO("hmFBO", 1);
 		singleton->unsampleFBO("swapFBO", 0, mapSwapFlag);
@@ -4567,9 +4567,9 @@ void GameWorld::initMap()
 		singleton->bindFBO("swapFBO", mapSwapFlag);
 		singleton->sampleFBO("swapFBO", 0, mapSwapFlag);
 		//singleton->sampleFBO("hmFBO",1);
-		singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-		singleton->setShaderFloat("mapStep", 0.0);
-		singleton->setShaderFloat("texPitch", w);
+		Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+		Renderer::setShaderFloat("mapStep", 0.0);
+		Renderer::setShaderFloat("texPitch", w);
 		singleton->drawFSQuad();
 		//singleton->unsampleFBO("hmFBO",1);
 		singleton->unsampleFBO("swapFBO", 0, mapSwapFlag);
@@ -4588,9 +4588,9 @@ void GameWorld::initMap()
 		singleton->bindFBO("swapFBO", mapSwapFlag);
 		singleton->sampleFBO("swapFBO", 0, mapSwapFlag);
 		//singleton->sampleFBO("hmFBO",1);
-		singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-		singleton->setShaderFloat("mapStep", 0.0);
-		singleton->setShaderFloat("texPitch", w);
+		Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+		Renderer::setShaderFloat("mapStep", 0.0);
+		Renderer::setShaderFloat("texPitch", w);
 		singleton->drawFSQuad();
 		//singleton->unsampleFBO("hmFBO",1);
 		singleton->unsampleFBO("swapFBO", 0, mapSwapFlag);
@@ -5047,29 +5047,29 @@ void GameWorld::drawMap()
 	//singleton->bindFBO("resultFBO0");
 		
 	//singleton->sampleFBO("palFBO", 0);
-	singleton->setShaderTexture3D(0,singleton->volIdMat);
+	Renderer::setShaderTexture3D(0,singleton->volIdMat);
 	singleton->sampleFBO("hmFBO", 1); //Linear
 	singleton->sampleFBO("cityFBO", 2);
 	singleton->sampleFBO("hmFBOLinear",3);
-	singleton->setShaderTexture(4, singleton->imageVoro->tid);
+	Renderer::setShaderTexture(4, singleton->imageVoro->tid);
 	//singleton->sampleFBO("frontFaceMapFBO",4);
 
 		
-	singleton->setShaderFloat("timeOfDay", singleton->timeOfDay);
-	singleton->setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
-	singleton->setShaderfVec4("mapAmps", &(singleton->mapAmps) );
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
+	Renderer::setShaderfVec4("mapFreqs", &(singleton->mapFreqs) );
+	Renderer::setShaderfVec4("mapAmps", &(singleton->mapAmps) );
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
 		
-	singleton->setShaderFloat("cameraZoom", singleton->cameraZoom);
-	//singleton->setShaderFloat("mapTrans", mapTrans);
-	singleton->setShaderFloat("seaLevel", singleton->getSLNormalized() );
-	singleton->setShaderFloat("curTime", singleton->curTime);
-	singleton->setShaderVec2("mapDimInPixels", fbow->width, fbow->height);
+	Renderer::setShaderFloat("cameraZoom", singleton->cameraZoom);
+	//Renderer::setShaderFloat("mapTrans", mapTrans);
+	Renderer::setShaderFloat("seaLevel", singleton->getSLNormalized() );
+	Renderer::setShaderFloat("curTime", GameState::curTime);
+	Renderer::setShaderVec2("mapDimInPixels", fbow->width, fbow->height);
 
-	singleton->setShaderFloat("mapPitch", singleton->mapPitch);
-	singleton->setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
-	singleton->setShaderFloat("cellsPerWorld", cellsPerWorld );
+	Renderer::setShaderFloat("mapPitch", singleton->mapPitch);
+	Renderer::setShaderFloat("heightMapMaxInCells", singleton->heightMapMaxInCells);
+	Renderer::setShaderFloat("cellsPerWorld", cellsPerWorld );
 		
 		
 	singleton->mainGUI->renderQuadDirect(singleton->mapComp);
@@ -5081,13 +5081,13 @@ void GameWorld::drawMap()
 	//singleton->drawFSQuad();
 
 		
-	singleton->setShaderTexture(4, 0);
+	Renderer::setShaderTexture(4, 0);
 	//singleton->unsampleFBO("frontFaceMapFBO",4);
 	singleton->unsampleFBO("hmFBOLinear",3);
 	singleton->unsampleFBO("cityFBO", 2);
 	singleton->unsampleFBO("hmFBO", 1);
 	//singleton->unsampleFBO("palFBO", 0);
-	singleton->setShaderTexture3D(0,0);
+	Renderer::setShaderTexture3D(0,0);
 		
 	//singleton->unbindFBO();
 		
@@ -5108,8 +5108,8 @@ void GameWorld::doBlur(string fboName, int _baseFBO = 0)
 	int baseFBO = _baseFBO;
 		
 	singleton->bindShader("BlurShader");
-	singleton->setShaderFloat("numBlurPixelsPerSide", 4.0); // value of 4 is a 9x9 kernel (4*2+1)
-	singleton->setShaderFloat("sigma", 4.0);
+	Renderer::setShaderFloat("numBlurPixelsPerSide", 4.0); // value of 4 is a 9x9 kernel (4*2+1)
+	Renderer::setShaderFloat("sigma", 4.0);
 		
 	for (i = 0; i < 2; i++)
 	{
@@ -5118,12 +5118,12 @@ void GameWorld::doBlur(string fboName, int _baseFBO = 0)
 		singleton->sampleFBO(fboName, 0, baseFBO);
 			
 		if (i == 0) { // horizontal
-			singleton->setShaderFloat("blurSize", 1.0f/(singleton->currentFBOResolutionX));
-			singleton->setShaderVec2("blurMultiplyVec", 1.0f, 0.0f);
+			Renderer::setShaderFloat("blurSize", 1.0f/(singleton->currentFBOResolutionX));
+			Renderer::setShaderVec2("blurMultiplyVec", 1.0f, 0.0f);
 		}
 		else { // vertical
-			singleton->setShaderFloat("blurSize", 1.0f/(singleton->currentFBOResolutionY));
-			singleton->setShaderVec2("blurMultiplyVec", 0.0f, 1.0f);
+			Renderer::setShaderFloat("blurSize", 1.0f/(singleton->currentFBOResolutionY));
+			Renderer::setShaderVec2("blurMultiplyVec", 0.0f, 1.0f);
 		}
 
 			
@@ -5289,8 +5289,8 @@ float GameWorld::getHeightAtPixelPos(float x, float y, bool dd=false)
 // 	singleton->sampleFBO("solidTargFBO",0);
 // 	singleton->sampleFBO("waterTargFBO",2);
 		
-// 	singleton->setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-// 	singleton->setShaderFloat("curTime", singleton->curTime);
+// 	Renderer::setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+// 	Renderer::setShaderFloat("curTime", GameState::curTime);
 // 	singleton->drawFSQuad();
 
 // 	singleton->unsampleFBO("waterTargFBO",2);
@@ -5339,7 +5339,7 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 		}
 		if (numCubes > 0) {
 				
-			singleton->setShaderTBO(
+			Renderer::setShaderTBO(
 				0,
 				singleton->primTBO.tbo_tex,
 				singleton->primTBO.tbo_buf,
@@ -5348,30 +5348,30 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 				
 			//cout << "singleton->actorCount " << singleton->actorCount << "\n";
 				
-			// singleton->setShaderInt("actorCount",singleton->actorCount);
-			//singleton->setShaderInt("MAX_PRIM_IDS", min(singleton->actorCount,MAX_PRIM_IDS));
-			//singleton->setShaderInt("MAX_PRIMTEST", min(singleton->actorCount,MAX_PRIMTEST));
+			// Renderer::setShaderInt("actorCount",singleton->actorCount);
+			//Renderer::setShaderInt("MAX_PRIM_IDS", min(singleton->actorCount,MAX_PRIM_IDS));
+			//Renderer::setShaderInt("MAX_PRIMTEST", min(singleton->actorCount,MAX_PRIMTEST));
 				
-			//singleton->setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
-			//singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-			singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-			singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-			singleton->setShaderfVec3("lightPos", &(singleton->lightPosDynamic));
+			//Renderer::setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
+			//Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+			Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+			Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+			Renderer::setShaderfVec3("lightPos", &(singleton->lightPosDynamic));
 				
 			if (i == 0) {
-				singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-				singleton->setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
+				Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+				Renderer::setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
 			}
 			else {
-				singleton->setShaderfVec3("cameraPos", &(singleton->lightPosDynamic));
-				singleton->setShaderMatrix4x4("pmMatrix",singleton->lightSpaceMatrixLow.get(),1);
+				Renderer::setShaderfVec3("cameraPos", &(singleton->lightPosDynamic));
+				Renderer::setShaderMatrix4x4("pmMatrix",singleton->lightSpaceMatrixLow.get(),1);
 			}
 				
 				
-			singleton->setShaderArrayfVec4("primArr", singleton->primArr, numCubes*2);
+			Renderer::setShaderArrayfVec4("primArr", singleton->primArr, numCubes*2);
 			singleton->zoCubes.drawCubes(numCubes);
 				
-			singleton->setShaderTBO(0,0,0,true);
+			Renderer::setShaderTBO(0,0,0,true);
 				
 		}
 		singleton->unbindFBO();
@@ -5394,7 +5394,7 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 				singleton->bindFBO("shadowLowFBO",-1,0);
 			}
 				
-			singleton->setShaderTBO(
+			Renderer::setShaderTBO(
 				0,
 				singleton->limbTBO.tbo_tex,
 				singleton->limbTBO.tbo_buf,
@@ -5404,28 +5404,28 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 				
 			// cout << "singleton->actorCount " << singleton->actorCount << "\n";
 				
-			//singleton->setShaderInt("actorCount",singleton->actorCount);
-			singleton->setShaderInt("MAX_PRIM_IDS", min(singleton->actorCount,MAX_PRIM_IDS));
-			singleton->setShaderInt("MAX_PRIMTEST", min(singleton->actorCount,MAX_PRIMTEST));
+			//Renderer::setShaderInt("actorCount",singleton->actorCount);
+			Renderer::setShaderInt("MAX_PRIM_IDS", min(singleton->actorCount,MAX_PRIM_IDS));
+			Renderer::setShaderInt("MAX_PRIMTEST", min(singleton->actorCount,MAX_PRIMTEST));
 				
-			//singleton->setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
-			//singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-			singleton->setShaderfVec3("lightPos", &(singleton->lightPosDynamic));
-			singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-			singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+			//Renderer::setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
+			//Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+			Renderer::setShaderfVec3("lightPos", &(singleton->lightPosDynamic));
+			Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+			Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
 			if (i == 0) {
-				singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-				singleton->setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
+				Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+				Renderer::setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
 			}
 			else {
-				singleton->setShaderfVec3("cameraPos", &(singleton->lightPosDynamic));
-				singleton->setShaderMatrix4x4("pmMatrix",singleton->lightSpaceMatrixLow.get(),1);
+				Renderer::setShaderfVec3("cameraPos", &(singleton->lightPosDynamic));
+				Renderer::setShaderMatrix4x4("pmMatrix",singleton->lightSpaceMatrixLow.get(),1);
 			}
 				
-			singleton->setShaderArrayfVec4("limbArr", singleton->limbArr, numCubes*2);
+			Renderer::setShaderArrayfVec4("limbArr", singleton->limbArr, numCubes*2);
 			singleton->zoCubes.drawCubes(numCubes);
 				
-			singleton->setShaderTBO(0,0,0,true);
+			Renderer::setShaderTBO(0,0,0,true);
 			
 			singleton->unbindFBO();
 				
@@ -5483,18 +5483,18 @@ void GameWorld::rasterHolders(bool doShadow) {
 		singleton->bindShader("ShadowMapShader");
 		singleton->bindFBO("shadowMapFBO");
 			
-		singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-		singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		singleton->setShaderfVec3("lightPos", &(singleton->lightPosStatic));
-		//singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
+		Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+		Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		Renderer::setShaderfVec3("lightPos", &(singleton->lightPosStatic));
+		//Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
 			
 			
-		// singleton->setShaderfVec3("minBounds",&(minShadowBounds));
-		// singleton->setShaderfVec3("maxBounds",&(maxShadowBounds));
-		// singleton->setShaderfVec3("lightVec",&(singleton->lightVec));
+		// Renderer::setShaderfVec3("minBounds",&(minShadowBounds));
+		// Renderer::setShaderfVec3("maxBounds",&(maxShadowBounds));
+		// Renderer::setShaderfVec3("lightVec",&(singleton->lightVec));
 
-		rastChunk(singleton->iGetConst(E_CONST_RASTER_CHUNK_RAD), 0);
+		rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), 0);
 
 		singleton->unbindFBO();
 		singleton->unbindShader();
@@ -5508,16 +5508,16 @@ void GameWorld::rasterHolders(bool doShadow) {
 		singleton->bindShader("HolderShader");
 		singleton->bindFBO("rasterFBO",activeRaster);
 			
-		singleton->setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
-		singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-		singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-		singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		//singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
+		Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+		Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+		Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		//Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
 			
-		//singleton->setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
-		singleton->setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
+		//Renderer::setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
+		Renderer::setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
 
-		rastChunk(singleton->iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_CLIPTOVIEW);
+		rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_CLIPTOVIEW);
 
 		singleton->unbindFBO();
 		singleton->unbindShader();
@@ -5547,34 +5547,34 @@ void GameWorld::rasterHolders(bool doShadow) {
 		
 		
 	if (
-		(singleton->iGetConst(E_CONST_GROWPOINTSTEPS) > 0) &&
+		(iGetConst(E_CONST_GROWPOINTSTEPS) > 0) &&
 		(DO_POINTS)	
 	) {
 			
 		singleton->bindShader("PointShader");
 			
-		singleton->setShaderFloat("voxelsPerCell",singleton->voxelsPerCell);
-		singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-		singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderInt("totRad",singleton->iGetConst(E_CONST_HVRAD));
-		singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+		Renderer::setShaderFloat("voxelsPerCell",singleton->voxelsPerCell);
+		Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+		Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderInt("totRad",iGetConst(E_CONST_HVRAD));
+		Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
 			
-		for (q = 0; q < singleton->iGetConst(E_CONST_GROWPOINTSTEPS); q++) {
+		for (q = 0; q < iGetConst(E_CONST_GROWPOINTSTEPS); q++) {
 				
 				
 			if ((q % 2) == 0) {
-				singleton->setShaderVec2("hvMult", 1.0f, 0.0f);
+				Renderer::setShaderVec2("hvMult", 1.0f, 0.0f);
 			}
 			else {
-				singleton->setShaderVec2("hvMult", 0.0f, 1.0f);
+				Renderer::setShaderVec2("hvMult", 0.0f, 1.0f);
 			}
 				
 			singleton->bindFBO("rasterFBO", activeRaster);
 			singleton->sampleFBO("rasterFBO",0,activeRaster);
 				
-			singleton->setShaderInt("lastPass", (int)(q == (singleton->iGetConst(E_CONST_GROWPOINTSTEPS)-1)) );
-			singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+			Renderer::setShaderInt("lastPass", (int)(q == (iGetConst(E_CONST_GROWPOINTSTEPS)-1)) );
+			Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
 				
 			singleton->fsQuad.draw();
 
@@ -5591,9 +5591,9 @@ void GameWorld::rasterHolders(bool doShadow) {
 		singleton->bindFBO("rasterFBO", activeRaster);
 		singleton->sampleFBO("rasterFBO",0,activeRaster);
 		singleton->sampleFBO("rasterLowFBO",3);
-		singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderInt("totRad",singleton->iGetConst(E_CONST_FILLNEARESTRAD));
+		Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderInt("totRad",iGetConst(E_CONST_FILLNEARESTRAD));
 		singleton->fsQuad.draw();
 		singleton->unsampleFBO("rasterLowFBO",3);
 		singleton->unsampleFBO("rasterFBO",0,activeRaster);
@@ -5611,44 +5611,44 @@ void GameWorld::rasterHolders(bool doShadow) {
 	singleton->bindFBO("resultFBO", activeFBO);
 	singleton->sampleFBO("rasterFBO",0,activeRaster);
 	singleton->sampleFBO("debugTargFBO", 3);
-	singleton->setShaderTexture3D(5,singleton->volIdMat);
+	Renderer::setShaderTexture3D(5,singleton->volIdMat);
 	singleton->sampleFBO("shadowMapFBO",6);
 	singleton->sampleFBO("shadowLowFBO",7);
 		
 		
 	if (singleton->mouseState == E_MOUSE_STATE_BRUSH) {
 		lastUnitPos.setFW(((int)singleton->curBrushRad));
-		singleton->setShaderfVec4("brushPos", &(lastUnitPos));
+		Renderer::setShaderfVec4("brushPos", &(lastUnitPos));
 			
 		switch (singleton->earthMod) {
 			case E_PTT_TER:
-				singleton->setShaderVec3("brushCol", 1.0f,0.0f,0.0f);
+				Renderer::setShaderVec3("brushCol", 1.0f,0.0f,0.0f);
 			break;
 			case E_PTT_WAT:
-				singleton->setShaderVec3("brushCol", 0.0f,0.0f,1.0f);
+				Renderer::setShaderVec3("brushCol", 0.0f,0.0f,1.0f);
 			break;
 			case E_PTT_BLD:
-				singleton->setShaderVec3("brushCol", 0.0f,1.0f,0.0f);
+				Renderer::setShaderVec3("brushCol", 0.0f,1.0f,0.0f);
 			break;
 		}
 			
 	}
 	else {
-		singleton->setShaderVec4("brushPos", 0.0f,0.0f,0.0f,0.0f);
+		Renderer::setShaderVec4("brushPos", 0.0f,0.0f,0.0f,0.0f);
 	}
 		
 	/*
 	if (singleton->mouseState == E_MOUSE_STATE_BRUSH) {
 		if (singleton->earthMod == E_PTT_TER) {
-			singleton->setShaderVec3("matVal", 255, 0, 0);
+			Renderer::setShaderVec3("matVal", 255, 0, 0);
 		}
 		else {
-			singleton->setShaderVec3("matVal", 0, 0, 255);
+			Renderer::setShaderVec3("matVal", 0, 0, 255);
 		}
 			
 			
-		singleton->setShaderFloat("isWire", 1.0);
-		singleton->drawCubeCentered(
+		Renderer::setShaderFloat("isWire", 1.0);
+		Renderer::drawCubeCentered(
 			&lastUnitPos,
 			((int)singleton->curBrushRad)
 		);
@@ -5660,50 +5660,50 @@ void GameWorld::rasterHolders(bool doShadow) {
 		
 		
 		
-	singleton->setShaderInt("iNumSteps", singleton->iNumSteps);
-	singleton->setShaderInt("cellsPerHolder",singleton->cellsPerHolder);
+	Renderer::setShaderInt("iNumSteps", singleton->iNumSteps);
+	Renderer::setShaderInt("cellsPerHolder",g_settings.cellsPerHolder);
 		
 		
-	singleton->setShaderInt("combatOn", singleton->settings[E_BS_COMBAT]);
-	singleton->setShaderInt("editPose", singleton->settings[E_BS_EDIT_POSE]);
-	singleton->setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
-	singleton->setShaderInt("mouseDown", singleton->abDown);
-	singleton->setShaderInt("testOn3", (int)(singleton->settings[E_BS_TEST_3]));
+	Renderer::setShaderInt("combatOn", singleton->settings[E_BS_COMBAT]);
+	Renderer::setShaderInt("editPose", singleton->settings[E_BS_EDIT_POSE]);
+	Renderer::setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
+	Renderer::setShaderInt("mouseDown", singleton->abDown);
+	Renderer::setShaderInt("testOn3", (int)(singleton->settings[E_BS_TEST_3]));
 		
-	singleton->setShaderFloat("activeActorInd",singleton->gem->actObjInd);
-	singleton->setShaderfVec4("readDataMU",&(singleton->mouseUpPixData.pd[2]));
-	singleton->setShaderfVec4("readDataMD",&(singleton->mouseDownPixData.pd[2]));
+	Renderer::setShaderFloat("activeActorInd",GameState::gem->actObjInd);
+	Renderer::setShaderfVec4("readDataMU",&(singleton->mouseUpPixData.pd[2]));
+	Renderer::setShaderfVec4("readDataMD",&(singleton->mouseDownPixData.pd[2]));
 		
-	singleton->setShaderFloat("curTime", singleton->curTime);
-	singleton->setShaderfVec2("mouseCoords",&(singleton->lastMouseZO));
-	singleton->setShaderFloat("gammaVal", singleton->gammaVal);
-	singleton->setShaderFloat("cellsPerChunk",singleton->cellsPerChunk);
-	singleton->setShaderfVec3("lightPosStatic", &(singleton->lightPosStatic));
-	singleton->setShaderfVec3("lightPosDynamic", &(singleton->lightPosDynamic));
-	// singleton->setShaderfVec3("minBounds",&(minShadowBounds));
-	// singleton->setShaderfVec3("maxBounds",&(maxShadowBounds));
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	singleton->setShaderFloat("voxelsPerCell",singleton->voxelsPerCell);
-	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-	singleton->setShaderVec2("shadowBias", 
+	Renderer::setShaderFloat("curTime", GameState::curTime);
+	Renderer::setShaderfVec2("mouseCoords",&(singleton->lastMouseZO));
+	Renderer::setShaderFloat("gammaVal", singleton->gammaVal);
+	Renderer::setShaderFloat("cellsPerChunk",singleton->cellsPerChunk);
+	Renderer::setShaderfVec3("lightPosStatic", &(singleton->lightPosStatic));
+	Renderer::setShaderfVec3("lightPosDynamic", &(singleton->lightPosDynamic));
+	// Renderer::setShaderfVec3("minBounds",&(minShadowBounds));
+	// Renderer::setShaderfVec3("maxBounds",&(maxShadowBounds));
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderFloat("voxelsPerCell",singleton->voxelsPerCell);
+	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+	Renderer::setShaderVec2("shadowBias", 
 			singleton->conVals[E_CONST_SHADOWBIASMIN],
 			singleton->conVals[E_CONST_SHADOWBIASMAX]
 		);
-	singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-	singleton->setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
-	singleton->setShaderMatrix4x4("lightSpaceMatrixLow",singleton->lightSpaceMatrixLow.get(),1);
-	singleton->setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
+	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+	Renderer::setShaderMatrix4x4("lightSpaceMatrix",singleton->lightSpaceMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("lightSpaceMatrixLow",singleton->lightSpaceMatrixLow.get(),1);
+	Renderer::setShaderMatrix4x4("pmMatrix",singleton->pmMatrix.get(),1);
 		
 	singleton->fsQuad.draw();
 
 
 	singleton->unsampleFBO("shadowLowFBO",7);
 	singleton->unsampleFBO("shadowMapFBO",6);
-	singleton->setShaderTexture3D(5,0);
+	Renderer::setShaderTexture3D(5,0);
 	singleton->unsampleFBO("debugTargFBO", 3);
 	singleton->unsampleFBO("rasterFBO",0,activeRaster);
 	singleton->unbindFBO();
@@ -5733,15 +5733,15 @@ void GameWorld::rasterHolders(bool doShadow) {
 // 	singleton->sampleFBO("rasterPosFBO",0);
 // 	singleton->sampleFBO("rasterSourceFBO",1);
 
-// 	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-// 	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-// 	singleton->setShaderfVec2("bufferDim", &(singleton->bufferDim));
-// 	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
+// 	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+// 	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+// 	Renderer::setShaderfVec2("bufferDim", &(singleton->bufferDim));
+// 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
 		
 		
-// 	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-// 	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-// 	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+// 	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+// 	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+// 	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
 
 // 	//singleton->fsQuad.draw();
 // 	vboGrid->vboWrapper.draw();
@@ -5780,33 +5780,33 @@ void GameWorld::rasterHolders(bool doShadow) {
 // 	singleton->bindShader("RasterShader");
 // 	singleton->bindFBO("rasterFBO0");
 
-// 	// singleton->setShaderTBO(
+// 	// Renderer::setShaderTBO(
 // 	// 	0,
 // 	// 	gameOct->octTBO.tbo_tex,
 // 	// 	gameOct->octTBO.tbo_buf,
 // 	// 	false
 // 	// );
 
-// 	singleton->setShaderFloat("curTime", singleton->curTime);
-// 	singleton->setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
-// 	singleton->setShaderFloat("dimInVoxels", gameOct->dimInVoxels);
-// 	singleton->setShaderInt("renderLevel", gameOct->renderLevel);
-// 	singleton->setShaderInt("vDataSize", gameOct->vDataSize);
-// 	singleton->setShaderInt("rootPtr", gameOct->rootPtr);
-// 	singleton->setShaderInt("nodeSize", gameOct->nodeSize);
-// 	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-// 	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-// 	singleton->setShaderfVec2("bufferDim", &(singleton->bufferDim));
-// 	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
+// 	Renderer::setShaderFloat("curTime", GameState::curTime);
+// 	Renderer::setShaderFloat("heightOfNearPlane",singleton->heightOfNearPlane);
+// 	Renderer::setShaderFloat("dimInVoxels", gameOct->dimInVoxels);
+// 	Renderer::setShaderInt("renderLevel", gameOct->renderLevel);
+// 	Renderer::setShaderInt("vDataSize", gameOct->vDataSize);
+// 	Renderer::setShaderInt("rootPtr", gameOct->rootPtr);
+// 	Renderer::setShaderInt("nodeSize", gameOct->nodeSize);
+// 	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+// 	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+// 	Renderer::setShaderfVec2("bufferDim", &(singleton->bufferDim));
+// 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
 		
 		
-// 	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-// 	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-// 	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+// 	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+// 	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+// 	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
 
 // 	gameOct->vboWrapper.drawPoints();
 
-// 	//singleton->setShaderTBO(0,0,0,false);
+// 	//Renderer::setShaderTBO(0,0,0,false);
 // 	singleton->unbindFBO();
 // 	singleton->unbindShader();
 		
@@ -5836,28 +5836,28 @@ void GameWorld::rasterHolders(bool doShadow) {
 // 	singleton->bindShader("OctShader");
 // 	singleton->bindFBO("resultFBO0");
 
-// 	singleton->setShaderTBO(
+// 	Renderer::setShaderTBO(
 // 		0,
 // 		gameOct->octTBO.tbo_tex,
 // 		gameOct->octTBO.tbo_buf,
 // 		false
 // 	);
 
-// 	singleton->setShaderFloat("dimInVoxels", gameOct->dimInVoxels);
-// 	singleton->setShaderInt("renderLevel", gameOct->renderLevel);
-// 	singleton->setShaderInt("vDataSize", gameOct->vDataSize);
-// 	singleton->setShaderInt("rootPtr", gameOct->rootPtr);
-// 	singleton->setShaderInt("nodeSize", gameOct->nodeSize);
-// 	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-// 	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-// 	singleton->setShaderfVec2("bufferDim", &(singleton->bufferDim));
-// 	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-// 	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+// 	Renderer::setShaderFloat("dimInVoxels", gameOct->dimInVoxels);
+// 	Renderer::setShaderInt("renderLevel", gameOct->renderLevel);
+// 	Renderer::setShaderInt("vDataSize", gameOct->vDataSize);
+// 	Renderer::setShaderInt("rootPtr", gameOct->rootPtr);
+// 	Renderer::setShaderInt("nodeSize", gameOct->nodeSize);
+// 	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+// 	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+// 	Renderer::setShaderfVec2("bufferDim", &(singleton->bufferDim));
+// 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+// 	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
 
 // 	singleton->fsQuad.draw();
 
 
-// 	singleton->setShaderTBO(0,0,0,false);
+// 	Renderer::setShaderTBO(0,0,0,false);
 // 	singleton->unbindFBO();
 // 	singleton->unbindShader();
 
@@ -5871,7 +5871,7 @@ void GameWorld::renderDebug() {
 		
 	//drawScene
 		
-	BaseObj* ge = singleton->gem->getCurActor();
+	BaseObj* ge = GameState::gem->getCurActor();
 		
 	int i;
 		
@@ -5907,17 +5907,17 @@ void GameWorld::renderDebug() {
 	singleton->bindFBO("debugTargFBO");
 		
 		
-	singleton->setShaderVec4(
+	Renderer::setShaderVec4(
 		"rotationZ",0.0f,0.0f,0.0f,0.0f
 	);
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	singleton->setShaderFloat("isWire", 0.0);
-	singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
-	singleton->setShaderFloat("objectId",0.0);
-	singleton->setShaderVec3("matVal", 255, 0, 0);
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderFloat("isWire", 0.0);
+	Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	Renderer::setShaderFloat("objectId",0.0);
+	Renderer::setShaderVec3("matVal", 255, 0, 0);
 		
 		
 		
@@ -5930,52 +5930,52 @@ void GameWorld::renderDebug() {
 		
 	glLineWidth(1.0f);
 		
-	singleton->setShaderFloat("objectId",0.0);
+	Renderer::setShaderFloat("objectId",0.0);
 		
 		
 		
 	// skeleton outline		
-	if (singleton->gem->getCurActor() != NULL) {
-		if (singleton->gem->getCurActor()->orgId > -1) {
+	if (GameState::gem->getCurActor() != NULL) {
+		if (GameState::gem->getCurActor()->orgId > -1) {
 				
-			if (singleton->gem->getCurActor()->isGrabbedById > -1) {
-				grabber = &(singleton->gem->gameObjects[singleton->gem->getCurActor()->isGrabbedById]);
+			if (GameState::gem->getCurActor()->isGrabbedById > -1) {
+				grabber = &(GameState::gem->gameObjects[GameState::gem->getCurActor()->isGrabbedById]);
 			}
 			else {
-				grabber = singleton->gem->getCurActor();
+				grabber = GameState::gem->getCurActor();
 			}
 				
 				
 			grabber->bodies[E_BDG_CENTER].body->getWorldTransform().getOpenGLMatrix(myMat);
 				
-			singleton->setShaderMatrix4x4("objmat",myMat,1);
+			Renderer::setShaderMatrix4x4("objmat",myMat,1);
 				
 				
-			drawOrg(singleton->gem->gameOrgs[singleton->gem->getCurActor()->orgId], false);
+			drawOrg(GameState::gem->gameOrgs[GameState::gem->getCurActor()->orgId], false);
 		}
 	}
 		
 	glLineWidth(4.0f);
 		
 		
-	singleton->setShaderMatrix4x4("objmat",identMat,1);
+	Renderer::setShaderMatrix4x4("objmat",identMat,1);
 		
 	float healthMeterScale = 0.5f;
 		
 	if (singleton->settings[E_BS_SHOW_HEALTH]) {
-		for (i = 0; i < singleton->gem->visObjects.size(); i++) {
-			ge = &(singleton->gem->gameObjects[singleton->gem->visObjects[i]]);
+		for (i = 0; i < GameState::gem->visObjects.size(); i++) {
+			ge = &(GameState::gem->gameObjects[GameState::gem->visObjects[i]]);
 			if (ge->entType == E_ENTTYPE_NPC) {
 					
 				//ge->bodies[E_BDG_CENTER].body->getWorldTransform().getOpenGLMatrix(myMat);
 					
 				if (ge->isAlive()) {
-					singleton->setShaderVec3("matVal", 1, 1, 1);
+					Renderer::setShaderVec3("matVal", 1, 1, 1);
 					boxCenter = ge->getCenterPoint(E_BDG_CENTER);
 					boxCenter += btVector3(0.0f,0.0f,5.0f);
 					boxRadius = btVector3(1.95f,0.2f,0.2f)*healthMeterScale;
 						
-					singleton->setShaderVec4(
+					Renderer::setShaderVec4(
 						"rotationZ",
 						boxCenter.getX(),
 						boxCenter.getY(),
@@ -5983,25 +5983,25 @@ void GameWorld::renderDebug() {
 						xrotrad	
 					);
 						
-					singleton->drawBoxRad(boxCenter,boxRadius);
+					Renderer::drawBoxRad(boxCenter,boxRadius);
 						
-					singleton->setShaderVec3("matVal", 255, 0, 0);
+					Renderer::setShaderVec3("matVal", 255, 0, 0);
 					boxCenter = ge->getCenterPoint(E_BDG_CENTER);
 					boxCenter += btVector3(-2.0f*(1.0f-ge->healthPerc())*healthMeterScale,0.0f,5.0f);
 					boxRadius = btVector3(2.0f*ge->healthPerc(),0.25f,0.25f)*healthMeterScale;
-					singleton->drawBoxRad(boxCenter,boxRadius);
+					Renderer::drawBoxRad(boxCenter,boxRadius);
 				}
 					
 				if (singleton->settings[E_BS_TURN_BASED]) {
 					boxCenter = (ge->tbPos + btVector3(0.5f,0.5f,0.5f));
-					singleton->setShaderVec4(
+					Renderer::setShaderVec4(
 						"rotationZ",
 						boxCenter.getX(),
 						boxCenter.getY(),
 						boxCenter.getZ(),
 						0.0f	
 					);
-					singleton->setShaderVec3("matVal", 255, 0, 0);
+					Renderer::setShaderVec3("matVal", 255, 0, 0);
 					singleton->drawBoxMinMax(ge->tbPos, ge->tbPos + btVector3(1.0f,1.0f,1.0f));
 				}
 					
@@ -6013,10 +6013,10 @@ void GameWorld::renderDebug() {
 		
 		
 		
-	singleton->setShaderVec4(
+	Renderer::setShaderVec4(
 		"rotationZ",0.0f,0.0f,0.0f,0.0f
 	);
-	singleton->setShaderMatrix4x4("objmat",identMat,1);
+	Renderer::setShaderMatrix4x4("objmat",identMat,1);
 		
 		
 	if (singleton->settings[E_BS_PATH_FINDING]) {
@@ -6024,38 +6024,38 @@ void GameWorld::renderDebug() {
 	}
 		
 	if (singleton->settings[E_BS_RENDER_VOXELS]) {
-		singleton->setShaderFloat("isWire", 1.0);
-		singleton->setShaderVec3("matVal", 255, 0, 0);
+		Renderer::setShaderFloat("isWire", 1.0);
+		Renderer::setShaderVec3("matVal", 255, 0, 0);
 			
-		rastChunk(singleton->iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_DRAWLOADING);
+		rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_DRAWLOADING);
 			
 		if (holderInFocus != NULL) {
-			singleton->setShaderVec3("matVal", 0, 0, 255);
+			Renderer::setShaderVec3("matVal", 0, 0, 255);
 			singleton->drawBox(&(holderInFocus->gphMinInCells),&(holderInFocus->gphMaxInCells));
 		}
 			
-		// singleton->setShaderVec3("matVal", 0, 255, 0);
+		// Renderer::setShaderVec3("matVal", 0, 255, 0);
 		// singleton->drawBox(&(minShadowBounds),&(maxShadowBounds));
 			
 	}
 		
-	singleton->setShaderFloat("isWire", 0.0f);
-	singleton->setShaderVec3("matVal", 255, 0, 0);
+	Renderer::setShaderFloat("isWire", 0.0f);
+	Renderer::setShaderVec3("matVal", 255, 0, 0);
 	singleton->drawOrient = false;
 	singleton->gamePhysics->example->renderScene();
 		
 		
 	// if (singleton->mouseState == E_MOUSE_STATE_BRUSH) {
 	// 	if (singleton->earthMod == E_PTT_TER) {
-	// 		singleton->setShaderVec3("matVal", 255, 0, 0);
+	// 		Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// 	}
 	// 	else {
-	// 		singleton->setShaderVec3("matVal", 0, 0, 255);
+	// 		Renderer::setShaderVec3("matVal", 0, 0, 255);
 	// 	}
 			
 			
-	// 	singleton->setShaderFloat("isWire", 1.0);
-	// 	singleton->drawCubeCentered(
+	// 	Renderer::setShaderFloat("isWire", 1.0);
+	// 	Renderer::drawCubeCentered(
 	// 		&lastUnitPos,
 	// 		((int)singleton->curBrushRad)
 	// 	);
@@ -6072,8 +6072,8 @@ void GameWorld::renderDebug() {
 		
 		
 	// if (singleton->settings[E_BS_RENDER_OCT_BOUNDS]) {
-	// 	singleton->setShaderFloat("isWire", 1.0);
-	// 	singleton->setShaderVec3("matVal", 255, 0, 0);
+	// 	Renderer::setShaderFloat("isWire", 1.0);
+	// 	Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// 	singleton->gameOct->startRender();
 	// }
 		
@@ -6102,8 +6102,8 @@ void GameWorld::renderDebug() {
 	// tempVec1.setBTV(rayFrom*0.99 + rayTo*0.01);
 	// tempVec2.setBTV(rayTo);
 		
-	// singleton->setShaderFloat("objectId",0.0);
-	// singleton->setShaderVec3("matVal", 255, 0, 0);
+	// Renderer::setShaderFloat("objectId",0.0);
+	// Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// singleton->drawBox(&tempVec1,&tempVec2);
 		
 		
@@ -6121,10 +6121,10 @@ void GameWorld::renderDebug() {
 	// tempVec2.addXYZ(
 	// 	200.0f,
 	// 	200.0f,
-	// 	singleton->smoothTime*200.0f	
+	// 	GameState::smoothTime*200.0f	
 	// );
 		
-	// singleton->drawLine(&tempVec1,&tempVec2);
+	// Renderer::drawLine(&tempVec1,&tempVec2);
 		
 		
 		
@@ -6138,7 +6138,7 @@ void GameWorld::renderDebug() {
 	// 	singleton->origWinH - singleton->lastMouseOrigY
 	// );
 		
-	// tempVec1.setBTV(rayFrom*(0.995+singleton->smoothTime*0.005) + rayTo*(0.005-(1.0-singleton->smoothTime)*0.005));
+	// tempVec1.setBTV(rayFrom*(0.995+GameState::smoothTime*0.005) + rayTo*(0.005-(1.0-GameState::smoothTime)*0.005));
 	// tempVec2.copyFrom(&tempVec1);
 	// //tempVec3.setBTV(rayDir);
 		
@@ -6146,8 +6146,8 @@ void GameWorld::renderDebug() {
 	// tempVec1.addXYZ(-1.0f);
 	// tempVec2.addXYZ( 1.0f);
 		
-	// singleton->setShaderFloat("objectId",0.0);
-	// singleton->setShaderVec3("matVal", 255, 0, 0);
+	// Renderer::setShaderFloat("objectId",0.0);
+	// Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// singleton->drawBox(&tempVec1,&tempVec2);
 		
 		
@@ -6212,7 +6212,7 @@ void GameWorld::finalStep(bool postToScreen) {
 			singleton->bindShader("FXAAShader");
 			singleton->bindFBO("resultFBO",activeFBO);
 			singleton->sampleFBO("resultFBO", 0, activeFBO);
-			singleton->setShaderfVec2("resolution",&(singleton->bufferDim));
+			Renderer::setShaderfVec2("resolution",&(singleton->bufferDim));
 			singleton->drawFSQuad();
 			singleton->unsampleFBO("resultFBO", 0, activeFBO);
 			singleton->unbindFBO();
@@ -6241,18 +6241,18 @@ void GameWorld::finalStep(bool postToScreen) {
 		glEnable (GL_BLEND);
 
 		singleton->bindShader("GUIShader");
-		singleton->setShaderTexture(0,singleton->fontWrappers[EFW_TEXT]->fontImage->tid);
-		singleton->setShaderTexture(1,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
+		Renderer::setShaderTexture(0,singleton->fontWrappers[EFW_TEXT]->fontImage->tid);
+		Renderer::setShaderTexture(1,singleton->fontWrappers[EFW_ICONS]->fontImage->tid);
 		singleton->sampleFBO("swapFBOBLin0", 2);
-		singleton->setShaderTexture3D(3,singleton->volIdMat);
+		Renderer::setShaderTexture3D(3,singleton->volIdMat);
 			
 		singleton->mainGUI->renderGUI();
 			
 			
-		singleton->setShaderTexture3D(3,0);
+		Renderer::setShaderTexture3D(3,0);
 		singleton->unsampleFBO("swapFBOBLin0", 2);
-		singleton->setShaderTexture(1,0);
-		singleton->setShaderTexture(0,0);
+		Renderer::setShaderTexture(1,0);
+		Renderer::setShaderTexture(0,0);
 		singleton->unbindShader();
 			
 		glDisable(GL_BLEND);
@@ -6348,11 +6348,11 @@ void GameWorld::postProcess(bool postToScreen)
 		//singleton->sampleFBO("geomTargFBO", 4);
 		//singleton->sampleFBO("waveFBO", 6);
 			
-		// singleton->setShaderFloat("clipDist",singleton->clipDist[1]);
-		// singleton->setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		// singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		// singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim));
-		// singleton->setShaderFloat("curTime", singleton->curTime);
+		// Renderer::setShaderFloat("clipDist",singleton->clipDist[1]);
+		// Renderer::setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		// Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		// Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim));
+		// Renderer::setShaderFloat("curTime", GameState::curTime);
 		singleton->drawFSQuad();
 			
 		//singleton->unsampleFBO("waveFBO", 6);
@@ -6387,20 +6387,20 @@ void GameWorld::postProcess(bool postToScreen)
 	singleton->sampleFBO("combineWithWaterTargFBO",2);
 	singleton->sampleFBO("geomTargFBO",4);
 	singleton->sampleFBO("prmDepthFBO",6);
-	singleton->setShaderMatrix3x3("rotMat",singleton->curObjMatrix3.get(),1);
-	singleton->setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
-	singleton->setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
-	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
-	singleton->setShaderInt("iNumSteps", singleton->iNumSteps);
-	singleton->setShaderArrayfVec4("lightArr", singleton->lightArr, (FLOATS_PER_LIGHT * lightCount) / 4);
-	singleton->setShaderInt("vecsPerLight", FLOATS_PER_LIGHT / 4);
-	singleton->setShaderFloat("lightCount", lightCount);
-	singleton->setShaderFloat("timeOfDay", singleton->timeOfDay);
-	singleton->setShaderfVec3("baseLightVec", &(singleton->lightVec) );
+	Renderer::setShaderMatrix3x3("rotMat",singleton->curObjMatrix3.get(),1);
+	Renderer::setShaderMatrix4x4("modelview",singleton->viewMatrix.get(),1);
+	Renderer::setShaderMatrix4x4("proj",singleton->projMatrix.get(),1);
+	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("iNumSteps", singleton->iNumSteps);
+	Renderer::setShaderArrayfVec4("lightArr", singleton->lightArr, (FLOATS_PER_LIGHT * lightCount) / 4);
+	Renderer::setShaderInt("vecsPerLight", FLOATS_PER_LIGHT / 4);
+	Renderer::setShaderFloat("lightCount", lightCount);
+	Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
+	Renderer::setShaderfVec3("baseLightVec", &(singleton->lightVec) );
 		
 	singleton->drawFSQuad();
 		
@@ -6422,30 +6422,30 @@ void GameWorld::postProcess(bool postToScreen)
 	singleton->sampleFBO("prelightFBO", 2);
 	// singleton->sampleFBO("geomTargFBO", 6);
 	// singleton->sampleFBO("debugTargFBO", 8);
-	singleton->setShaderTexture3D(10,singleton->volIdMat);
+	Renderer::setShaderTexture3D(10,singleton->volIdMat);
 		
-	singleton->setShaderfVec4("worldMarker",&(singleton->worldMarker));
-	singleton->setShaderInt("markerFound", (int)(singleton->markerFound));
-		
-		
-	singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-	singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-	singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-	singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-	singleton->setShaderfVec3("lightVecOrig", &(singleton->lightVecOrig) );
+	Renderer::setShaderfVec4("worldMarker",&(singleton->worldMarker));
+	Renderer::setShaderInt("markerFound", (int)(singleton->markerFound));
 		
 		
-	singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-	singleton->setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
-	singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	singleton->setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
-	singleton->setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
-	singleton->setShaderFloat("curTime", singleton->curTime);
-	singleton->setShaderFloat("cellsPerBlock", singleton->cellsPerBlock);
-	singleton->setShaderFloat("timeOfDay", singleton->timeOfDay);
+	Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+	Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+	Renderer::setShaderfVec3("lightVecOrig", &(singleton->lightVecOrig) );
+		
+		
+	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
+	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
+	Renderer::setShaderFloat("curTime", GameState::curTime);
+	Renderer::setShaderFloat("cellsPerBlock", singleton->cellsPerBlock);
+	Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
 	singleton->drawFSQuad();
 		
-	singleton->setShaderTexture3D(10,0);
+	Renderer::setShaderTexture3D(10,0);
 	// singleton->unsampleFBO("debugTargFBO", 8);
 	// singleton->unsampleFBO("geomTargFBO", 6);
 	singleton->unsampleFBO("prelightFBO", 2);
@@ -6471,29 +6471,29 @@ void GameWorld::postProcess(bool postToScreen)
 		singleton->sampleFBO("swapFBOLinHalf0", 5);
 		singleton->sampleFBO("noiseFBO", 6);
 		//singleton->sampleFBO("waveFBO", 7);
-		singleton->setShaderTexture3D(7,singleton->volIdMat);
+		Renderer::setShaderTexture3D(7,singleton->volIdMat);
 		singleton->sampleFBO("prelightFBO", 9);
 		//singleton->sampleFBO("geomTargFBO", 13);
 			
 			
-		singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-		singleton->setShaderFloat("seaLevel", singleton->getSeaHeightScaled() );
-		singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-		singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-		singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim));
+		Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+		Renderer::setShaderFloat("seaLevel", singleton->getSeaHeightScaled() );
+		Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+		Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+		Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim));
 			
-		singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
-		singleton->setShaderFloat("timeOfDay", singleton->timeOfDay);
-		singleton->setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderFloat("curTime", singleton->curTime);
-		singleton->setShaderFloat("isUnderWater", singleton->getUnderWater() );
+		Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec) );
+		Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
+		Renderer::setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderFloat("curTime", GameState::curTime);
+		Renderer::setShaderFloat("isUnderWater", singleton->getUnderWater() );
 		singleton->drawFSQuad();
 			
 			
 		//singleton->unsampleFBO("geomTargFBO", 13);
 		singleton->unsampleFBO("prelightFBO", 9);
-		singleton->setShaderTexture3D(7,0);
+		Renderer::setShaderTexture3D(7,0);
 		//singleton->unsampleFBO("waveFBO", 7);
 		singleton->unsampleFBO("noiseFBO", 6);
 		singleton->unsampleFBO("swapFBOLinHalf0", 5);
@@ -6533,12 +6533,12 @@ void GameWorld::postProcess(bool postToScreen)
 		singleton->bindFBO("swapFBOLinHalf0");
 		singleton->sampleFBO("combineWithWaterTargFBO",0);
 		singleton->sampleFBO("swapFBOBLin0", 2);
-		singleton->setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
-		singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim));
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-		//singleton->setShaderfVec3("lightPosWS", lightPos);
-		singleton->setShaderInt("iNumSteps", singleton->iNumSteps);
+		Renderer::setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
+		Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim));
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+		//Renderer::setShaderfVec3("lightPosWS", lightPos);
+		Renderer::setShaderInt("iNumSteps", singleton->iNumSteps);
 		singleton->drawFSQuad();
 		singleton->unsampleFBO("swapFBOBLin0", 2);
 		singleton->unsampleFBO("combineWithWaterTargFBO",0);
@@ -6554,7 +6554,7 @@ void GameWorld::postProcess(bool postToScreen)
 		singleton->sampleFBO("swapFBOLinHalf0", 1);
 		singleton->sampleFBO("combineWithWaterTargFBO",2);
 		//singleton->sampleFBO("geomTargFBO", 4);
-		singleton->setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+		Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
 		singleton->drawFSQuad();
 		//singleton->unsampleFBO("geomTargFBO", 4);
 		singleton->unsampleFBO("combineWithWaterTargFBO",2);
@@ -6583,76 +6583,76 @@ void GameWorld::postProcess(bool postToScreen)
 		singleton->sampleFBO("limbFBO", 4);//, -1, 4, 7);
 		//singleton->sampleFBO("geomBaseTargFBO", 4);
 			
-		singleton->setShaderTexture3D(7,singleton->volIdMat);
+		Renderer::setShaderTexture3D(7,singleton->volIdMat);
 		singleton->sampleFBO("noiseFBOLinear", 8);
 		singleton->sampleFBO("debugTargFBO", 9);
 			
 		singleton->sampleFBO("numstepsFBO", 11);
 			
 			
-		if ((singleton->gem->getCurActor() == NULL)||singleton->gem->firstPerson) {
-			singleton->setShaderFloat("thirdPerson", 0.0f);
-			singleton->setShaderVec3("entPos", 0.0f, 0.0f, 0.0f);
+		if ((GameState::gem->getCurActor() == NULL)||GameState::gem->firstPerson) {
+			Renderer::setShaderFloat("thirdPerson", 0.0f);
+			Renderer::setShaderVec3("entPos", 0.0f, 0.0f, 0.0f);
 		}
 		else {
-			singleton->setShaderFloat("thirdPerson", 1.0f);
-			singleton->setShaderfVec3("entPos", singleton->gem->getCurActor()->getCenterPointFIV(0));
-			singleton->setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
+			Renderer::setShaderFloat("thirdPerson", 1.0f);
+			Renderer::setShaderfVec3("entPos", GameState::gem->getCurActor()->getCenterPointFIV(0));
+			Renderer::setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
 		}
 			
 		if (singleton->settings[E_BS_PLACING_PATTERN]) {
-			singleton->setShaderArray(
+			Renderer::setShaderArray(
 				"patternCells",
 				singleton->patterns[
 					singleton->curPattern*4 + singleton->curPatternRot
 				].patternVals,
 				PATTERN_SIZE*PATTERN_SIZE
 			);
-			singleton->setShaderfVec3("patternTarg", &(singleton->mouseMovePixData.pd[0]));
+			Renderer::setShaderfVec3("patternTarg", &(singleton->mouseMovePixData.pd[0]));
 				
 		}
-		singleton->setShaderInt("placingPattern", singleton->settings[E_BS_PLACING_PATTERN]);
+		Renderer::setShaderInt("placingPattern", singleton->settings[E_BS_PLACING_PATTERN]);
 			
 			
-		singleton->setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
+		Renderer::setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
 			
-		singleton->setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
+		Renderer::setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
 			
-		if (singleton->gem->getCurActor() == NULL) {
-			singleton->setShaderInt("isFalling",false);
-			singleton->setShaderInt("isJumping",false);
+		if (GameState::gem->getCurActor() == NULL) {
+			Renderer::setShaderInt("isFalling",false);
+			Renderer::setShaderInt("isJumping",false);
 		}
 		else {
-			singleton->setShaderInt("isFalling",singleton->gem->getCurActor()->allFalling());
-			singleton->setShaderInt("isJumping",singleton->gem->getCurActor()->getActionState(E_ACT_ISJUMPING,RLBN_NEIT));
+			Renderer::setShaderInt("isFalling",GameState::gem->getCurActor()->allFalling());
+			Renderer::setShaderInt("isJumping",GameState::gem->getCurActor()->getActionState(E_ACT_ISJUMPING,RLBN_NEIT));
 		}
 			
 			
-		singleton->setShaderFloat("seaLevel", singleton->getSeaHeightScaled() );
-		singleton->setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
-		singleton->setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
-		singleton->setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
-		singleton->setShaderfVec3("lightVec", &(singleton->lightVec) );
-		singleton->setShaderfVec3("lightVecOrig", &(singleton->lightVecOrig) );
-		singleton->setShaderInt("iNumSteps", singleton->iNumSteps);
-		singleton->setShaderFloat("curTime", singleton->curTime);
-		singleton->setShaderFloat("selLimbInd",singleton->gem->highlightedLimb);
-		singleton->setShaderFloat("selObjInd",singleton->gem->selObjInd);
-		singleton->setShaderFloat("actObjInd",singleton->gem->actObjInd);
-		singleton->setShaderFloat("isUnderWater", singleton->getUnderWater() );
-		singleton->setShaderFloat("timeOfDay", singleton->timeOfDay);
-		singleton->setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
-		singleton->setShaderfVec2("bufferDim", &(singleton->bufferModDim));
-		singleton->setShaderfVec3("cameraPos", singleton->cameraGetPos());
-		singleton->setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
-		//singleton->setShaderfVec4("fogPos", fogPos);
+		Renderer::setShaderFloat("seaLevel", singleton->getSeaHeightScaled() );
+		Renderer::setShaderMatrix4x4("modelviewInverse",singleton->viewMatrixDI,1);
+		Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
+		Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
+		Renderer::setShaderfVec3("lightVec", &(singleton->lightVec) );
+		Renderer::setShaderfVec3("lightVecOrig", &(singleton->lightVecOrig) );
+		Renderer::setShaderInt("iNumSteps", singleton->iNumSteps);
+		Renderer::setShaderFloat("curTime", GameState::curTime);
+		Renderer::setShaderFloat("selLimbInd",GameState::gem->highlightedLimb);
+		Renderer::setShaderFloat("selObjInd",GameState::gem->selObjInd);
+		Renderer::setShaderFloat("actObjInd",GameState::gem->actObjInd);
+		Renderer::setShaderFloat("isUnderWater", singleton->getUnderWater() );
+		Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
+		Renderer::setShaderVec2("resolution", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
+		Renderer::setShaderfVec2("bufferDim", &(singleton->bufferModDim));
+		Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
+		Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
+		//Renderer::setShaderfVec4("fogPos", fogPos);
 
 		singleton->drawFSQuad();
 
 		singleton->unsampleFBO("numstepsFBO", 11);			
 		singleton->unsampleFBO("debugTargFBO", 9);
 		singleton->unsampleFBO("noiseFBOLinear", 8);
-		singleton->setShaderTexture3D(7,0);
+		Renderer::setShaderTexture3D(7,0);
 			
 		singleton->unsampleFBO("limbFBO", 4);//, -1, 4, 7);
 		//singleton->unsampleFBO("geomBaseTargFBO", 4);

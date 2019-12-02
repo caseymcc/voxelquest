@@ -40,22 +40,23 @@ const static uint E_CD_SOLID=4;
 
 struct ConnectingNodeStruct
 {
-
-    float dist;
-
-    int blockIdFrom;
-    int holderIdFrom;
-
-    int blockIdTo;
-    int holderIdTo;
-
-    int groupIdFrom;
-    int groupIdTo;
-
-    int cellIndFrom;
-    int cellIndTo;
-
-    int totCost;
+	float dist;
+	
+	int blockIdFrom;
+	int chunkIdFrom;
+	int holderIdFrom;
+	
+	int blockIdTo;
+	int chunkIdTo;
+	int holderIdTo;
+	
+	int groupIdFrom;
+	int groupIdTo;
+	
+	int cellIndFrom;
+	int cellIndTo;
+	
+	int totCost;
 };
 
 bool sortByDist(const ConnectingNodeStruct &lhs, const ConnectingNodeStruct &rhs)

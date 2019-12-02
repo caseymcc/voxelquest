@@ -66,6 +66,17 @@ public:
 
 	static long long ENT_COUNTER;
 
+	static double timeDelta;
+	static double curTime;
+	static float smoothTime;
+	static double pauseTime;
+	static double clickTime;
+	static double mdTime;
+	static double muTime;
+
+	static int pathFindingStep;
+	static FIVector4 lastHolderPos;
+
 	static GameWorld* gw;
 	static GameEntManager* gem;
 	static GamePhysics* gamePhysics;

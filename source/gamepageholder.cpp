@@ -104,7 +104,7 @@ void GamePageHolder::init(
     // 	cellsPerHolder = singleton->blocksPerWorld;
     // }
     // else {
-    cellsPerHolder=singleton->cellsPerHolder;
+    cellsPerHolder=g_settings.cellsPerHolder;
     //}
 
 
@@ -161,8 +161,8 @@ void GamePageHolder::gatherObjects()
     tempObjects.clear();
     objectOrder.clear();
 
-    int chunkRad=singleton->iGetConst(E_CONST_CHUNK_GATHER_RAD);
-    GameChunk* parentChunk=singleton->gw->getChunkAtId(blockId, chunkId);
+    int chunkRad=iGetConst(E_CONST_CHUNK_GATHER_RAD);
+    GameChunk* parentChunk=GameState::gw->getChunkAtId(blockId, chunkId);
     GameChunk* curChunk;
 
     int i;
@@ -200,7 +200,7 @@ void GamePageHolder::gatherObjects()
             {
                 for(i=-chunkRad; i<=chunkRad; i++)
                 {
-                    curChunk=singleton->gw->getChunkAtCoords(
+                    curChunk=GameState::gw->getChunkAtCoords(
                         parentChunk->offsetInChunks.getIX()+i,
                         parentChunk->offsetInChunks.getIY()+j,
                         parentChunk->offsetInChunks.getIZ()+k,
@@ -942,22 +942,22 @@ void GamePageHolder::findIdealNodes()
             {
                 for(i=0; i<cellsPerHolder; i++)
                 {
-                    cellVal=singleton->gw->getCellAtCoords(
+                    cellVal=GameState::gw->getCellAtCoords(
                         gphMinInCells.getIX()+i,
                         gphMinInCells.getIY()+j,
                         gphMinInCells.getIZ()+k
                     );
-                    cellValAbove=singleton->gw->getCellAtCoords(
+                    cellValAbove=GameState::gw->getCellAtCoords(
                         gphMinInCells.getIX()+i,
                         gphMinInCells.getIY()+j,
                         gphMinInCells.getIZ()+k+1
                     );
-                    // cellValAbove2 = singleton->gw->getCellAtCoords(
+                    // cellValAbove2 = GameState::gw->getCellAtCoords(
                     // 	gphMinInCells.getIX()+i,
                     // 	gphMinInCells.getIY()+j,
                     // 	gphMinInCells.getIZ()+k+2
                     // );
-                    cellValBelow=singleton->gw->getCellAtCoords(
+                    cellValBelow=GameState::gw->getCellAtCoords(
                         gphMinInCells.getIX()+i,
                         gphMinInCells.getIY()+j,
                         gphMinInCells.getIZ()+k-1
@@ -1264,7 +1264,7 @@ void GamePageHolder::linkRegions()
 
 
     // for (i = 0; i < NUM_MOVEABLE_DIRS_ONE_AWAY; i++) {
-    // 	holderArr[i] = singleton->gw->getHolderAtCoords(
+    // 	holderArr[i] = GameState::gw->getHolderAtCoords(
     // 		offsetInHolders.getIX()+DIR_VECS_MOVE[i][0],
     // 		offsetInHolders.getIY()+DIR_VECS_MOVE[i][1],
     // 		offsetInHolders.getIZ()+DIR_VECS_MOVE[i][2],
@@ -1352,7 +1352,7 @@ void GamePageHolder::linkRegions()
                     // if (mo2 == 1) {indArrInv[1] = cellsPerHolderM1-j;}
                     // if (mo2 == 2) {indArrInv[2] = cellsPerHolderM1-k;}
 
-                    targetInd=singleton->gw->getCellInd(
+                    targetInd=GameState::gw->getCellInd(
                         targetHolder,
                         baseX+DIR_VECS_I[m][0],
                         baseY+DIR_VECS_I[m][1],
@@ -1511,7 +1511,7 @@ bool GamePageHolder::prepPathRefresh(int rad)
         {
             for(i=-rad; i<=rad; i++)
             {
-                curHolder=singleton->gw->getHolderAtCoords(
+                curHolder=GameState::gw->getHolderAtCoords(
                     offsetInHolders.getIX()+i,
                     offsetInHolders.getIY()+j,
                     offsetInHolders.getIZ()+k,
@@ -1556,7 +1556,7 @@ void GamePageHolder::refreshPaths()
         {
             for(i=-rad; i<=rad; i++)
             {
-                curHolder=singleton->gw->getHolderAtCoords(
+                curHolder=GameState::gw->getHolderAtCoords(
                     offsetInHolders.getIX()+i,
                     offsetInHolders.getIY()+j,
                     offsetInHolders.getIZ()+k,
@@ -1580,7 +1580,7 @@ void GamePageHolder::refreshPaths()
         {
             for(i=-rad; i<=rad; i++)
             {
-                curHolder=singleton->gw->getHolderAtCoords(
+                curHolder=GameState::gw->getHolderAtCoords(
                     offsetInHolders.getIX()+i,
                     offsetInHolders.getIY()+j,
                     offsetInHolders.getIZ()+k,
@@ -1600,7 +1600,7 @@ void GamePageHolder::refreshPaths()
     // findIdealNodes();
     // // fetch all neighboring paths
     // for (i = 0; i < NUM_ORIENTATIONS; i++) {
-    // 	curHolder = singleton->gw->getHolderAtCoords(
+    // 	curHolder = GameState::gw->getHolderAtCoords(
     // 		offsetInHolders.getIX()+DIR_VECS_I[i][0],
     // 		offsetInHolders.getIY()+DIR_VECS_I[i][1],
     // 		offsetInHolders.getIZ()+DIR_VECS_I[i][2],
@@ -1694,7 +1694,7 @@ void GamePageHolder::genCellData()
     //}
 
 
-    singleton->gw->drawVol(
+    GameState::gw->drawVol(
         curVW,
         &gphMinInCells,
         &gphMaxInCells,
@@ -1715,7 +1715,7 @@ void GamePageHolder::genCellData()
     // 	terVW->init(cellsPerHolder,GL_REPEAT,false);
     // }
     // FBOWrapper* fbow = terVW->fboSet.getFBOWrapper(0);
-    // singleton->gw->drawVol(terVW, &gphMinInCells, &gphMaxInCells, true, true);
+    // GameState::gw->drawVol(terVW, &gphMinInCells, &gphMaxInCells, true, true);
 
 
     unsigned char* vdPtr=fbow->pixelsChar;
@@ -2149,7 +2149,7 @@ void GamePageHolder::fillVBO()
 inline PaddedDataEntry* GamePageHolder::getPadData(int ii, int jj, int kk)
 {
 
-    int cellsPerHolderPad=singleton->cellsPerHolderPad;
+    int cellsPerHolderPad=g_settings.cellsPerHolderPad;
     int paddingInCells=singleton->paddingInCells;
 
     int i=ii+paddingInCells;
@@ -2184,7 +2184,7 @@ int GamePageHolder::gatherData()
     int iZ;
 
     int minRad=0;
-    int cellsPerHolderPad=singleton->cellsPerHolderPad;
+    int cellsPerHolderPad=g_settings.cellsPerHolderPad;
     int maxRad=cellsPerHolderPad;
     int paddingInCells=singleton->paddingInCells;
 
@@ -2232,14 +2232,14 @@ int GamePageHolder::gatherData()
 
                 // }
                 // else {
-                cellVal=singleton->gw->getCellAtCoords(
+                cellVal=GameState::gw->getCellAtCoords(
                     iX-paddingInCells,
                     iY-paddingInCells,
                     iZ-paddingInCells
                 );
                 //}
 
-                singleton->gw->getArrAtCoords(
+                GameState::gw->getArrAtCoords(
                     iX-paddingInCells,
                     iY-paddingInCells,
                     iZ-paddingInCells,
@@ -2540,7 +2540,7 @@ void GamePageHolder::wrapPolys()
                     // 			for (ii = -1; ii <= 1; ii++) {
 
                     // 				if (
-                    // 					singleton->gw->getCellAtCoords(
+                    // 					GameState::gw->getCellAtCoords(
                     // 						iX + ii,
                     // 						iY + jj,
                     // 						iZ + kk

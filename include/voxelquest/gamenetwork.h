@@ -1,6 +1,9 @@
 #ifndef _voxelquest_gamenetwork_h_
 #define _voxelquest_gamenetwork_h_
 
+#include "voxelquest/types.h"
+#include "voxelquest/vectors.h"
+
 const static int NA_SIZE_IN_BYTES=32;
 
 class Singleton;
