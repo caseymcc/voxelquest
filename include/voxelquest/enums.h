@@ -1,6 +1,8 @@
 #ifndef _voxelquest_enums_h_
 #define _voxelquest_enums_h_
 
+#include <string>
+
 #define DO_DESCRIPTION(e)  #e,
 #define DO_ENUM(e)  e,
 

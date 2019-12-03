@@ -102,7 +102,7 @@ public:
 
     GLuint getColorTex() { return color_tex; }
 
-private:
+//private:
     GLuint color_tex;
 
     //uint color_buf;
@@ -151,7 +151,7 @@ public:
     void bind(int doClear);
     void copyFromMem(int ind, unsigned char *dat);
 
-private:
+//private:
     int numBufs;
     int width;
     int height;

@@ -42,7 +42,7 @@ void GamePhysics::init(Singleton* _singleton)
 	
 void GamePhysics::pickBody(FIVector4* mmPD) {
 		
-	if (!(singleton->settings[E_BS_EDIT_POSE])) {
+	if (!(g_settings.settings[E_BS_EDIT_POSE])) {
 		lastBodyPick = NULL;
 		lastBodyUID = -1;
 		return;
@@ -422,7 +422,7 @@ void GamePhysics::addBoxFromObj(BaseObjType _uid, bool refreshLimbs) {
 			btVector3(
 				0.0f,
 				0.0f,
-				singleton->conVals[E_CONST_DEFAULT_GRAVITY]
+				getConst(E_CONST_DEFAULT_GRAVITY)
 			)
 		);
 		ge->bodies[bodInd].mass = MASS_PER_LIMB;
@@ -664,7 +664,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 	FIVector4 tempVec;
 		
 		
-	float ho = singleton->conVals[E_CONST_HALF_OFFSET];
+	float ho = getConst(E_CONST_HALF_OFFSET);
 	btVector3 halfOffset = btVector3(ho,ho,ho); // <-- lol
 		
 		
@@ -796,7 +796,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 	bool hasRig = false;
 	bool animatedRig = false;
 	doProc = false;
-	float angDamp = singleton->conVals[E_CONST_ANGDAMP];
+	float angDamp = getConst(E_CONST_ANGDAMP);
 		
 		
 		
@@ -822,7 +822,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								
 							// segCount = 1;
 							// segPos[0] = curBody->body->getCenterOfMassPosition() + halfOffset -
-							// 	btVector3(0.0f,0.0f,singleton->conVals[E_CONST_COLDEPTH_LIMB]);
+							// 	btVector3(0.0f,0.0f,getConst(E_CONST_COLDEPTH_LIMB));
 						break;
 						break;
 						case E_JT_NORM:
@@ -830,12 +830,12 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 						break;
 						case E_JT_CONT:
 							
-							if (singleton->settings[E_BS_TURN_BASED]) {
+							if (g_settings.settings[E_BS_TURN_BASED]) {
 								segCount = 0;
 									
 								curBody->hasContact = true;
 								curBody->isFalling = !(curBody->hasContact);
-								basePos = (ge->tbPos+btVector3(0.5f,0.5f,0.5f+singleton->conVals[E_CONST_TBSNAP_ZOFFSET]));
+								basePos = (ge->tbPos+btVector3(0.5f,0.5f,0.5f+getConst(E_CONST_TBSNAP_ZOFFSET)));
 								difVec = basePos - curBody->body->getCenterOfMassPosition();
 									
 									
@@ -843,7 +843,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 									
 									
 								ge->setLinVel(
-									difVec*singleton->conVals[E_CONST_TBSNAP_MULT],
+									difVec*getConst(E_CONST_TBSNAP_MULT),
 									bodInd
 								);
 									
@@ -862,7 +862,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 									
 								segCount = 2;
 								segPos[0] = curBody->body->getCenterOfMassPosition() + halfOffset -
-									btVector3(0.0f,0.0f,singleton->conVals[E_CONST_COLDEPTH_CONT]);
+									btVector3(0.0f,0.0f,getConst(E_CONST_COLDEPTH_CONT));
 										
 								newVel = curBody->body->getLinearVelocity();
 								newVel *= xyMask;
@@ -875,8 +875,8 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								}
 									
 									
-								newVel *= singleton->conVals[E_CONST_COLDEPTH_WALL_XY];
-								newVel += btVector3(0.0f,0.0f,singleton->conVals[E_CONST_COLDEPTH_WALL_Z]);
+								newVel *= getConst(E_CONST_COLDEPTH_WALL_XY);
+								newVel += btVector3(0.0f,0.0f,getConst(E_CONST_COLDEPTH_WALL_Z));
 									
 								segPos[1] = 
 									curBody->body->getCenterOfMassPosition() +
@@ -965,15 +965,15 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								)
 							) {
 								ge->multVel(bodInd, btVector3(
-									singleton->conVals[E_CONST_WALKING_FRIC],
-									singleton->conVals[E_CONST_WALKING_FRIC],
+									getConst(E_CONST_WALKING_FRIC),
+									getConst(E_CONST_WALKING_FRIC),
 									1.0f
 								));
 							}
 							else {
 								ge->multVel(bodInd, btVector3(
-									singleton->conVals[E_CONST_AIR_RESIST],
-									singleton->conVals[E_CONST_AIR_RESIST],
+									getConst(E_CONST_AIR_RESIST),
+									getConst(E_CONST_AIR_RESIST),
 									1.0f
 								));
 							}
@@ -992,7 +992,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								// 	btVector3(
 								// 		0.0f,
 								// 		0.0f,
-								// 		(cellVal[3])*singleton->conVals[E_CONST_ANTIGRAV]
+								// 		(cellVal[3])*getConst(E_CONST_ANTIGRAV)
 								// 	)
 								// );
 									
@@ -1000,13 +1000,13 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								// 	btVector3(
 								// 		0.0f,
 								// 		0.0f,
-								// 		(cellVal[3]-0.5f)*singleton->conVals[E_CONST_ANTIGRAV]
+								// 		(cellVal[3]-0.5f)*getConst(E_CONST_ANTIGRAV)
 								// 	)
 								// );
 									
 								if (
 									(curBody->body->getLinearVelocity().getZ() < 0.0f) &&
-									(cellVal[3] > singleton->conVals[E_CONST_VEL_STOP_THRESH]) 
+									(cellVal[3] > getConst(E_CONST_VEL_STOP_THRESH)) 
 								) {
 									ge->multVel(bodInd, xyMask);
 									//ge->moveOffset(btVector3(0,0,clampfZO(cellVal[3]-0.1f)), bodInd);
@@ -1014,8 +1014,8 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 									
 								ge->addVel(bodInd,btVector3(
 									0.0f, 0.0f, clampfZO(
-										cellVal[3]-singleton->conVals[E_CONST_VEL_STOP_THRESH]
-									)*singleton->conVals[E_CONST_PUSH_UP_AMOUNT]
+										cellVal[3]-getConst(E_CONST_VEL_STOP_THRESH)
+									)*getConst(E_CONST_PUSH_UP_AMOUNT)
 								));
 									
 								if (norVal.fuzzyZero()) {
@@ -1026,7 +1026,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 									if (ge->getActionState(E_ACT_ISWALKING,RLBN_NEIT)) {
 										ge->addVel(bodInd,
 											norVal*xyMask * 
-											cellVal[3]*singleton->conVals[E_CONST_NOR_PUSH]
+											cellVal[3]*getConst(E_CONST_NOR_PUSH)
 										);
 									}
 										
@@ -1057,7 +1057,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								// ge->multVel(bodInd, btVector3(
 								// 	1.0f,
 								// 	1.0f,
-								// 	singleton->conVals[E_CONST_ZDAMP_GROUND]
+								// 	getConst(E_CONST_ZDAMP_GROUND)
 								// ));
 									
 									
@@ -1067,7 +1067,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 								// 	btVector3(
 								// 		0.0f,
 								// 		0.0f,
-								// 		singleton->conVals[E_CONST_DEFAULT_GRAVITY]
+								// 		getConst(E_CONST_DEFAULT_GRAVITY)
 								// 	)
 								// );
 							}
@@ -1089,8 +1089,8 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 									// ge->addVel(
 									// 	bodInd,
 									// 	btVector3(
-									// 		newVel.getX()*norVal.getX()*cellVal[3]*singleton->conVals[E_CONST_WALL_RESIST],
-									// 		newVel.getY()*norVal.getY()*cellVal[3]*singleton->conVals[E_CONST_WALL_RESIST],
+									// 		newVel.getX()*norVal.getX()*cellVal[3]*getConst(E_CONST_WALL_RESIST),
+									// 		newVel.getY()*norVal.getY()*cellVal[3]*getConst(E_CONST_WALL_RESIST),
 									// 		0.0f // newVel.getZ()*norVal.getZ()	
 									// 	)
 									// );
@@ -1152,7 +1152,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 							
 							
 						// ge->applyImpulse(
-						// 	cellVal[3]*norVal*curStepTime*singleton->conVals[E_CONST_PUSH_UP_AMOUNT],
+						// 	cellVal[3]*norVal*curStepTime*getConst(E_CONST_PUSH_UP_AMOUNT),
 						// 	bodInd,
 						// 	false
 						// );
@@ -1306,10 +1306,10 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 				if (animatedRig) {
 						
 					// if (ge->getActionState(E_ACT_ISWALKING,RLBN_NEIT)) {
-					// 	ge->bodies[E_BDG_CENTER].body->setFriction(singleton->conVals[E_CONST_WALKING_FRIC]);
+					// 	ge->bodies[E_BDG_CENTER].body->setFriction(getConst(E_CONST_WALKING_FRIC));
 					// }
 					// else {
-					// 	ge->bodies[E_BDG_CENTER].body->setFriction(singleton->conVals[E_CONST_STANDING_FRIC]);
+					// 	ge->bodies[E_BDG_CENTER].body->setFriction(getConst(E_CONST_STANDING_FRIC));
 					// }
 						
 						
@@ -1455,7 +1455,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 						}
 						else {
 							grabber = ge;
-							bindingPower = ge->bindingPower*singleton->conVals[E_CONST_BINDING_POW_MAX];
+							bindingPower = ge->bindingPower*getConst(E_CONST_BINDING_POW_MAX);
 						}
 							
 							
@@ -1499,7 +1499,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 							
 						ge->setLinVel(
 							curBody->body->getLinearVelocity()*(1.0f-bindingPower)
-							+ difVec*singleton->conVals[E_CONST_BINDING_MULT]*bindingPower,
+							+ difVec*getConst(E_CONST_BINDING_MULT)*bindingPower,
 							bodInd
 						);
 
@@ -1656,7 +1656,7 @@ void GamePhysics::collideWithWorld(double curStepTime) {
 						
 				);
 					
-				if (singleton->settings[E_BS_EDIT_POSE]) {
+				if (g_settings.settings[E_BS_EDIT_POSE]) {
 					ge->skelOffset += btVector3(
 						0.0,
 						0.0,
@@ -1708,7 +1708,7 @@ void GamePhysics::remFarAway() {
 				
 		}
 		else {
-			if (ge->getCenterPoint(E_BDG_CENTER).distance(camPos) > singleton->conVals[E_CONST_REM_DIS_THRESH]) {
+			if (ge->getCenterPoint(E_BDG_CENTER).distance(camPos) > getConst(E_CONST_REM_DIS_THRESH)) {
 				GameState::gem->removeVisObject(ge->uid,GameState::gem->isRecycledFunc(ge->entType));
 				k--;
 			}
@@ -1718,16 +1718,16 @@ void GamePhysics::remFarAway() {
 	
 void GamePhysics::updateAll() {
 	int i;
-	for (i = 0; i < singleton->conVals[E_CONST_PHYS_STEPS_PER_FRAME]; i++) {
+	for (i = 0; i < getConst(E_CONST_PHYS_STEPS_PER_FRAME); i++) {
 		collideWithWorld(STEP_TIME_IN_SEC);
 		example->stepSimulation(STEP_TIME_IN_SEC);
 	}
 		
-	//while (singleton->totTimePassedPhysics > singleton->conVals[E_CONST_STEP_TIME_IN_MICRO_SEC]) {
+	//while (singleton->totTimePassedPhysics > getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)) {
 		//totTime += STEP_TIME_IN_SEC;
 		// collideWithWorld(STEP_TIME_IN_SEC);
 		// example->stepSimulation(STEP_TIME_IN_SEC);
-		//singleton->totTimePassedPhysics -= singleton->conVals[E_CONST_STEP_TIME_IN_MICRO_SEC];
+		//singleton->totTimePassedPhysics -= getConst(E_CONST_STEP_TIME_IN_MICRO_SEC);
 	//}
 		
 	flushImpulses();

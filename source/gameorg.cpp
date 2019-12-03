@@ -1,9 +1,18 @@
-#include "gameorg.h"
+#include "voxelquest/gameorg.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/jsonhelpers.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/fileio.h"
+
+#include <iostream>
 
 const float GameOrg::baseMat=12.0f;
 
 GameOrg::GameOrg()
 {
+    curOrgId=0;
+
     basePose.group=-1;
     basePose.RLBN=-1;
     basePose.step=-1;
@@ -68,7 +77,7 @@ void GameOrg::init(
         break;
     }
 
-    singleton->curOrgId++;
+    curOrgId++;
 
 
 }
@@ -80,11 +89,9 @@ void GameOrg::init(
 
 void GameOrg::jsonToNode(JSONValue** parentObj, GameOrgNode* curNode, bool notThePose)
 {
-
     int i;
 
-
-    curNode->nodeName=(*parentObj)->Child("id")->number_value;
+    curNode->nodeName=(int)(*parentObj)->Child("id")->number_value;
 
     JSONValue* tempVal;
 
@@ -95,7 +102,7 @@ void GameOrg::jsonToNode(JSONValue** parentObj, GameOrgNode* curNode, bool notTh
     int mv1=tempVal->CountChildren()/4;
     int mv2=E_OV_LENGTH;
 
-    int numChildren=min(mv1, mv2);
+    int numChildren=std::min(mv1, mv2);
 
     for(i=0; i<numChildren; i++)
     {
@@ -127,10 +134,10 @@ void GameOrg::jsonToNode(JSONValue** parentObj, GameOrgNode* curNode, bool notTh
         {
 
             curNode->orgVecs[i].setFXYZW(
-                tempVal->array_value[i*4+0]->number_value,
-                tempVal->array_value[i*4+1]->number_value,
-                tempVal->array_value[i*4+2]->number_value,
-                tempVal->array_value[i*4+3]->number_value
+                (float)tempVal->array_value[i*4+0]->number_value,
+                (float)tempVal->array_value[i*4+1]->number_value,
+                (float)tempVal->array_value[i*4+2]->number_value,
+                (float)tempVal->array_value[i*4+3]->number_value
             );
         }
 
@@ -144,7 +151,7 @@ void GameOrg::jsonToNode(JSONValue** parentObj, GameOrgNode* curNode, bool notTh
 
     if((*parentObj)->HasChild("children"))
     {
-        totSize=(*parentObj)->Child("children")->array_value.size();
+        totSize=(int)(*parentObj)->Child("children")->array_value.size();
 
         for(i=0; i<totSize; i++)
         {
@@ -208,15 +215,13 @@ int GameOrg::getPoseUID()
     return GameState::gem->curActorUID;
 }
 
-void GameOrg::loadOrgFromFile(string fileName, bool notThePose)
+void GameOrg::loadOrgFromFile(std::string fileName, bool notThePose)
 {
-
-
     int actorId=getPoseUID();
 
     setBinding(actorId, false);
 
-    singleton->loadJSON(
+    loadJSON(
         "..\\data\\orgdata\\"+fileName+".js",
         &rootObj
     );
@@ -228,10 +233,10 @@ void GameOrg::loadOrgFromFile(string fileName, bool notThePose)
 }
 
 
-void GameOrg::saveOrgToFile(string fileName)
+void GameOrg::saveOrgToFile(std::string fileName)
 {
 
-    cout<<"saveOrgToFile "<<fileName<<"\n";
+    std::cout<<"saveOrgToFile "<<fileName<<"\n";
 
     int actorId=getPoseUID();
 
@@ -249,7 +254,7 @@ void GameOrg::saveOrgToFile(string fileName)
     nodeToJSON(&rootObj, baseNode); //(rootObj->object_value["rootVal"])
 
 
-    singleton->saveFileString(
+    saveFileString(
         "..\\data\\orgdata\\"+fileName+".js",
         &(rootObj->Stringify())
     );
@@ -295,7 +300,7 @@ void GameOrg::setTPG(int _targetPoseGroup, int _targetPoseRLBN)
 void GameOrg::setToPose(
     GameOrg* otherOrg,
     float lerpAmount,
-    int boneId=-1
+    int boneId
 )
 {
     int i;
@@ -306,7 +311,7 @@ void GameOrg::setToPose(
 
     if(otherOrg==NULL)
     {
-        cout<<"ARGH\n";
+        std::cout<<"ARGH\n";
         //return;
     }
 
@@ -370,7 +375,7 @@ void GameOrg::updatePose(double curTimeStep)
 
     BaseObj* curOwner=getOwner();
 
-    if(singleton->settings[E_BS_EDIT_POSE])
+    if(g_settings.settings[E_BS_EDIT_POSE])
     {
 
     }
@@ -382,8 +387,8 @@ void GameOrg::updatePose(double curTimeStep)
             curData=&(GameState::gem->gamePoseInfo[targetPose.group].data[0]);
 
 
-            lerpSpeed=curData[E_PIK_LERPSPEED]*singleton->conVals[E_CONST_ANIMLERP_MULT];
-            timeInterval=curData[E_PIK_TIMEINTERVAL]*singleton->conVals[E_CONST_TIMEINTERVAL_MULT];
+            lerpSpeed=curData[E_PIK_LERPSPEED]*getConst(E_CONST_ANIMLERP_MULT);
+            timeInterval=curData[E_PIK_TIMEINTERVAL]*getConst(E_CONST_TIMEINTERVAL_MULT);
 
             if(targetPose.group==E_PG_WALKFORWARD)
             {
@@ -391,19 +396,19 @@ void GameOrg::updatePose(double curTimeStep)
 
                 if(curOwner->getActionState(E_ACT_ISWALKING, RLBN_NEIT))
                 {
-                    curVelXY=max(curVelXY, singleton->conVals[E_CONST_MIN_WALK_ANIM_VEL]);
+                    curVelXY=std::max(curVelXY, getConst(E_CONST_MIN_WALK_ANIM_VEL));
                 }
 
-                if(curOwner->airCount>singleton->conVals[E_CONST_AIRANIM_THRESH])
+                if(curOwner->airCount>getConst(E_CONST_AIRANIM_THRESH))
                 {
                     curVelXY=0.0f;
                 }
 
-                lerpSpeed*=(curVelXY*singleton->conVals[E_CONST_WALKANIM_LERP_MOD]);
+                lerpSpeed*=(curVelXY*getConst(E_CONST_WALKANIM_LERP_MOD));
 
                 if(curVelXY>0.0)
                 {
-                    timeInterval/=(curVelXY*singleton->conVals[E_CONST_WALKANIM_INTERVAL_MOD]);
+                    timeInterval/=(curVelXY*getConst(E_CONST_WALKANIM_INTERVAL_MOD));
                 }
 
             }
@@ -418,7 +423,7 @@ void GameOrg::updatePose(double curTimeStep)
             {
                 if(targetPose.step>=curData[E_PIK_NUMSTEPS])
                 {
-                    targetPose.step=curData[E_PIK_NUMSTEPS]-1;
+                    targetPose.step=(int)curData[E_PIK_NUMSTEPS]-1;
                 }
 
 
@@ -488,7 +493,7 @@ void GameOrg::nodeToJSON(JSONValue** parentObj, GameOrgNode* curNode)
 
     float mult=1.0f;
 
-    JSONValue* tempVal;
+//    JSONValue* tempVal;
 
     (*parentObj)->object_value["id"]=new JSONValue((double)(curNode->nodeName));
     (*parentObj)->object_value["name"]=new JSONValue(boneStrings[curNode->nodeName]);
@@ -579,8 +584,8 @@ void GameOrg::updateHandleOffset()
 void GameOrg::initWeapon()
 {
 
-    int i;
-    int j;
+//    int i;
+//    int j;
     int curName;
 
     float dirMod=1.0f;
@@ -590,7 +595,7 @@ void GameOrg::initWeapon()
         NULL,
         E_BONE_C_BASE,
 
-        baseMat, 0.0f, 0.0f, M_PI/2.0f,
+        baseMat, 0.0f, 0.0f, ((float)M_PI)/2.0f,
         0.01f, defVecLength, defVecLength,
         0.01f, defVecLength, defVecLength,
 
@@ -644,7 +649,7 @@ void GameOrg::initWeapon()
 
     curName=E_BONE_WEAPON_CROSSR;
     curNode=allNodes[curName]=centerNode->addChild(curName,
-        baseMat, 0.0f, 0.0f, M_PI/2.0f,
+        baseMat, 0.0f, 0.0f, ((float)M_PI)/2.0f,
         wepLengths[curName], defVecLength, defVecLength,
         wepLengths[curName], defVecLength, defVecLength,
         1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
@@ -660,7 +665,7 @@ void GameOrg::initWeapon()
 
     curName=E_BONE_WEAPON_CROSSL;
     curNode=allNodes[curName]=centerNode->addChild(curName,
-        baseMat, 0.0f, 0.0f, -M_PI/2.0f,
+        baseMat, 0.0f, 0.0f, -((float)M_PI)/2.0f,
         wepLengths[curName], defVecLength, defVecLength,
         wepLengths[curName], defVecLength, defVecLength,
         1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f

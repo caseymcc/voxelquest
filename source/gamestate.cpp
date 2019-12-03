@@ -33,6 +33,9 @@ double GameState::muTime;
 int GameState::pathFindingStep=0;
 FIVector4 GameState::lastHolderPos;
 
+std::vector<RotationInfo> GameState::rotMatStack;
+std::vector<DynObject *> GameState::dynObjects;
+
 GameWorld* GameState::gw=nullptr;
 GameEntManager* GameState::gem=nullptr;
 GamePhysics* GameState::gamePhysics=nullptr;

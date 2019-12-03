@@ -8,6 +8,15 @@ using namespace gl;
 
 #include <vector>
 
+const static uint procFlags[6]={
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+};
+
 struct VIStruct
 {
     std::vector<float> vertexVec; //btScalar

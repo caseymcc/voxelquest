@@ -1550,7 +1550,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
         terNorm=vec3(0.0f, 0.0f, 1.0f);
     }
 
-    // float divVal = singleton->conVals[E_CONST_DIV_VAL];
+    // float divVal = getConst(E_CONST_DIV_VAL);
 
     // vec3 sinPos = vec3(
     // 	sin(worldPos.x/divVal),
@@ -1577,7 +1577,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
 
     float hmSin=sin(hmSamp * getConst(E_CONST_SAMP_SIN));
     float hmSinZO=(hmSin+1.0f)*0.5f;
-    //float hmMod = (hmSin*singleton->conVals[E_CONST_VORO_STRENGTH]);
+    //float hmMod = (hmSin*getConst(E_CONST_VORO_STRENGTH));
 
     //terSampVoro += sin(hmSamp*18.0f)*0.25f;
 
@@ -1601,7 +1601,7 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
     //else {
     // 	isRock = (terSampVoro <= (0.2f + worldSin*0.2f)) &&
     // 	(voroMod2 < (0.96f + hmMod*0.03f)) &&
-    // 	((terSampOrig) < ((worldSin*0.3f+0.3f)+voroJut*singleton->conVals[E_CONST_DIV_VAL])  ); // + (0.2f*(1.0-abs(terNorm.z)))
+    // 	((terSampOrig) < ((worldSin*0.3f+0.3f)+voroJut*getConst(E_CONST_DIV_VAL))  ); // + (0.2f*(1.0-abs(terNorm.z)))
 
     // //}
 

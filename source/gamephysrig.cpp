@@ -315,7 +315,7 @@ int GamePhysRig::addJoint(
 
 
 
-    curJoint->body=singleton->gamePhysics->example->createRigidBodyMask(
+    curJoint->body=GameState::gamePhysics->example->createRigidBodyMask(
         mass,
         offset*transform,
         curJoint->shape,

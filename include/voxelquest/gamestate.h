@@ -3,6 +3,7 @@
 
 #include "voxelquest/enums.h"
 #include "voxelquest/gameent.h"
+#include "voxelquest/vectors.h"
 
 #include <string>
 #include <map>
@@ -77,6 +78,9 @@ public:
 	static int pathFindingStep;
 	static FIVector4 lastHolderPos;
 
+    static std::vector<RotationInfo> rotMatStack;
+    static std::vector<DynObject *> dynObjects;
+
 	static GameWorld* gw;
 	static GameEntManager* gem;
 	static GamePhysics* gamePhysics;
@@ -89,9 +93,7 @@ public:
 private:
     GameState();
 
-    std::vector<DynObject *> dynObjects;
-
-	FIVector4* cameraPos;
+    FIVector4* cameraPos;
     FIVector4 tempLerpPos;
     FIVector4 camLerpPos;
     FIVector4 resultCameraPos;

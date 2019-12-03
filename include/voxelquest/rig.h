@@ -17,8 +17,10 @@ enum E_COL_TYPES
     COL_STATIC=1,
     COL_DYN=2,
     COL_MARKER=4,
-    COL_BODY=8
+    COL_BODY=8,
+    COL_BLOCKER=16
 };
+
 
 const static int terCollidesWith=COL_NOTHING;//COL_DYN|COL_BODY; //COL_MARKER|
 const static int markerCollidesWith=COL_NOTHING;//COL_STATIC;
@@ -237,5 +239,32 @@ enum E_BONES_HUMAN
     E_BONE_C_END //////////////////
 
 };
+
+// TODO: FIX THIS SLOP
+// MUST CALL THIS, BONE NAMES GOT REVERSED
+int getCorrectedName(int curNodeName)
+{
+
+    if(curNodeName<E_BONE_C_BEG)
+    {
+        if(curNodeName<=E_BONE_L_END)
+        {
+            return (
+                curNodeName+(E_BONE_R_BEG-E_BONE_L_BEG)
+                );
+        }
+        else
+        {
+            return (
+                curNodeName-(E_BONE_R_BEG-E_BONE_L_BEG)
+                );
+        }
+    }
+    else
+    {
+        return curNodeName;
+    }
+}
+
 
 #endif//_voxelquest_rig_h_

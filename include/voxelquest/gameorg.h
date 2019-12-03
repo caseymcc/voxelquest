@@ -1,6 +1,16 @@
 #ifndef _voxelquest_gameorg_h_
 #define _voxelquest_gameorg_h_
 
+#include "voxelquest/gameorgnode.h"
+#include "voxelquest/entenums.h"
+#include "voxelquest/rig.h"
+
+#include <string>
+
+class Singleton;
+class JSONValue;
+class BaseObj;
+
 class GameOrg
 {
 
@@ -66,7 +76,7 @@ public:
 
 
 
-
+    int curOrgId;
     int ownerUID;
     int entType;
     int subType;

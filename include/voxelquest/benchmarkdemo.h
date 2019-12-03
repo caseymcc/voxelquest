@@ -1,7 +1,10 @@
 #ifndef _voxelquest_benchmarkdemo_h_
 #define _voxelquest_benchmarkdemo_h_
 
+#pragma warning(push)
+#pragma warning(disable:4305)
 #include <CommonInterfaces/CommonRigidBodyBase.h>
+#pragma warning(pop)
 
 class BenchmarkDemo: public CommonRigidBodyBase
 {

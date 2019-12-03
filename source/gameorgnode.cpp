@@ -1,5 +1,7 @@
-#include "gameorgnode.h"
-
+#include "voxelquest/gameorgnode.h"
+#include "voxelquest/rig.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/bullethelpers.h"
 
 
 GameOrgNode::GameOrgNode(
@@ -160,11 +162,11 @@ void GameOrgNode::flipOrient(float newVal)
 
     if(nodeName==E_BONE_WEAPON_CROSSR)
     {
-        orgVecs[E_OV_THETAPHIRHO].setFZ(newVal*M_PI/2.0f);
+        orgVecs[E_OV_THETAPHIRHO].setFZ(newVal*(float)M_PI/2.0f);
     }
     if(nodeName==E_BONE_WEAPON_CROSSL)
     {
-        orgVecs[E_OV_THETAPHIRHO].setFZ(-newVal*M_PI/2.0f);
+        orgVecs[E_OV_THETAPHIRHO].setFZ(-newVal*(float)M_PI/2.0f);
     }
 
 
@@ -228,41 +230,41 @@ void GameOrgNode::doTransform(
 
     if(orgVecs[E_OV_THETAPHIRHO].getFZ()!=0.0f)
     {
-        singleton->rotMatStack.push_back(RotationInfo());
-        singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
-        singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[2]));
-        singleton->rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFZ());
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::rotMatStack.push_back(RotationInfo());
+        GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
+        GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[2]));
+        GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFZ());
+        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
 
         popCount++;
     }
     if(orgVecs[E_OV_THETAPHIRHO].getFX()!=0.0f)
     {
-        singleton->rotMatStack.push_back(RotationInfo());
-        singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
-        singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[1]));
-        singleton->rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFX());
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::rotMatStack.push_back(RotationInfo());
+        GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
+        GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[1]));
+        GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFX());
+        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
         popCount++;
     }
     if(orgVecs[E_OV_THETAPHIRHO].getFY()!=0.0f)
     {
-        singleton->rotMatStack.push_back(RotationInfo());
-        singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
-        singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[0]));
-        singleton->rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFY());
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::rotMatStack.push_back(RotationInfo());
+        GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
+        GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[0]));
+        GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFY());
+        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
         popCount++;
     }
 
 
-    for(i=singleton->rotMatStack.size()-(1); i>=0; i--)
+    for(i=(int)GameState::rotMatStack.size()-(1); i>=0; i--)
     {
 
         axisRotationInstance.applyRotation(
             writeTBN,
             readTBN,
-            &(singleton->rotMatStack[i])
+            &(GameState::rotMatStack[i])
         );
 
         if((modCount%2)==0)
@@ -307,12 +309,12 @@ void GameOrgNode::doTransform(
 
     if(orgVecs[E_OV_TBNOFFSET].anyXYZ())
     {
-        tbnOffset=orgVecs[E_OV_TBNOFFSET].getBTV();
+        tbnOffset=convertToBTV(orgVecs[E_OV_TBNOFFSET]);
         tempOffset=
-            tbnOffset.getX()*tbnRotC[0].getBTV()+
-            tbnOffset.getY()*tbnRotC[1].getBTV()+
-            tbnOffset.getZ()*tbnRotC[2].getBTV();
-        tempFI.setBTV(tempOffset);
+            tbnOffset.getX()*convertToBTV(tbnRotC[0])+
+            tbnOffset.getY()*convertToBTV(tbnRotC[1])+
+            tbnOffset.getZ()*convertToBTV(tbnRotC[2]);
+        tempFI=convertToVQV(tempOffset);
         for(i=0; i<3; i++)
         {
             orgTrans[i].addXYZRef(&tempFI);
@@ -340,7 +342,7 @@ void GameOrgNode::doTransform(
 
     for(i=0; i<popCount; i++)
     {
-        singleton->rotMatStack.pop_back();
+        GameState::rotMatStack.pop_back();
         //singleton->transStack.pop_back();
         //singleton->rotStack.pop_back();
     }

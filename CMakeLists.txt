@@ -32,7 +32,9 @@ find_package(bullet CONFIG REQUIRED)
 
 set(voxelquest_include
     include/voxelquest/baseobject.h
+    include/voxelquest/benchmarkdemo.h
     include/voxelquest/bullethelpers.h
+    include/voxelquest/cache.h
     include/voxelquest/classdefs.h
     include/voxelquest/constants.h
     include/voxelquest/dynbuffer.h
@@ -95,6 +97,7 @@ set(voxelquest_include
 #    include/voxelquest/poolpagemanager.h #does not appear to be used
 	include/voxelquest/renderer.h
 #    include/voxelquest/rhfactory.h #does not appear to be used
+    include/voxelquest/rig.h
     include/voxelquest/settings.h
     include/voxelquest/shader.h
     include/voxelquest/simplex.h
@@ -119,7 +122,9 @@ set(voxelquest_include
 
 set(voxelquest_source
     source/baseobject.cpp
+    source/benchmarkdemo.cpp
     source/bullethelpers.cpp
+    source/cache.cpp
     source/constants.cpp
     source/dynbuffer.cpp
     source/fbos.cpp

@@ -931,7 +931,7 @@ void GameWorld::update() {
 		glEnable(GL_DEPTH_TEST);
 		singleton->perspectiveOn = true;
 			
-		if (singleton->settings[E_BS_DEBUG_VIEW]) { //||(singleton->mouseState == E_MOUSE_STATE_BRUSH)
+		if (g_settings.settings[E_BS_DEBUG_VIEW]) { //||(singleton->mouseState == E_MOUSE_STATE_BRUSH)
 			//renderGeom();
 			renderDebug();
 		}
@@ -954,7 +954,7 @@ void GameWorld::update() {
 		singleton->forceShadowUpdate = 0;
 	}
 		
-	if (singleton->settings[E_BS_RENDER_VOXELS]) {
+	if (g_settings.settings[E_BS_RENDER_VOXELS]) {
 			
 			
 		singleton->updatePrimArr();
@@ -965,7 +965,7 @@ void GameWorld::update() {
 			(singleton->forceShadowUpdate == 1) ||
 			(
 				(singleton->lastLightPos.distance(singleton->cameraGetPosNoShake())) >
-				singleton->conVals[E_CONST_LIGHTTHRESH]
+				getConst(E_CONST_LIGHTTHRESH)
 			)
 		) {
 			// if (!singleton->lightChanged) {
@@ -1716,7 +1716,7 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		
 	bool skipPrim =			
 		(singleton->gameFluid[E_FID_BIG]->curGeomCount == 0) &&
-		(singleton->settings[E_BS_PLACING_GEOM] == false);
+		(g_settings.settings[E_BS_PLACING_GEOM] == false);
 		
 		
 	bool doPrim = !doTer;
@@ -1863,9 +1863,9 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		// (int)(doSphereMap)
 		(int)(singleton->sphereMapOn)
 	);
-	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("testOn", (int)(g_settings.settings[E_BS_TEST_1]));
 	Renderer::setShaderInt("skipPrim", (int)(skipPrim));
-	Renderer::setShaderInt("placingGeom", (int)(singleton->settings[E_BS_PLACING_GEOM]));
+	Renderer::setShaderInt("placingGeom", (int)(g_settings.settings[E_BS_PLACING_GEOM]));
 		
 		
 		
@@ -1931,7 +1931,7 @@ void GameWorld::drawPrim(bool doSphereMap, bool doTer, bool doPoly) {
 		
 		
 		
-	if (singleton->settings[E_BS_WATER_BULLET]) {
+	if (g_settings.settings[E_BS_WATER_BULLET]) {
 		Renderer::setShaderInt("numExplodes", 0);
 	}
 	else {
@@ -2490,7 +2490,7 @@ void drawPolys(
 									tempFIV.normalize();
 										
 									if (
-										(tempFIV.dot(&(singleton->lookAtVec)) > singleton->conVals[E_CONST_DOT_CLIP])
+										(tempFIV.dot(&(singleton->lookAtVec)) > getConst(E_CONST_DOT_CLIP))
 										|| (curChunk->chunkCenInCells.distance(singleton->cameraGetPosNoShake()) < disClip)
 									) {
 										doProc = true;
@@ -2792,7 +2792,7 @@ void GameWorld::renderGeom()
 	// Renderer::setShaderVec3("matVal", 30, 30, 30);
 		
 		
-	// //singleton->gamePhysics->example->renderScene();
+	// //GameState::gamePhysics->example->renderScene();
 		
 		
 		
@@ -2954,7 +2954,7 @@ void GameWorld::renderGeom()
 			
 			
 		
-	// 	// if (singleton->settings[E_BS_PLACING_GEOM]) {
+	// 	// if (g_settings.settings[E_BS_PLACING_GEOM]) {
 				
 				
 	// 	// 	Renderer::setShaderVec3("matVal", 255, 0, 0);
@@ -3035,8 +3035,8 @@ void GameWorld::renderGeom()
 
 	// }
 		
-	// if (singleton->settings[E_BS_PATH_FINDING]) {
-	// 	singleton->gameLogic->update();
+	// if (g_settings.settings[E_BS_PATH_FINDING]) {
+	// 	GameState::gameLogic->update();
 	// }
 		
 		
@@ -3127,21 +3127,21 @@ void GameWorld::renderGeom()
 					
 	// glBegin( GL_TRIANGLES );
 	// //m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true);
-	// singleton->gamePhysics->myShapeDrawer->drawScene(
-	// 	singleton->gamePhysics->example->getDynamicsWorld(), true); //drawAll();
+	// GameState::gamePhysics->myShapeDrawer->drawScene(
+	// 	GameState::gamePhysics->example->getDynamicsWorld(), true); //drawAll();
 	// glEnd( );
 		
 	//glMatrixMode(GL_MODELVIEW);		
-	// singleton->gamePhysics->myShapeDrawer->drawScene(
-	// 	singleton->gamePhysics->example->getDynamicsWorld(),
+	// GameState::gamePhysics->myShapeDrawer->drawScene(
+	// 	GameState::gamePhysics->example->getDynamicsWorld(),
 	// 	false
 	// );
 		
 		
 		
-	if (singleton->gamePhysics != NULL) {
+	if (GameState::gamePhysics != NULL) {
 		singleton->drawOrient = false;
-		singleton->gamePhysics->example->renderScene();
+		GameState::gamePhysics->example->renderScene();
 	}
 		
 		
@@ -5308,7 +5308,7 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 		
 		
 	// int numCubes = singleton->tempPrimList.size();
-	// if (singleton->settings[E_BS_PLACING_GEOM]) {
+	// if (g_settings.settings[E_BS_PLACING_GEOM]) {
 	// 	numCubes++;
 	// }
 		
@@ -5326,7 +5326,7 @@ void GameWorld::drawBasicPrims(bool doShadow) {
 	singleton->getLSMatrix(
 		&(singleton->lightPosDynamic),
 		singleton->lightSpaceMatrixLow,
-		singleton->conVals[E_CONST_LIGHTORTHOSIZE_LOW]
+		getConst(E_CONST_LIGHTORTHOSIZE_LOW)
 	);
 		
 	singleton->bindShader("BasicPrimShader");
@@ -5469,14 +5469,14 @@ void GameWorld::rasterHolders(bool doShadow) {
 			
 		// glDepthRangef(
 		// 	singleton->clipDist[0],
-		// 	singleton->clipDist[1]+singleton->conVals[E_CONST_LIGHTDIS]
+		// 	singleton->clipDist[1]+getConst(E_CONST_LIGHTDIS)
 		// );
 			
 		//singleton->updateLightPos();
 		singleton->getLSMatrix(
 			&(singleton->lightPosStatic),
 			singleton->lightSpaceMatrix,
-			singleton->conVals[E_CONST_LIGHTORTHOSIZE]
+			getConst(E_CONST_LIGHTORTHOSIZE)
 		);
 			
 			
@@ -5664,11 +5664,11 @@ void GameWorld::rasterHolders(bool doShadow) {
 	Renderer::setShaderInt("cellsPerHolder",g_settings.cellsPerHolder);
 		
 		
-	Renderer::setShaderInt("combatOn", singleton->settings[E_BS_COMBAT]);
-	Renderer::setShaderInt("editPose", singleton->settings[E_BS_EDIT_POSE]);
-	Renderer::setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
+	Renderer::setShaderInt("combatOn", g_settings.settings[E_BS_COMBAT]);
+	Renderer::setShaderInt("editPose", g_settings.settings[E_BS_EDIT_POSE]);
+	Renderer::setShaderInt("gridOn", g_settings.settings[E_BS_SHOW_GRID]);
 	Renderer::setShaderInt("mouseDown", singleton->abDown);
-	Renderer::setShaderInt("testOn3", (int)(singleton->settings[E_BS_TEST_3]));
+	Renderer::setShaderInt("testOn3", (int)(g_settings.settings[E_BS_TEST_3]));
 		
 	Renderer::setShaderFloat("activeActorInd",GameState::gem->actObjInd);
 	Renderer::setShaderfVec4("readDataMU",&(singleton->mouseUpPixData.pd[2]));
@@ -5687,8 +5687,8 @@ void GameWorld::rasterHolders(bool doShadow) {
 	Renderer::setShaderFloat("FOV", singleton->FOV*M_PI/180.0f);
 	Renderer::setShaderVec2("clipDist",singleton->clipDist[0],singleton->clipDist[1]);
 	Renderer::setShaderVec2("shadowBias", 
-			singleton->conVals[E_CONST_SHADOWBIASMIN],
-			singleton->conVals[E_CONST_SHADOWBIASMAX]
+			getConst(E_CONST_SHADOWBIASMIN),
+			getConst(E_CONST_SHADOWBIASMAX)
 		);
 	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY);
 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
@@ -5921,9 +5921,9 @@ void GameWorld::renderDebug() {
 		
 		
 		
-	// if (singleton->gamePhysics != NULL) {
+	// if (GameState::gamePhysics != NULL) {
 	// 	singleton->drawOrient = true;
-	// 	singleton->gamePhysics->example->renderScene();
+	// 	GameState::gamePhysics->example->renderScene();
 	// }
 		
 		
@@ -5962,7 +5962,7 @@ void GameWorld::renderDebug() {
 		
 	float healthMeterScale = 0.5f;
 		
-	if (singleton->settings[E_BS_SHOW_HEALTH]) {
+	if (g_settings.settings[E_BS_SHOW_HEALTH]) {
 		for (i = 0; i < GameState::gem->visObjects.size(); i++) {
 			ge = &(GameState::gem->gameObjects[GameState::gem->visObjects[i]]);
 			if (ge->entType == E_ENTTYPE_NPC) {
@@ -5992,7 +5992,7 @@ void GameWorld::renderDebug() {
 					Renderer::drawBoxRad(boxCenter,boxRadius);
 				}
 					
-				if (singleton->settings[E_BS_TURN_BASED]) {
+				if (g_settings.settings[E_BS_TURN_BASED]) {
 					boxCenter = (ge->tbPos + btVector3(0.5f,0.5f,0.5f));
 					Renderer::setShaderVec4(
 						"rotationZ",
@@ -6019,11 +6019,11 @@ void GameWorld::renderDebug() {
 	Renderer::setShaderMatrix4x4("objmat",identMat,1);
 		
 		
-	if (singleton->settings[E_BS_PATH_FINDING]) {
-		singleton->gameLogic->update();
+	if (g_settings.settings[E_BS_PATH_FINDING]) {
+		GameState::gameLogic->update();
 	}
 		
-	if (singleton->settings[E_BS_RENDER_VOXELS]) {
+	if (g_settings.settings[E_BS_RENDER_VOXELS]) {
 		Renderer::setShaderFloat("isWire", 1.0);
 		Renderer::setShaderVec3("matVal", 255, 0, 0);
 			
@@ -6042,7 +6042,7 @@ void GameWorld::renderDebug() {
 	Renderer::setShaderFloat("isWire", 0.0f);
 	Renderer::setShaderVec3("matVal", 255, 0, 0);
 	singleton->drawOrient = false;
-	singleton->gamePhysics->example->renderScene();
+	GameState::gamePhysics->example->renderScene();
 		
 		
 	// if (singleton->mouseState == E_MOUSE_STATE_BRUSH) {
@@ -6071,7 +6071,7 @@ void GameWorld::renderDebug() {
 		
 		
 		
-	// if (singleton->settings[E_BS_RENDER_OCT_BOUNDS]) {
+	// if (g_settings.settings[E_BS_RENDER_OCT_BOUNDS]) {
 	// 	Renderer::setShaderFloat("isWire", 1.0);
 	// 	Renderer::setShaderVec3("matVal", 255, 0, 0);
 	// 	singleton->gameOct->startRender();
@@ -6162,7 +6162,7 @@ void GameWorld::renderDebug() {
 
 
 void GameWorld::finalStep(bool postToScreen) {
-	if (singleton->settings[E_BS_TEST_1]) {			
+	if (g_settings.settings[E_BS_TEST_1]) {			
 			
 			
 			
@@ -6208,7 +6208,7 @@ void GameWorld::finalStep(bool postToScreen) {
 		// }
 			
 			
-		if (singleton->settings[E_BS_FXAA]) {
+		if (g_settings.settings[E_BS_FXAA]) {
 			singleton->bindShader("FXAAShader");
 			singleton->bindFBO("resultFBO",activeFBO);
 			singleton->sampleFBO("resultFBO", 0, activeFBO);
@@ -6335,7 +6335,7 @@ void GameWorld::postProcess(bool postToScreen)
 
 	//renderWaveHeight();
 
-	if (singleton->settings[E_BS_WATER])	{
+	if (g_settings.settings[E_BS_WATER])	{
 
 
 			
@@ -6394,7 +6394,7 @@ void GameWorld::postProcess(bool postToScreen)
 	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
 	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("testOn", (int)(g_settings.settings[E_BS_TEST_1]));
 	Renderer::setShaderInt("iNumSteps", singleton->iNumSteps);
 	Renderer::setShaderArrayfVec4("lightArr", singleton->lightArr, (FLOATS_PER_LIGHT * lightCount) / 4);
 	Renderer::setShaderInt("vecsPerLight", FLOATS_PER_LIGHT / 4);
@@ -6438,8 +6438,8 @@ void GameWorld::postProcess(bool postToScreen)
 	Renderer::setShaderfVec3("lookAtVec", &(singleton->lookAtVec));
 	Renderer::setShaderVec2("bufferDim", singleton->currentFBOResolutionX, singleton->currentFBOResolutionY); //MUST BE CALLED AFTER FBO IS BOUND
 	Renderer::setShaderfVec3("cameraPos", singleton->cameraGetPos());
-	Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
-	Renderer::setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
+	Renderer::setShaderInt("testOn", (int)(g_settings.settings[E_BS_TEST_1]));
+	Renderer::setShaderInt("testOn2", (int)(g_settings.settings[E_BS_TEST_2]));
 	Renderer::setShaderFloat("curTime", GameState::curTime);
 	Renderer::setShaderFloat("cellsPerBlock", singleton->cellsPerBlock);
 	Renderer::setShaderFloat("timeOfDay", singleton->timeOfDay);
@@ -6458,7 +6458,7 @@ void GameWorld::postProcess(bool postToScreen)
 		
 		
 
-	if (singleton->settings[E_BS_WATER])
+	if (g_settings.settings[E_BS_WATER])
 	{
 		singleton->copyFBO("resultFBO1", "swapFBOLinHalf0");
 		doBlur("swapFBOLinHalf");
@@ -6507,7 +6507,7 @@ void GameWorld::postProcess(bool postToScreen)
 	}
 
 
-	if (singleton->settings[E_BS_RADIOSITY] || singleton->settings[E_BS_FOG])
+	if (g_settings.settings[E_BS_RADIOSITY] || g_settings.settings[E_BS_FOG])
 	{
 
 		if (activeFBO == 0)
@@ -6525,7 +6525,7 @@ void GameWorld::postProcess(bool postToScreen)
 
 
 
-	if (singleton->settings[E_BS_RADIOSITY])
+	if (g_settings.settings[E_BS_RADIOSITY])
 	{
 
 		singleton->bindShader("RadiosityShader");
@@ -6554,7 +6554,7 @@ void GameWorld::postProcess(bool postToScreen)
 		singleton->sampleFBO("swapFBOLinHalf0", 1);
 		singleton->sampleFBO("combineWithWaterTargFBO",2);
 		//singleton->sampleFBO("geomTargFBO", 4);
-		Renderer::setShaderInt("testOn", (int)(singleton->settings[E_BS_TEST_1]));
+		Renderer::setShaderInt("testOn", (int)(g_settings.settings[E_BS_TEST_1]));
 		singleton->drawFSQuad();
 		//singleton->unsampleFBO("geomTargFBO", 4);
 		singleton->unsampleFBO("combineWithWaterTargFBO",2);
@@ -6568,7 +6568,7 @@ void GameWorld::postProcess(bool postToScreen)
 
 	}
 
-	if (singleton->settings[E_BS_FOG])
+	if (g_settings.settings[E_BS_FOG])
 	{
 
 			
@@ -6600,7 +6600,7 @@ void GameWorld::postProcess(bool postToScreen)
 			Renderer::setShaderFloat("volSizePrim", singleton->gameFluid[E_FID_BIG]->volSizePrim);
 		}
 			
-		if (singleton->settings[E_BS_PLACING_PATTERN]) {
+		if (g_settings.settings[E_BS_PLACING_PATTERN]) {
 			Renderer::setShaderArray(
 				"patternCells",
 				singleton->patterns[
@@ -6611,12 +6611,12 @@ void GameWorld::postProcess(bool postToScreen)
 			Renderer::setShaderfVec3("patternTarg", &(singleton->mouseMovePixData.pd[0]));
 				
 		}
-		Renderer::setShaderInt("placingPattern", singleton->settings[E_BS_PLACING_PATTERN]);
+		Renderer::setShaderInt("placingPattern", g_settings.settings[E_BS_PLACING_PATTERN]);
 			
 			
-		Renderer::setShaderInt("testOn2", (int)(singleton->settings[E_BS_TEST_2]));
+		Renderer::setShaderInt("testOn2", (int)(g_settings.settings[E_BS_TEST_2]));
 			
-		Renderer::setShaderInt("gridOn", singleton->settings[E_BS_SHOW_GRID]);
+		Renderer::setShaderInt("gridOn", g_settings.settings[E_BS_SHOW_GRID]);
 			
 		if (GameState::gem->getCurActor() == NULL) {
 			Renderer::setShaderInt("isFalling",false);

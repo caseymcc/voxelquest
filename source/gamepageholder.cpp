@@ -1,5 +1,33 @@
 #include "voxelquest/gamepageholder.h"
 #include "voxelquest/memorypool.h"
+#include "voxelquest/cache.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/gamechunk.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/gamephysics.h"
+#include "voxelquest/geom.h"
+#include "voxelquest/bullethelpers.h"
+#include "voxelquest/texenums.h"
+#include "voxelquest/rig.h"
+#include "voxelquest/vbos.h"
+
+#pragma warning(push)
+#pragma warning(disable:4305)
+#include <BulletCollision/CollisionShapes/btBoxShape.h>
+#pragma warning(pop)
+
+#include <iostream>
+
+const static bool POLYS_FOR_CELLS=false;
+const static bool DO_VOXEL_WRAP=true;
+
+const static int staticCollidesWith=COL_BLOCKER|COL_MARKER|COL_STATIC;
+
+bool sortByV1(const intPair &lhs, const intPair &rhs)
+{
+    return lhs.v1<rhs.v1;
+}
 
 
 void GamePageHolder::reset(bool destroyCache)
@@ -25,7 +53,7 @@ void GamePageHolder::reset(bool destroyCache)
 
     if(destroyCache)
     {
-        singleton->checkCacheEntry(blockId, chunkId, holderId, true);
+        checkCacheEntry(blockId, chunkId, holderId, true);
     }
 }
 
@@ -86,10 +114,10 @@ void GamePageHolder::init(
 
     visitId=0;
 
-    int i;
-    int j;
-    int k;
-    int ind;
+//    int i;
+//    int j;
+//    int k;
+//    int ind;
 
 
 
@@ -112,7 +140,7 @@ void GamePageHolder::init(
     pathSize=cellsPerHolder*cellsPerHolder*cellsPerHolder;
     cellDataSize=cellsPerHolder*cellsPerHolder*cellsPerHolder*4;
 
-    origOffset.setFXYZ(cellsPerHolder/2, cellsPerHolder/2, cellsPerHolder/2);
+    origOffset.setFXYZ((float)(cellsPerHolder/2), (float)(cellsPerHolder/2), (float)(cellsPerHolder/2));
 
     offsetInHolders.setIXYZ(trueX, trueY, trueZ);
     //offsetInBlocks.copyFrom(&offsetInHolders);
@@ -132,8 +160,8 @@ void GamePageHolder::init(
 
     // }
     // else {
-    gphMinInCells.multXYZ(cellsPerHolder);
-    gphMaxInCells.multXYZ(cellsPerHolder);
+    gphMinInCells.multXYZ((float)cellsPerHolder);
+    gphMaxInCells.multXYZ((float)cellsPerHolder);
     //}
 
 
@@ -156,7 +184,7 @@ void GamePageHolder::makeDirty()
 void GamePageHolder::gatherObjects()
 {
 
-    //PaddedData* pd = &(singleton->pdPool[curPD]);
+    //PaddedData* pd = &(MemoryPool::pd(curPD));
 
     tempObjects.clear();
     objectOrder.clear();
@@ -185,7 +213,7 @@ void GamePageHolder::gatherObjects()
     vec3 visCen;
     vec3 visRad;
 
-    float fPadding=singleton->paddingInCells;
+    float fPadding=(float)g_settings.paddingInCells;
 
     ObjectStruct* curObj;
     FIVector4* baseGeom;
@@ -213,7 +241,7 @@ void GamePageHolder::gatherObjects()
                         for(q=0; q<curChunk->localObjects.size(); q++)
                         {
                             curObj=&(curChunk->localObjects[q]);
-                            baseGeom=singleton->getGeomRef(curObj->templateId, 0);
+                            baseGeom=getGeomRef(curObj->templateId, 0);
                             getVisCenRad(curObj, baseGeom, visCen, visRad);
                             cenDif=gphCen-visCen;
                             cenDif.doAbs();
@@ -228,8 +256,8 @@ void GamePageHolder::gatherObjects()
                             {
                                 tempObjects.push_back(*curObj);
 
-                                ip.v0=tempObjects.size()-1;
-                                ip.v1=tempObjects.back().globalId;
+                                ip.v0=(int)tempObjects.size()-1;
+                                ip.v1=(int)tempObjects.back().globalId;
 
                                 objectOrder.push_back(ip);
                             }
@@ -244,8 +272,6 @@ void GamePageHolder::gatherObjects()
 
     if(tempObjects.size()>0)
     {
-
-
         sort(objectOrder.begin(), objectOrder.end(), sortByV1);
     }
 
@@ -294,7 +320,7 @@ int GamePageHolder::getCellAtInd(
 {
 
 
-    int q;
+//    int q;
 
 
     if(wasGenerated)
@@ -431,8 +457,8 @@ void GamePageHolder::getArrAtInd(
 
 void GamePageHolder::setArrAtInd(
     int ind,
-    int* tempCellData=NULL,
-    int* tempCellData2=NULL
+    int* tempCellData,
+    int* tempCellData2
 )
 {
 
@@ -501,7 +527,7 @@ void GamePageHolder::clearPathSizes()
 
 void GamePageHolder::checkData(bool checkPath)
 {
-    int i;
+//    int i;
 
     if(hasData)
     {
@@ -560,7 +586,7 @@ int GamePageHolder::floodFillAtInd(
 
     if(firstInd<0)
     {
-        cout<<"firstInd "<<firstInd<<"\n";
+        std::cout<<"firstInd "<<firstInd<<"\n";
     }
 
 
@@ -573,13 +599,13 @@ int GamePageHolder::floodFillAtInd(
     groupIdStack.back().cameFromInd=-1;
     groupIdStack.back().pathCost=0;
 
-    pathData[firstInd]=groupIdStack.size()-1;
+    pathData[firstInd]=(int)groupIdStack.size()-1;
 
-    bool doProc;
+//    bool doProc;
 
     int fillCount=1;
 
-    int groupIdStackInd;
+//    int groupIdStackInd;
     int dir;
     int ind;
     int testInd;
@@ -587,7 +613,7 @@ int GamePageHolder::floodFillAtInd(
     int j;
     int k;
     int n;
-    int q;
+//    int q;
     //int foundInd;
     bool didFind=false;
     int testI;
@@ -600,7 +626,7 @@ int GamePageHolder::floodFillAtInd(
     // for (i = 0; i < 6; i++) {
     // 	curGI->touchesFace[i] = false;
     // }
-    curGI->begInd=groupIdStack.size()-1;
+    curGI->begInd=(int)groupIdStack.size()-1;
 
 
     // find contiguous regions
@@ -667,7 +693,7 @@ int GamePageHolder::floodFillAtInd(
                     groupIdStack.back().ind=testInd;
                     if(groupIdStack.back().ind<0)
                     {
-                        cout<<"groupIdStack.back().ind "<<groupIdStack.back().ind<<"\n";
+                        std::cout<<"groupIdStack.back().ind "<<groupIdStack.back().ind<<"\n";
                     }
 
                     groupIdStack.back().groupId=newId;
@@ -675,7 +701,7 @@ int GamePageHolder::floodFillAtInd(
                     groupIdStack.back().pathCost=lastCost+1;
 
                     //.groupId
-                    pathData[testInd]=groupIdStack.size()-1;
+                    pathData[testInd]=(int)groupIdStack.size()-1;
 
 
                     fillCount++;
@@ -710,7 +736,7 @@ int GamePageHolder::floodFillAtInd(
 
     }
 
-    curGI->endInd=groupIdStack.size();
+    curGI->endInd=(int)groupIdStack.size();
 
 
 
@@ -922,9 +948,9 @@ void GamePageHolder::findIdealNodes()
     //int cellValAbove2;
     int cellValBelow;
 
-    int curX;
-    int curY;
-    int curZ;
+//    int curX;
+//    int curY;
+//    int curZ;
     int curInd;
 
     bool doProc;
@@ -1130,22 +1156,22 @@ GroupIdStruct* GamePageHolder::getInfo(int pathDataIndex)
 void GamePageHolder::getInfoReport(int pathDataIndex)
 {
 
-    cout<<"\n";
+    std::cout<<"\n";
 
     if(hasPath)
     {
         if(pathData[pathDataIndex]<0)
         {
-            cout<<"pathDataIndex < 0\n";
+            std::cout<<"pathDataIndex < 0\n";
             return;
         }
 
-        cout<<"success\n";
+        std::cout<<"success\n";
 
     }
     else
     {
-        cout<<"hasPath==false\n";
+        std::cout<<"hasPath==false\n";
         return;
     }
 
@@ -1164,8 +1190,8 @@ btVector3 GamePageHolder::holderIndToBTV(GamePageHolder* curPointHolder, int cur
     jj=(curPointIndex-kk*cellsPerHolder*cellsPerHolder)/cellsPerHolder;
     ii=curPointIndex-(kk*cellsPerHolder*cellsPerHolder+jj*cellsPerHolder);
 
-    pVec1=curPointHolder->gphMinInCells.getBTV();
-    pVec1+=btVector3(ii, jj, kk);
+    pVec1=convertToBTV(curPointHolder->gphMinInCells);
+    pVec1+=btVector3((float)ii, (float)jj, (float)kk);
 
     return pVec1;
 }
@@ -1178,14 +1204,14 @@ void GamePageHolder::sortConNodes(GamePageHolder* endHolder, int endInd)
     btVector3 endPoint=holderIndToBTV(endHolder, endInd);
     btVector3 curPoint;
 
-    ConnectingNodeStruct tempCN;
+//    ConnectingNodeStruct tempCN;
     GamePageHolder* curHolder;
 
     int i;
 
     for(i=0; i<bestConnectingNodes.size(); i++)
     {
-        curHolder=singleton->gameLogic->getHolderById(
+        curHolder=GameState::gameLogic->getHolderById(
             bestConnectingNodes[i].blockIdTo,
             bestConnectingNodes[i].chunkIdTo,
             bestConnectingNodes[i].holderIdTo
@@ -1235,7 +1261,7 @@ void GamePageHolder::linkRegions()
     int baseY;
     int baseZ;
 
-    int holderInd;
+//    int holderInd;
 
     bool doProc=false;
 
@@ -1243,7 +1269,7 @@ void GamePageHolder::linkRegions()
     //GamePageHolder* holderArr[NUM_MOVEABLE_DIRS_ONE_AWAY];
     int boundsArr[NUM_ORIENTATIONS];
     int indArr[NUM_ORIENTATIONS/2];
-    int indArrInv[NUM_ORIENTATIONS/2];
+//    int indArrInv[NUM_ORIENTATIONS/2];
     int targetInd;
     int targetGroupId;
     int targetCost;
@@ -1650,24 +1676,24 @@ void GamePageHolder::genCellData()
 
     int ind;
 
-    float fi;
-    float fj;
+//    float fi;
+//    float fj;
     float fk;
 
-    float zv;
+//    float zv;
 
-    float fiAbs;
-    float fjAbs;
-    float fkAbs;
+//    float fiAbs;
+//    float fjAbs;
+//    float fkAbs;
 
-    float terHeight;
-    float simplexVal;
-    float simplexVal1;
-    float simplexVal2;
+//    float terHeight;
+//    float simplexVal;
+//    float simplexVal1;
+//    float simplexVal2;
 
-    float disVal;
+//    float disVal;
 
-    float fSimp;
+//    float fSimp;
     int iTer;
     int iWat;
 
@@ -1690,7 +1716,7 @@ void GamePageHolder::genCellData()
     // 	cout << "genBlockHolder\n";
     // }
     // else {
-    curVW=(singleton->volumeWrappers[E_VW_HOLDER]);
+    curVW=(GameState::gw->volumeWrappers[E_VW_HOLDER]);
     //}
 
 
@@ -1721,7 +1747,7 @@ void GamePageHolder::genCellData()
     unsigned char* vdPtr=fbow->pixelsChar;
 
 
-    float watHeight=singleton->getSeaHeightScaled();
+    float watHeight=GameState::gw->getSeaHeightScaled();
 
     int cdo4=cellDataSize/4;
     int curInd;
@@ -1879,13 +1905,13 @@ void GamePageHolder::genCellData()
 
         ind=p*4;
 
-        fWorldPosCell=gphMin+vec3(ii, jj, kk)+halfOff;
+        fWorldPosCell=gphMin+vec3((float)ii, (float)jj, (float)kk)+halfOff;
 
         for(r=0; r<objectOrder.size(); r++)
         {
             curInd=objectOrder[r].v0;
             curObj=&(tempObjects[curInd]);
-            baseGeom=singleton->getGeomRef(curObj->templateId, 0);
+            baseGeom=getGeomRef(curObj->templateId, 0);
 
             primRes=primDis(fWorldPosCell, curObj, baseGeom);
 
@@ -1966,7 +1992,7 @@ void GamePageHolder::applyFill()
 
     if(hasCache)
     {
-        res=singleton->loadCacheEntry(blockId, chunkId, holderId);
+        res=loadCacheEntry(blockId, chunkId, holderId);
         listEmpty=(vertexVec.size()==0); //vboWrapper.
 
         // if (res) {
@@ -1998,7 +2024,7 @@ void GamePageHolder::applyFill()
 
                 if(DO_CACHE)
                 {
-                    res=singleton->saveCacheEntry(blockId, chunkId, holderId);
+                    res=saveCacheEntry(blockId, chunkId, holderId);
                 }
 
 
@@ -2028,7 +2054,7 @@ void GamePageHolder::applyFill()
 void GamePageHolder::fillVBO()
 {
 
-    if(singleton->gamePhysics==NULL)
+    if(GameState::gamePhysics==NULL)
     {
         return;
     }
@@ -2045,10 +2071,10 @@ void GamePageHolder::fillVBO()
     int jj;
     int kk;
 
-    int p2;
+//    int p2;
     // int ii2;
     // int jj2;
-    int kk2;
+//    int kk2;
 
 
 
@@ -2099,9 +2125,9 @@ void GamePageHolder::fillVBO()
 
             //fk = (kk2-kk)+1;
 
-            fi=ii+gphMinInCells.getIX();
-            fj=jj+gphMinInCells.getIY();
-            fk=kk+gphMinInCells.getIZ();
+            fi=(float)ii+gphMinInCells.getIX();
+            fj=(float)jj+gphMinInCells.getIY();
+            fk=(float)kk+gphMinInCells.getIZ();
 
             btTransform trans;
             trans.setIdentity();
@@ -2113,7 +2139,7 @@ void GamePageHolder::fillVBO()
 
             boxShape=new btBoxShape(boxRad);
             collideBodies.push_back(
-                singleton->gamePhysics->example->createRigidBodyMask(
+                GameState::gamePhysics->example->createRigidBodyMask(
                 0,
                 trans,
                 boxShape,
@@ -2122,12 +2148,12 @@ void GamePageHolder::fillVBO()
             )
             );
             collideBodies.back()->setFriction(btScalar(0.9f));
-            collideBodies.back()->bodyUID=-1;
-            collideBodies.back()->limbUID=-1;
+//            collideBodies.back()->bodyUID=-1;
+//            collideBodies.back()->limbUID=-1;
             collideBodies.back()->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT); //
         }
 
-        singleton->gamePhysics->example->updateGraphicsObjects();
+        GameState::gamePhysics->example->updateGraphicsObjects();
     }
 
 
@@ -2150,14 +2176,14 @@ inline PaddedDataEntry* GamePageHolder::getPadData(int ii, int jj, int kk)
 {
 
     int cellsPerHolderPad=g_settings.cellsPerHolderPad;
-    int paddingInCells=singleton->paddingInCells;
+    int paddingInCells=g_settings.paddingInCells;
 
     int i=ii+paddingInCells;
     int j=jj+paddingInCells;
     int k=kk+paddingInCells;
 
     return &(
-        singleton->pdPool[curPD].data[
+        MemoryPool::pd(curPD).data[
             i+j*cellsPerHolderPad+k*cellsPerHolderPad*cellsPerHolderPad
         ]
         );
@@ -2186,7 +2212,7 @@ int GamePageHolder::gatherData()
     int minRad=0;
     int cellsPerHolderPad=g_settings.cellsPerHolderPad;
     int maxRad=cellsPerHolderPad;
-    int paddingInCells=singleton->paddingInCells;
+    int paddingInCells=g_settings.paddingInCells;
 
     float terVal=0.0f;
 
@@ -2260,7 +2286,7 @@ int GamePageHolder::gatherData()
                 }
 
                 curData=&(
-                    singleton->pdPool[curPD].data[
+                    MemoryPool::pd(curPD).data[
                         i+j*cellsPerHolderPad+k*cellsPerHolderPad*cellsPerHolderPad
                     ]
                     );
@@ -2281,7 +2307,7 @@ bool GamePageHolder::checkCache()
 {
     if(DO_CACHE)
     {
-        hasCache=singleton->checkCacheEntry(blockId, chunkId, holderId);
+        hasCache=checkCacheEntry(blockId, chunkId, holderId);
     }
     else
     {
@@ -2293,9 +2319,9 @@ bool GamePageHolder::checkCache()
 
 void GamePageHolder::generateList()
 {
-    //PaddedData* pd = &(singleton->pdPool[curPD]);
+    //PaddedData* pd = &(MemoryPool::pd(curPD));
 
-    if(singleton->gamePhysics==NULL)
+    if(GameState::gamePhysics==NULL)
     {
         return;
     }
@@ -2366,22 +2392,24 @@ void GamePageHolder::wrapPolys()
 {
 
     int cellsPerHolderM1=cellsPerHolder-1;
-    float fres=cellsPerHolder;
-    int i, j, k, m, q;
+    float fres=(float)cellsPerHolder;
+    int i, j, k;
+    //int m;
+    int q;
 
-    int curInd;
-
-
-
-
-    bool edgeK;
-    bool edgeJ;
-    bool edgeI;
+//    int curInd;
 
 
-    int ii;
-    int jj;
-    int kk;
+
+
+//    bool edgeK;
+//    bool edgeJ;
+//    bool edgeI;
+
+
+//    int ii;
+//    int jj;
+//    int kk;
 
 
     float cellPitch;
@@ -2413,7 +2441,7 @@ void GamePageHolder::wrapPolys()
     int cellVal2;
 
 
-    uint dirFlags;
+//    uint dirFlags;
     uint flagVals[6];
     flagVals[0]=1;
     flagVals[1]=2;
@@ -2440,13 +2468,13 @@ void GamePageHolder::wrapPolys()
 
     bool rleOn=false;
     bool isLast=false;
-    int begInd;
-    int endInd;
+//    int begInd;
+//    int endInd;
 
-    int baseInd;
-    int tempVal;
-    int cellGrid[27];
-    int maskVals[8];
+//    int baseInd;
+//    int tempVal;
+//    int cellGrid[27];
+//    int maskVals[8];
     int newInd;
 
 
@@ -2465,9 +2493,9 @@ void GamePageHolder::wrapPolys()
                 iX=gphMinInCells.getIX()+i;
                 iY=gphMinInCells.getIY()+j;
                 iZ=gphMinInCells.getIZ()+k;
-                bpX=iX;
-                bpY=iY;
-                bpZ=iZ;
+                bpX=(float)iX;
+                bpY=(float)iY;
+                bpZ=(float)iZ;
 
                 // if (isBlockHolder) {
                 // 	cellVal = getCellAtCoordsLocal(iX,iY,iZ);

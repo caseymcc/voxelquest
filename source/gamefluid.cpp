@@ -573,7 +573,7 @@ void GameFluid::addGeom(FIVector4* newPos, int templateId, int orientation)
     // ));
     // btVector3 boxRad = btVector3(5.0f,5.05,5.0f);
     // btBoxShape* boxShape = new btBoxShape(boxRad);
-    // btRigidBody* myBody = singleton->gamePhysics->example->createRigidBodyMask(
+    // btRigidBody* myBody = GameState::gamePhysics->example->createRigidBodyMask(
     // 	0,
     // 	trans,
     // 	boxShape,
@@ -582,7 +582,7 @@ void GameFluid::addGeom(FIVector4* newPos, int templateId, int orientation)
     // );
     // myBody->setFriction(btScalar(0.9f));
     // myBody->bodyUID = -11;
-    // singleton->gamePhysics->example->updateGraphicsObjects();
+    // GameState::gamePhysics->example->updateGraphicsObjects();
 
 
 
@@ -1142,8 +1142,8 @@ void GameFluid::tryToEndThreads()
     else
     {
         waitingOnThreads=false;
-        // singleton->gameLogic->threadPoolPath->stopAll();
-        // singleton->gameLogic->threadPoolList->stopAll();
+        // GameState::gameLogic->threadPoolPath->stopAll();
+        // GameState::gameLogic->threadPoolList->stopAll();
         prereadFluidData();
 		GameState::gameLogic->allowThreadCreation=true;
 

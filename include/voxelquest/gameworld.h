@@ -4,10 +4,20 @@
 #include "voxelquest/baseobject.h"
 #include "voxelquest/helperfuncs.h"
 #include "voxelquest/gameblock.h"
+#include "voxelquest/volumewrapper.h"
 
 class GameOrg;
 class GameOrgNode;
 class Singleton;
+
+enum E_VOLUME_WRAPPERS
+{
+    //E_VW_TERGEN,
+    E_VW_HOLDER,
+    E_VW_WORLD,
+    E_VW_VORO,
+    E_VW_LENGTH
+};
 
 class GameWorld
 {
@@ -140,6 +150,8 @@ public:
     float getSeaHeightScaled();
 
 //private:
+    VolumeWrapper* volumeWrappers[E_VW_LENGTH];
+
 	bool skippedPrim;
 
 	int numProvinces;

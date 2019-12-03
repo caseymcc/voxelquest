@@ -29,6 +29,20 @@ enum E_NET_OPS
 	E_NO_LENGTH
 };
 
+enum E_KEYMAP
+{
+    KEYMAP_UP,
+    KEYMAP_DOWN,
+    KEYMAP_FORWARD,
+    KEYMAP_BACKWARD,
+    KEYMAP_LEFT,
+    KEYMAP_RIGHT,
+    KEYMAP_FIRE_PRIMARY,
+    KEYMAP_GRAB,
+    KEYMAP_THROW,
+    KEYMAP_LENGTH
+};
+
 class GameNetwork
 {
 public:
@@ -36,9 +50,7 @@ public:
 
     void init(Singleton* _singleton);
 
-
     void getIntFloatLen(int opCode, int* uintLen, int* intLen, int* floatLen);
-
 
     void addNetworkAction(
         int opCode,
@@ -47,15 +59,11 @@ public:
         float* naFloatData
     );
 
-    void addNetworkActionForSend(
-        NetworkAction* na
-    );
+    void addNetworkActionForSend(NetworkAction* na);
 
     void applyNetworkActions();
 
-
     int socketConnect(bool doConnect);
-
 
     void socketRecv();
 
@@ -67,9 +75,10 @@ public:
 
     void flushNetworkActions();
 
-
     void updateSend();
     void updateRecv();
+
+    void applyKeyAction(bool isReq, int actorId, uint keyFlags, float camRotX, float camRotY);
 
     Singleton* singleton;
 
@@ -97,6 +106,10 @@ public:
 
     std::vector<NetworkAction> netSendStack;
 
+    uint naUintData[8];
+    int naIntData[8];
+    float naFloatData[8];
+    bool keyMapResultUnzipped[KEYMAP_LENGTH];
 };
 
 #endif//_voxelquest__h_

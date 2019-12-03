@@ -47,31 +47,7 @@ enum E_WEAPON_POS
     E_WEAPON_POS_LENGTH
 };
 
-// TODO: FIX THIS SLOP
-// MUST CALL THIS, BONE NAMES GOT REVERSED
-int getCorrectedName(int curNodeName)
-{
 
-	if(curNodeName<E_BONE_C_BEG)
-	{
-		if(curNodeName<=E_BONE_L_END)
-		{
-			return (
-				curNodeName+(E_BONE_R_BEG-E_BONE_L_BEG)
-				);
-		}
-		else
-		{
-			return (
-				curNodeName-(E_BONE_R_BEG-E_BONE_L_BEG)
-				);
-		}
-	}
-	else
-	{
-		return curNodeName;
-	}
-}
 
 std::string boneStrings[]={
 

@@ -14,7 +14,7 @@ public:
 
     void copyCharArr(unsigned char* charArr);
 
-private:
+//private:
     FBOSet fboSet;
 
     GLuint volId;

@@ -21,12 +21,7 @@ private:
 public:
     void reset(bool destroyCache);
 
-
     GamePageHolder();
-
-
-
-
 
     void init(
         Singleton* _singleton,

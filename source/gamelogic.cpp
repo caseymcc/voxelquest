@@ -2281,7 +2281,7 @@ void GameLogic::loadNearestHolders(bool doUpdate) { //int rad,
 												
 	// 										curPD = -1;
 	// 										for (q = 0; q < MAX_PDPOOL_SIZE; q++) {
-	// 											if (singleton->pdPool[q].isFree) {
+	// 											if (MemoryPool::pd(q).isFree) {
 	// 												curPD = q;
 	// 												//cout << "locking pdPool " << q << "\n";
 	// 												break;

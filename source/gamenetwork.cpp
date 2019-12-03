@@ -1,6 +1,11 @@
 #include "voxelquest/gamenetwork.h"
 #include "voxelquest/gamestate.h"
 #include "voxelquest/gameentmanager.h"
+#include "voxelquest/bullethelpers.h"
+
+#ifdef _WIN32
+#include <Ws2tcpip.h>
+#endif 
 
 #include <iostream>
 
@@ -179,7 +184,7 @@ void GameNetwork::applyNetworkActions()
 
             break;
         case E_NO_KEY_ACTION:
-            singleton->applyKeyAction(
+            applyKeyAction(
                 false,
                 *(intPtr[0]),
                 *(uintPtr[0]),
@@ -457,4 +462,144 @@ void GameNetwork::updateRecv()
 {
     checkBufferLengthRecv();
     socketRecv();
+}
+
+void GameNetwork::applyKeyAction(bool isReq, int actorId, uint keyFlags, float camRotX, float camRotY)
+{
+    bool strafeMode=GameState::gem->firstPerson;
+
+//    int i;
+    BaseObj* ca;
+
+    btVector3 mouseWP;
+
+//    bool charMoved;
+    float deltaAng;
+
+    if(isReq)
+    {
+        naUintData[0]=keyFlags;
+        naIntData[0]=actorId;
+        naFloatData[0]=camRotX;
+        naFloatData[1]=camRotY;
+        addNetworkAction(E_NO_KEY_ACTION, naUintData, naIntData, naFloatData);
+        return;
+    }
+
+    if(g_settings.settings[E_BS_TURN_BASED])
+    {
+        return;
+    }
+
+    if(actorId<0)
+    {
+
+    }
+    else
+    {
+
+        ca=&(GameState::gem->gameObjects[actorId]);
+
+        unzipBits(keyFlags, keyMapResultUnzipped, KEYMAP_LENGTH);
+
+        if(ca->isAlive())
+        {
+
+            if(keyMapResultUnzipped[KEYMAP_RIGHT])
+            {
+
+                if(strafeMode)
+                {
+                    GameState::gem->makeMove(actorId, btVector3(1.0f, 0.0f, 0.0f), true, true);
+                }
+                else
+                {
+                    GameState::gem->makeTurn(actorId, -getConst(E_CONST_TURN_AMOUNT));
+                }
+
+                //
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_LEFT])
+            {
+                if(strafeMode)
+                {
+                    GameState::gem->makeMove(actorId, btVector3(-1.0f, 0.0f, 0.0f), true, true);
+                }
+                else
+                {
+                    GameState::gem->makeTurn(actorId, getConst(E_CONST_TURN_AMOUNT));
+                }
+
+                //
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_FIRE_PRIMARY])
+            {
+                GameState::gem->makeShoot(actorId, E_ENTTYPE_BULLET);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_GRAB])
+            {
+                GameState::gem->makeGrab(actorId, -1);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_THROW])
+            {
+                GameState::gem->makeThrow(actorId, -1);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_UP])
+            {
+                GameState::gem->makeJump(actorId, 1, 1.0f);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_DOWN])
+            {
+                GameState::gem->makeJump(actorId, 0, 1.0f);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_FORWARD])
+            {
+                GameState::gem->makeMove(actorId, btVector3(0.0f, 1.0f, 0.0f), true, true);
+            }
+
+            if(keyMapResultUnzipped[KEYMAP_BACKWARD])
+            {
+                GameState::gem->makeMove(actorId, btVector3(0.0f, -1.0f, 0.0f), true, true);
+            }
+
+            // mouseWP = screenToWorld(
+            // 	((float)lastPosX)/origWinW,
+            // 	((float)lastPosY)/origWinH,
+            // 	camRotX
+            // );
+
+            if(strafeMode)
+            {
+                deltaAng=ca->turnTowardsPointDelta(
+
+                    ca->getCenterPoint(E_BDG_CENTER)+
+                    convertToBTV(GameState::lookAtVec)
+
+                    // ca->getCenterPoint(E_BDG_CENTER) - mouseWP
+
+                );
+
+                if(!g_settings.settings[E_BS_EDIT_POSE])
+                {
+                    GameState::gem->makeTurn(actorId, deltaAng*16.0f);
+                }
+            }
+
+
+
+
+
+        }
+    }
+
+
+
+
 }

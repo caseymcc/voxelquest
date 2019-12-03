@@ -10,7 +10,7 @@
 #include "voxelquest/gamegui.h"
 #include "voxelquest/gamephysics.h"
 #include "voxelquest/gameworld.h"
-#include "voxelquest/entenums.h"
+#include "voxelquest/rig.h"
 #include "voxelquest/bullethelpers.h"
 #include "voxelquest/jsonhelpers.h"
 
@@ -1485,7 +1485,7 @@ bool GameEntManager::removeVisObject(BaseObjType _uid, bool isRecycled)
 	GameState::gamePhysics->remBoxFromObj(_uid);
 
     // if (ge->body != NULL) {
-    // 	//singleton->gamePhysics->scene->RemoveBody(ge->body);
+    // 	//GameState::gamePhysics->scene->RemoveBody(ge->body);
     // 	ge->body = NULL;
     // }
 
@@ -2284,8 +2284,8 @@ void GameEntManager::makeSwing(int actorId, int handNum)
         // 	makeMove( actorId,
         // 		btVector3(
         // 			0.0f,
-        // 			singleton->conVals[E_CONST_DASH_AMOUNT],
-        // 			singleton->conVals[E_CONST_DASH_UP_AMOUNT]
+        // 			getConst(E_CONST_DASH_AMOUNT),
+        // 			getConst(E_CONST_DASH_UP_AMOUNT)
         // 		),
         // 		true,
         // 		false
@@ -2733,10 +2733,10 @@ void GameEntManager::makeHit(
 
     int lastHealth;
 
-    // if (singleton->settings[E_BS_TURN_BASED]&&(!tb)) {
+    // if (g_settings.settings[E_BS_TURN_BASED]&&(!tb)) {
     // 	return;
     // }
-    // if ((!singleton->settings[E_BS_TURN_BASED])&&tb) {
+    // if ((!g_settings.settings[E_BS_TURN_BASED])&&tb) {
     // 	return;
     // }
 
@@ -3234,7 +3234,7 @@ bool GameEntManager::updateNearestOrgNode(bool setActive)
 //            {
 //                bestNode=testOrg->allNodes[boneId];
 //
-//                // if (singleton->settings[E_BS_MIRROR_POSE]) {
+//                // if (g_settings.settings[E_BS_MIRROR_POSE]) {
 //                // 	mirNode = getMirroredNode(bestNode);
 //
 //                // 	if (mirNode == NULL) {

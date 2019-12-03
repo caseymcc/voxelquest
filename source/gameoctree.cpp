@@ -1,4 +1,5 @@
-#include "gameoctree.h"
+#include "voxelquest/gameoctree.h"
+#include "voxelquest/vectors.h"
 
 GameOctree::GameOctree()
 {
@@ -56,7 +57,7 @@ void GameOctree::init(
     //rootPtr = nodeSize;
     //nextOpen = rootPtr+nodeSize;
 
-    int i;
+//    int i;
 
     // for (i = 0; i < vDataSize; i++) {
     // 	vData[i] = nullPtr;
@@ -86,7 +87,7 @@ int GameOctree::allocNode(int parent)
 {
     octNodes.push_back(OctNode());
     int newInd=-1;
-    newInd=octNodes.size()-1;
+    newInd=(int)octNodes.size()-1;
     octNodes[newInd].init(parent); //.back()
     return newInd;
 }
