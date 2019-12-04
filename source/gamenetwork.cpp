@@ -2,6 +2,7 @@
 #include "voxelquest/gamestate.h"
 #include "voxelquest/gameentmanager.h"
 #include "voxelquest/bullethelpers.h"
+#include "voxelquest/renderer.h"
 
 #ifdef _WIN32
 #include <Ws2tcpip.h>
@@ -580,7 +581,7 @@ void GameNetwork::applyKeyAction(bool isReq, int actorId, uint keyFlags, float c
                 deltaAng=ca->turnTowardsPointDelta(
 
                     ca->getCenterPoint(E_BDG_CENTER)+
-                    convertToBTV(GameState::lookAtVec)
+                    convertToBTV(Renderer::lookAtVec)
 
                     // ca->getCenterPoint(E_BDG_CENTER) - mouseWP
 

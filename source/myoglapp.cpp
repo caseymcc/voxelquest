@@ -24,7 +24,7 @@ int	MyOGLApp::registerCubeShape(float halfExtentsX, float halfExtentsY, float ha
     return 0;
 }
 
-int	MyOGLApp::registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10)
+int	MyOGLApp::registerGraphicsSphereShape(float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)
 {
     std::cout<<"b\n";
     return 0;
@@ -35,8 +35,8 @@ void MyOGLApp::registerGrid(int xres, int yres, float color0[4], float color1[4]
     std::cout<<"c\n";
 }
 
-struct	MyOGLApp::GLInstanceRendererInternalData* getInternalData()
+struct	GLInstanceRendererInternalData* getInternalData()
 {
     std::cout<<"d\n";
-    return 0;
+    return nullptr;
 }

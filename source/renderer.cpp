@@ -1,23 +1,61 @@
 #include "voxelquest/renderer.h"
+#include "voxelquest/materials.h"
+#include "voxelquest/geom.h"
+#include "voxelquest/fileio.h"
+#include "voxelquest/jsonhelpers.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/fbos.h"
+#include "voxelquest/bullethelpers.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/glmhelpers.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include <algorithm>
 
-int Renderer::widthWin;
-int Renderer::heightWin;
+FIVector4 tempVec1;
+FIVector4 tempVec2;
+FIVector4 tempVec3;
+
+struct CompareStruct
+{
+    bool operator()(const std::string& first, const std::string& second)
+    {
+        return first.compare(second)<0;//first.size() < second.size();
+    }
+};
+
+int getMatrixInd(int col, int row)
+{
+    return col*4+row;
+}
+
+const static int RASTER_LOW_SCALE_FACTOR=2;
+
+int Renderer::baseW;
+int Renderer::baseH;
+int Renderer::lastW;
+int Renderer::lastH;
+
 float Renderer::FOV=45.0f;
 float heightOfNearPlane=1.0f;
 
 Matrix4 Renderer::pmMatrix;
 
+GLuint Renderer::fsqDL;
 VBOWrapper Renderer::fsQuad;
 TBOWrapper Renderer::limbTBO;
 TBOWrapper Renderer::primTBO;
 
 float Renderer::clipDist[2];
 bool Renderer::perspectiveOn=false;
+bool Renderer::lastPersp=false;
 bool Renderer::sphereMapOn=false;
 bool Renderer::drawOrient=false;
+bool Renderer::bakeParamsOn=true;
 
 int Renderer::forceShadowUpdate=0;
 FIVector4 Renderer::lastLightPos;
@@ -35,15 +73,19 @@ FIVector4 Renderer::resultCameraPos;
 FIVector4 Renderer::targetCameraPos;
 FIVector4 Renderer::baseCameraPos;
 
+float Renderer::scaleFactor=1.0f;
 FIVector4 Renderer::lookAtVec;
 Matrix4 Renderer::viewMatrix;
 Matrix4 Renderer::projMatrix;
 Matrix4 Renderer::curObjMatrix;
 Matrix3 Renderer::curObjMatrix3;
+GLint Renderer::viewport[4];
 float Renderer::viewMatrixDI[16];
 
 FIVector4 Renderer::lightVec;
 FIVector4 Renderer::lightVecOrig;
+FIVector4 Renderer::lightLookAt;
+Matrix4 Renderer::lightView;
 
 int Renderer::currentFBOResolutionX;
 int Renderer::currentFBOResolutionY;
@@ -52,6 +94,9 @@ int Renderer::shadersAreLoaded=0;
 std::map<std::string, Shader*> Renderer::shaderMap;
 std::string Renderer::curShader;
 Shader *Renderer::curShaderPtr=nullptr;
+std::vector<std::string> Renderer::shaderStrings;
+std::vector<std::string> Renderer::shaderTextureIds;
+int Renderer::readyToRecompile=0;
 
 FIVector4 Renderer::bufferDim;
 FIVector4 Renderer::bufferDimTarg;
@@ -59,12 +104,19 @@ FIVector4 Renderer::bufferDimHalf;
 FIVector4 Renderer::bufferModDim;
 FIVector4 Renderer::bufferRenderDim;
 
-GLuint Renderer::volIdMat;
+FIVector4 Renderer::rasterLowDim;
+//GLuint Renderer::volIdMat;
+
+bool Renderer::LAST_COMPILE_ERROR=false;
 
 void Renderer::init(int width, int height)
 {
-    width=widthWin;
-    height=heightWin;
+    setWH(width, height);
+
+    fsqDL=glGenLists(1);
+    glNewList(fsqDL, GL_COMPILE);
+    drawFSQuadOffset(0.0f, 0.0f, 1.0f);
+    glEndList();
 
     clipDist[0]=1.0f;
     clipDist[1]=512.0f;
@@ -80,6 +132,106 @@ void Renderer::init(int width, int height)
     bufferDimHalf.setIXY(width/2, height/2);
     bufferModDim.copyIntMult(&bufferDim, 1);
     bufferRenderDim.copyIntDiv(&bufferDimTarg, RENDER_SCALE_FACTOR);
+
+    if(USE_SPHERE_MAP)
+    {
+        shaderStrings.push_back("PrimShader_330_DOTER_USESPHEREMAP");
+    }
+    else
+    {
+        //shaderStrings.push_back("PrimShader_330_DOTER_DOPOLY");
+        shaderStrings.push_back("PrimShader_330_DOTER");
+    }
+
+    shaderStrings.push_back("PrimShader_330_DOPRIM");
+    shaderStrings.push_back("SolidCombineShader");
+    shaderStrings.push_back("CylBBShader");
+    shaderStrings.push_back("FXAAShader");
+    shaderStrings.push_back("TerGenShader");
+    shaderStrings.push_back("GUIShader");
+    shaderStrings.push_back("MedianShader");
+    shaderStrings.push_back("MergeShader");
+    shaderStrings.push_back("TopoShader");
+    shaderStrings.push_back("PointShader");
+    shaderStrings.push_back("NearestShader");
+    shaderStrings.push_back("LightShader");
+    shaderStrings.push_back("RoadShader");
+    shaderStrings.push_back("SkeletonShader");
+    shaderStrings.push_back("DilateShader");
+    shaderStrings.push_back("TerrainMix");
+    shaderStrings.push_back("Simplex2D");
+    shaderStrings.push_back("WaveHeightShader");
+    shaderStrings.push_back("WaterShader");
+    shaderStrings.push_back("WaterShaderCombine");
+    shaderStrings.push_back("CopyShader");
+    shaderStrings.push_back("CopyShader2");
+    shaderStrings.push_back("CopyShader3");
+    shaderStrings.push_back("NoiseShader");
+    shaderStrings.push_back("MapBorderShader");
+    shaderStrings.push_back("BillboardShader");
+    shaderStrings.push_back("PreLightingShader");
+    shaderStrings.push_back("PostLightingShader");
+    shaderStrings.push_back("BlurShader");
+    shaderStrings.push_back("RadiosityShader");
+    shaderStrings.push_back("RadiosityCombineShader");
+    shaderStrings.push_back("FogShader");
+    shaderStrings.push_back("OctShader");
+    shaderStrings.push_back("RasterShader");
+    shaderStrings.push_back("HolderShader");
+    shaderStrings.push_back("BasicPrimShader");
+    shaderStrings.push_back("BasicLimbShader");
+    shaderStrings.push_back("ShadowMapShader");
+    shaderStrings.push_back("GridShader");
+    shaderStrings.push_back("GeomShader");
+    shaderStrings.push_back("BoxShader");
+    shaderStrings.push_back("PolyShader");
+    shaderStrings.push_back("PolyCombineShader");
+
+    CompareStruct compareStruct;
+
+    std::sort(shaderStrings.begin(), shaderStrings.end(), compareStruct);
+
+    shaderTextureIds.push_back("Texture0");
+    shaderTextureIds.push_back("Texture1");
+    shaderTextureIds.push_back("Texture2");
+    shaderTextureIds.push_back("Texture3");
+    shaderTextureIds.push_back("Texture4");
+    shaderTextureIds.push_back("Texture5");
+    shaderTextureIds.push_back("Texture6");
+    shaderTextureIds.push_back("Texture7");
+    shaderTextureIds.push_back("Texture8");
+    shaderTextureIds.push_back("Texture9");
+    shaderTextureIds.push_back("Texture10");
+    shaderTextureIds.push_back("Texture11");
+    shaderTextureIds.push_back("Texture12");
+    shaderTextureIds.push_back("Texture13");
+    shaderTextureIds.push_back("Texture14");
+    shaderTextureIds.push_back("Texture15");
+
+    for(int i=0; i<shaderStrings.size(); i++)
+    {
+        shaderMap.insert(std::pair<std::string, Shader*>(shaderStrings[i], new Shader(nullptr)));
+    }
+
+    doShaderRefresh(false);
+}
+
+void Renderer::setWH(int w, int h)
+{
+    baseW=w;
+    baseH=h;
+}
+
+void Renderer::reshape(int w, int h)
+{
+    std::cout<<"reshape\n";
+
+    setWH(w, h);
+
+//    screenWidth=w;
+//    screenHeight=h;
+
+    setMatrices(baseW, baseH);
 }
 
 GLfloat Renderer::getCamRot(int ind)
@@ -101,291 +253,297 @@ void Renderer::performCamShake(BaseObj* ge, float fp)
         shakeTimer.stop();
         shakeTimer.start();
     }
-
-
 }
 
 void Renderer::bindShader(std::string shaderName)
 {
-	int i;
-	int totSize;
+    int i;
+    int totSize;
 
-	if(shaderMap.find(shaderName)==shaderMap.end())
-	{
-		std::cout<<"invalid shader name "<<shaderName<<"\n";
-		exit(0);
-	}
+    if(shaderMap.find(shaderName)==shaderMap.end())
+    {
+        std::cout<<"invalid shader name "<<shaderName<<"\n";
+        exit(0);
+    }
 
-	if(shadersAreLoaded)
-	{
-		curShader=shaderName;
-		curShaderPtr=shaderMap[curShader];
-		curShaderPtr->bind();
+    if(shadersAreLoaded)
+    {
+        curShader=shaderName;
+        curShaderPtr=shaderMap[curShader];
+        curShaderPtr->bind();
 
-		totSize=curShaderPtr->paramVec.size();
+        totSize=(int)curShaderPtr->paramVec.size();
 
-		if(bakeParamsOn)
-		{
+        if(bakeParamsOn)
+        {
 
-		}
-		else
-		{
-			for(i=0; i<totSize; i++)
-			{
+        }
+        else
+        {
+            for(i=0; i<totSize; i++)
+            {
 
-				// if (curShaderPtr->paramVec[i].compare("lightColBNight")) {
-				// 	cout << curShaderPtr->paramMap[curShaderPtr->paramVec[i]] << "\n";
-				// }
+                // if (curShaderPtr->paramVec[i].compare("lightColBNight")) {
+                // 	cout << curShaderPtr->paramMap[curShaderPtr->paramVec[i]] << "\n";
+                // }
 
-				setShaderFloat(
-					curShaderPtr->paramVec[i],
-					curShaderPtr->paramMap[curShaderPtr->paramVec[i]]
-				);
-			}
-		}
+                setShaderFloat(
+                    curShaderPtr->paramVec[i],
+                    curShaderPtr->paramMap[curShaderPtr->paramVec[i]]
+                );
+            }
+        }
 
-	}
+    }
 
 }
 
 void Renderer::unbindShader()
 {
-	if(shadersAreLoaded)
-	{
-		curShaderPtr->unbind();
-	}
+    if(shadersAreLoaded)
+    {
+        curShaderPtr->unbind();
+    }
 }
 
 void Renderer::bindFBODirect(FBOSet *fbos, int doClear)
 {
-	setMatrices(fbos->width, fbos->height);
+    setMatrices(fbos->width, fbos->height);
 
-	fbos->bind(doClear);
-	currentFBOResolutionX=fbos->width;
-	currentFBOResolutionY=fbos->height;
+    fbos->bind(doClear);
+    currentFBOResolutionX=fbos->width;
+    currentFBOResolutionY=fbos->height;
 }
 
 void Renderer::setShaderArrayfVec3(std::string paramName, float *x, int count)
 {
-	curShaderPtr->setShaderArrayfVec3(paramName, x, count);
+    curShaderPtr->setShaderArrayfVec3(paramName, x, count);
 }
 void Renderer::setShaderArrayfVec4(std::string paramName, float *x, int count)
 {
-	curShaderPtr->setShaderArrayfVec4(paramName, x, count);
+    curShaderPtr->setShaderArrayfVec4(paramName, x, count);
 }
 void Renderer::setShaderMatrix4x4(std::string paramName, float *x, int count)
 {
-	curShaderPtr->setShaderMatrix4x4(paramName, x, count);
+    curShaderPtr->setShaderMatrix4x4(paramName, x, count);
 }
 void Renderer::setShaderMatrix3x3(std::string paramName, float *x, int count)
 {
-	curShaderPtr->setShaderMatrix3x3(paramName, x, count);
+    curShaderPtr->setShaderMatrix3x3(paramName, x, count);
 }
 void Renderer::setShaderArray(std::string paramName, float *x, int count)
 {
-	curShaderPtr->setShaderArray(paramName, x, count);
+    curShaderPtr->setShaderArray(paramName, x, count);
 }
 
 GLint Renderer::getShaderLoc(std::string paramName)
 {
-	return curShaderPtr->getShaderLoc(paramName);
+    return curShaderPtr->getShaderLoc(paramName);
 }
 
 void Renderer::setShaderFloat(std::string paramName, float x)
 {
-	curShaderPtr->setShaderFloat(paramName, x);
+    curShaderPtr->setShaderFloat(paramName, x);
 }
 void Renderer::setShaderInt(std::string paramName, int x)
 {
-	curShaderPtr->setShaderInt(paramName, x);
+    curShaderPtr->setShaderInt(paramName, x);
 }
 void Renderer::setShaderfVec2(std::string paramName, FIVector4 *v)
 {
-	curShaderPtr->setShaderfVec2(paramName, v);
+    curShaderPtr->setShaderfVec2(paramName, v);
 }
 void Renderer::setShaderVec2(std::string paramName, float x, float y)
 {
-	curShaderPtr->setShaderVec2(paramName, x, y);
+    curShaderPtr->setShaderVec2(paramName, x, y);
 }
 void Renderer::setShaderVec3(std::string paramName, float x, float y, float z)
 {
-	curShaderPtr->setShaderVec3(paramName, x, y, z);
+    curShaderPtr->setShaderVec3(paramName, x, y, z);
 }
 void Renderer::setShaderfVec3(std::string paramName, FIVector4 *v)
 {
-	curShaderPtr->setShaderfVec3(paramName, v);
+    curShaderPtr->setShaderfVec3(paramName, v);
 }
 void Renderer::setShaderbtVec3(std::string paramName, btVector3 v)
 {
-	curShaderPtr->setShaderbtVec3(paramName, v);
+    curShaderPtr->setShaderbtVec3(paramName, v);
 }
 
 void Renderer::setShaderVec4(std::string paramName, float x, float y, float z, float w)
 {
-	curShaderPtr->setShaderVec4(paramName, x, y, z, w);
+    curShaderPtr->setShaderVec4(paramName, x, y, z, w);
 }
 void Renderer::setShaderfVec4(std::string paramName, FIVector4 *v)
 {
-	curShaderPtr->setShaderfVec4(paramName, v);
+    curShaderPtr->setShaderfVec4(paramName, v);
 }
 
 
 
 void Renderer::setShaderFloatUB(std::string paramName, float x)
 {
-	curShaderPtr->setShaderFloatUB(paramName, x);
+    curShaderPtr->setShaderFloatUB(paramName, x);
 }
 void Renderer::setShaderfVec4UB(std::string paramName, FIVector4 *v)
 {
-	curShaderPtr->setShaderfVec4UB(paramName, v);
+    curShaderPtr->setShaderfVec4UB(paramName, v);
 }
 
 
 
 void updateUniformBlock(int ubIndex, int ubDataSize=-1)
 {
-	Renderer::curShaderPtr->updateUniformBlock(ubIndex, ubDataSize);
+    Renderer::curShaderPtr->updateUniformBlock(ubIndex, ubDataSize);
 }
 void invalidateUniformBlock(int ubIndex)
 {
-	Renderer::curShaderPtr->invalidateUniformBlock(ubIndex);
+    Renderer::curShaderPtr->invalidateUniformBlock(ubIndex);
 }
 void beginUniformBlock(int ubIndex)
 {
-	Renderer::curShaderPtr->beginUniformBlock(ubIndex);
+    Renderer::curShaderPtr->beginUniformBlock(ubIndex);
 }
 bool Renderer::wasUpdatedUniformBlock(int ubIndex)
 {
 
-	return curShaderPtr->wasUpdatedUniformBlock(ubIndex);
+    return curShaderPtr->wasUpdatedUniformBlock(ubIndex);
 
 }
 
 
 void Renderer::setShaderTBO(int multitexNumber, GLuint tbo_tex, GLuint tbo_buf, bool isFloat)
 {
-	if(shadersAreLoaded)
-	{
-		glActiveTexture(GL_TEXTURE0+multitexNumber);
-		glBindTexture(GL_TEXTURE_2D, tbo_tex);
-		//glBindBuffer(GL_TEXTURE_BUFFER, tboIndices);
-		if(tbo_tex!=0)
-		{
-			if(isFloat)
-			{
-				glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, tbo_buf);
-			}
-			else
-			{
-				glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32UI, tbo_buf);
-			}
+    if(shadersAreLoaded)
+    {
+        glActiveTexture(GL_TEXTURE0+multitexNumber);
+        glBindTexture(GL_TEXTURE_2D, tbo_tex);
+        //glBindBuffer(GL_TEXTURE_BUFFER, tboIndices);
+        if(tbo_tex!=0)
+        {
+            if(isFloat)
+            {
+                glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, tbo_buf);
+            }
+            else
+            {
+                glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32UI, tbo_buf);
+            }
 
-		}
-		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
-	}
+        }
+        curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+    }
 }
 
 void Renderer::setShaderTexture(int multitexNumber, uint texId)
 {
-	if(shadersAreLoaded)
-	{
-		glActiveTexture(GL_TEXTURE0+multitexNumber);
-		glBindTexture(GL_TEXTURE_2D, texId);
-		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
-	}
+    if(shadersAreLoaded)
+    {
+        glActiveTexture(GL_TEXTURE0+multitexNumber);
+        glBindTexture(GL_TEXTURE_2D, texId);
+        curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+    }
 }
 
 void Renderer::setShaderTexture3D(int multitexNumber, uint texId)
 {
-	if(shadersAreLoaded)
-	{
-		glActiveTexture(GL_TEXTURE0+multitexNumber);
-		glBindTexture(GL_TEXTURE_3D, texId);
-		curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
-	}
+    if(shadersAreLoaded)
+    {
+        glActiveTexture(GL_TEXTURE0+multitexNumber);
+        glBindTexture(GL_TEXTURE_3D, texId);
+        curShaderPtr->setShaderInt(shaderTextureIds[multitexNumber], multitexNumber);
+    }
 }
 
 void Renderer::doShaderRefresh(bool doBake)
 {
+    std::string globString;
 
-	loadConstants();
+    loadConstants();
 
-	LAST_COMPILE_ERROR=false;
+    LAST_COMPILE_ERROR=false;
 
-	readyToRecompile=0;
+    readyToRecompile=0;
 
-	int i;
-	int j;
+    int i;
+    int j;
 
-	Shader* curShader;
+    Shader* curShader;
 
-	refreshIncludeMap();
-
-
-	// this is expensive
-	for(i=0; i<shaderStrings.size(); i++)
-	{
-		shaderMap[shaderStrings[i]]->init(shaderStrings[i], doBake, &includeMap);
-	}
-
-	//"../src/glsl/" + shaderStrings[i] + ".c"
-
-	if(DO_SHADER_DUMP)
-	{
-		cout<<"SHADER_DUMP\n";
-		saveFileString("..\\data\\temp.txt", &globString);
-	}
+    refreshIncludeMap();
 
 
-	shadersAreLoaded=1;
-	readyToRecompile=1;
+    // this is expensive
+    for(i=0; i<shaderStrings.size(); i++)
+    {
+        shaderMap[shaderStrings[i]]->init(shaderStrings[i], doBake, &includeMap);
+    }
 
-	if(LAST_COMPILE_ERROR)
-	{
+    //"../src/glsl/" + shaderStrings[i] + ".c"
 
-	}
-	else
-	{
-
-		// load saved data (if exists)
-		// merge saved data with existing data (if exists)
-		// save merged data to saved data
+    if(DO_SHADER_DUMP)
+    {
+        std::cout<<"SHADER_DUMP\n";
+        saveFileString("..\\data\\temp.txt", &globString);
+    }
 
 
+    shadersAreLoaded=1;
+    readyToRecompile=1;
 
-		stringBuf="{\n\t\"params\":[\n";
+    if(LAST_COMPILE_ERROR)
+    {
+
+    }
+    else
+    {
+
+        // load saved data (if exists)
+        // merge saved data with existing data (if exists)
+        // save merged data to saved data
 
 
 
-		for(i=0; i<shaderStrings.size(); i++)
-		{
-			curShader=shaderMap[shaderStrings[i]];
-
-			std::sort(curShader->paramVec.begin(), curShader->paramVec.end(), compareStruct);
-
-			for(j=0; j<curShader->paramVec.size(); j++)
-			{
-				stringBuf.append("\t\t{");
-				stringBuf.append("\"shaderName\":\""+shaderStrings[i]+"\",");
-				stringBuf.append("\"paramName\":\""+curShader->paramVec[j]+"\",");
-				stringBuf.append("\"uid\":\"$shaderParams."+shaderStrings[i]+"."+curShader->paramVec[j]+"\"");
-				stringBuf.append("},\n");
-			}
-		}
-
-		stringBuf[stringBuf.size()-2]=' ';
+        std::string stringBuf="{\n\t\"params\":[\n";
 
 
-		stringBuf.append("\t]\n}\n\n");
+        CompareStruct compareStruct;
 
-		// this should automatically clear the key
-		// and deallocate existing entries
+        for(i=0; i<shaderStrings.size(); i++)
+        {
+            curShader=shaderMap[shaderStrings[i]];
 
-		processJSONFromString(
-			&stringBuf,
-			&(externalJSON["E_SDT_SHADERPARAMS"].jv)
-		);
-	}
+            std::sort(curShader->paramVec.begin(), curShader->paramVec.end(), compareStruct);
+
+            for(j=0; j<curShader->paramVec.size(); j++)
+            {
+                stringBuf.append("\t\t{");
+                stringBuf.append("\"shaderName\":\""+shaderStrings[i]+"\",");
+                stringBuf.append("\"paramName\":\""+curShader->paramVec[j]+"\",");
+                stringBuf.append("\"uid\":\"$shaderParams."+shaderStrings[i]+"."+curShader->paramVec[j]+"\"");
+                stringBuf.append("},\n");
+            }
+        }
+
+        stringBuf[stringBuf.size()-2]=' ';
+
+
+        stringBuf.append("\t]\n}\n\n");
+
+        // this should automatically clear the key
+        // and deallocate existing entries
+
+        processJSONFromString(
+            &stringBuf,
+            &(g_settings.externalJSON["E_SDT_SHADERPARAMS"].jv)
+        );
+    }
+}
+
+void Renderer::refreshIncludeMap()
+{
+    getMaterialString();
+    getPrimTemplateString();
 }
 
 void Renderer::idrawCrossHairs(FIVector4 originVec, float radius)
@@ -495,11 +653,11 @@ void Renderer::drawBoxUp(FIVector4 originVec, float radiusX, float radiusY, floa
 
 void Renderer::drawBoxMinMax(
     btVector3 v0,
-    btVector3v1
+    btVector3 v1
 )
 {
-    tempVec1.setBTV(v0);
-    tempVec2.setBTV(v1);
+    tempVec1=convertToVQV(v0);
+    tempVec2=convertToVQV(v1);
     drawBox(&tempVec1, &tempVec2);
 }
 
@@ -508,26 +666,26 @@ void Renderer::drawBoxRad(
     btVector3 v1
 )
 {
-    tempVec1.setBTV(v0-v1);
-    tempVec2.setBTV(v0+v1);
+    tempVec1=convertToVQV(v0-v1);
+    tempVec2=convertToVQV(v0+v1);
     drawBox(&tempVec1, &tempVec2);
 }
 
 void Renderer::drawBox(
     FIVector4 *v0,
     FIVector4 *v1,
-    int faceFlag=2
+    int faceFlag
 )
 {
 
 
-    float minX=min(v0->getFX(), v1->getFX());
-    float minY=min(v0->getFY(), v1->getFY());
-    float minZ=min(v0->getFZ(), v1->getFZ());
+    float minX=std::min(v0->getFX(), v1->getFX());
+    float minY=std::min(v0->getFY(), v1->getFY());
+    float minZ=std::min(v0->getFZ(), v1->getFZ());
 
-    float maxX=max(v0->getFX(), v1->getFX());
-    float maxY=max(v0->getFY(), v1->getFY());
-    float maxZ=max(v0->getFZ(), v1->getFZ());
+    float maxX=std::max(v0->getFX(), v1->getFX());
+    float maxY=std::max(v0->getFY(), v1->getFY());
+    float maxZ=std::max(v0->getFZ(), v1->getFZ());
 
 
     bool drawFront=false;
@@ -724,25 +882,25 @@ void Renderer::bindFBO(std::string fboName, int swapFlag, int doClear)
 
     if(swapFlag==-1)
     {
-        fbos=getFBOByName(fboName);
+        fbos=FBOManager::getFBOByName(fboName);
     }
     else
     {
 
         if(swapFlag==0)
         {
-            fbos=getFBOByName(fboName+"1");
+            fbos=FBOManager::getFBOByName(fboName+"1");
         }
         else
         {
-            fbos=getFBOByName(fboName+"0");
+            fbos=FBOManager::getFBOByName(fboName+"0");
         }
 
     }
 
     if(fbos)
     {
-        Renderer::bindFBODirect(fbos, doClear);
+        bindFBODirect(fbos, doClear);
     }
     else
     {
@@ -797,17 +955,17 @@ void Renderer::sampleFBO(
 
     if(swapFlag==-1)
     {
-        fbos=GameManager::getFBOByName(fboName);//&(fboMap[fboName]);
+        fbos=FBOManager::getFBOByName(fboName);//&(fboMap[fboName]);
     }
     else
     {
         if(swapFlag==0)
         {
-            fbos=GameManager::getFBOByName(fboName+"0");
+            fbos=FBOManager::getFBOByName(fboName+"0");
         }
         else
         {
-            fbos=GameManager::getFBOByName(fboName+"1");
+            fbos=FBOManager::getFBOByName(fboName+"1");
         }
     }
 
@@ -823,27 +981,27 @@ void Renderer::sampleFBO(
 
 void Renderer::unsampleFBO(
     std::string fboName,
-    int offset=0,
-    int swapFlag=-1,
-    int minOff=0,
-    int maxOff=-1
+    int offset,
+    int swapFlag,
+    int minOff,
+    int maxOff
 )
 {
     FBOSet *fbos;
 
     if(swapFlag==-1)
     {
-        fbos=GameManager::getFBOByName(fboName);
+        fbos=FBOManager::getFBOByName(fboName);
     }
     else
     {
         if(swapFlag==0)
         {
-            fbos=GameManager::getFBOByName(fboName+"0");
+            fbos=FBOManager::getFBOByName(fboName+"0");
         }
         else
         {
-            fbos=GameManager::getFBOByName(fboName+"1");
+            fbos=FBOManager::getFBOByName(fboName+"1");
         }
     }
 
@@ -888,7 +1046,7 @@ void Renderer::copyFBO(std::string src, std::string dest, int num)
     bindShader("CopyShader");
     bindFBO(dest);
     //sampleFBO(src, 0);
-    setShaderTexture(0, getFBOWrapper(src, num)->color_tex);
+    setShaderTexture(0, FBOManager::getFBOWrapper(src, num)->color_tex);
     drawFSQuad();
     setShaderTexture(0, 0);
     unbindFBO();
@@ -899,8 +1057,8 @@ void Renderer::copyFBO2(std::string src, std::string dest, int num1, int num2)
 {
     bindShader("CopyShader2");
     bindFBO(dest);
-    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
-    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
+    setShaderTexture(0, FBOManager::getFBOWrapper(src, num1)->color_tex);
+    setShaderTexture(1, FBOManager::getFBOWrapper(src, num2)->color_tex);
     drawFSQuad();
     setShaderTexture(1, 0);
     setShaderTexture(0, 0);
@@ -908,13 +1066,13 @@ void Renderer::copyFBO2(std::string src, std::string dest, int num1, int num2)
     unbindShader();
 }
 
-void Renderer::copyFBO3(std::string src, string dest, int num1, int num2, int num3)
+void Renderer::copyFBO3(std::string src, std::string dest, int num1, int num2, int num3)
 {
     bindShader("CopyShader3");
     bindFBO(dest);
-    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
-    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
-    setShaderTexture(2, getFBOWrapper(src, num3)->color_tex);
+    setShaderTexture(0, FBOManager::getFBOWrapper(src, num1)->color_tex);
+    setShaderTexture(1, FBOManager::getFBOWrapper(src, num2)->color_tex);
+    setShaderTexture(2, FBOManager::getFBOWrapper(src, num3)->color_tex);
     drawFSQuad();
     setShaderTexture(2, 0);
     setShaderTexture(1, 0);
@@ -923,47 +1081,13 @@ void Renderer::copyFBO3(std::string src, string dest, int num1, int num2, int nu
     unbindShader();
 }
 
-void Renderer::bindFBO(std::string fboName, int swapFlag=, int doClear)
-{
-    FBOSet *fbos;
-
-    if(swapFlag==-1)
-    {
-        fbos=FBOManager::getFBOByName(fboName);
-    }
-    else
-    {
-
-        if(swapFlag==0)
-        {
-            fbos=FBOManager::getFBOByName(fboName+"1");
-        }
-        else
-        {
-            fbos=FBOManager::getFBOByName(fboName+"0");
-        }
-
-    }
-
-    if(fbos)
-    {
-        bindFBODirect(fbos, doClear);
-    }
-    else
-    {
-        doTrace("bindFBO: Invalid FBO Name");
-    }
-
-
-}
-
 void Renderer::getMatrixFromFBO(std::string fboName)
 {
-    FBOSet *fbos=getFBOByName(fboName);
+    FBOSet *fbos=FBOManager::getFBOByName(fboName);
     setMatrices(fbos->width, fbos->height);
 }
 
-void Renderer::drawFBO(std::string fboName, int ind, float zm, int swapFlag=-1)
+void Renderer::drawFBO(std::string fboName, int ind, float zm, int swapFlag)
 {
     if(swapFlag==-1)
     {
@@ -996,7 +1120,7 @@ void Renderer::drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff
 
 void Renderer::drawFBOOffset(std::string fboName, int ind, float xOff, float yOff, float zm)
 {
-    FBOSet *fbos=getFBOByName(fboName);
+    FBOSet *fbos=FBOManager::getFBOByName(fboName);
 
     if(fbos)
     {
@@ -1072,34 +1196,37 @@ void Renderer::getLSMatrix(FIVector4* lightPosParam, Matrix4 &lsMat, float ortho
 
     FIVector4 newCamPos;
 
-    if(gem->getCurActor()==NULL)
+    if(GameState::gem->getCurActor()==NULL)
     {
         newCamPos.copyFrom(cameraGetPosNoShake());
     }
     else
     {
-        newCamPos.setBTV(gem->getCurActor()->getCenterPoint(0));
+        newCamPos=convertToVQV(GameState::gem->getCurActor()->getCenterPoint(0));
     }
 
     lightPosParam->copyFrom(&newCamPos);
-    lightPosParam->addXYZRef(&lightVec, conVals[E_CONST_LIGHTDIS]);
+    lightPosParam->addXYZRef(&lightVec, getConst(E_CONST_LIGHTDIS));
     lightLookAt.copyFrom(&newCamPos);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(
-        lightLookAt[0],
-        lightLookAt[1],
-        lightLookAt[2],
-        lightPosParam->getFX(),
-        lightPosParam->getFY(),
-        lightPosParam->getFZ(),
-        0.0f,
-        0.0f,
-        1.0f
-    );
-    glGetFloatv(GL_MODELVIEW_MATRIX, lightView.get());
+//    gluLookAt(
+//        lightLookAt[0],
+//        lightLookAt[1],
+//        lightLookAt[2],
+//        lightPosParam->getFX(),
+//        lightPosParam->getFY(),
+//        lightPosParam->getFZ(),
+//        0.0f,
+//        0.0f,
+//        1.0f
+//    );
+//    glGetFloatv(GL_MODELVIEW_MATRIX, lightView.get());
 
+    glm::mat4 glmLightView=glm::lookAt(toVec3(lightLookAt), toVec3(*lightPosParam), glm::vec3(0.0f, 0.0f, 1.0f));
+    lightView=toMatrix4(glmLightView);
+    
     Matrix4 lightProjection;
     GLfloat near_plane=clipDist[0];
     GLfloat far_plane=clipDist[1];//+conVals[E_CONST_LIGHTDIS];
@@ -1109,90 +1236,101 @@ void Renderer::getLSMatrix(FIVector4* lightPosParam, Matrix4 &lsMat, float ortho
 
 void Renderer::setMatrices(int w, int h)
 {
-    int i;
-    float* ptr1;
-    float* ptr2;
+//    int i;
+//    float* ptr1;
+//    float* ptr2;
 
     if(perspectiveOn)
     {
         glViewport(0, 0, (GLsizei)w, (GLsizei)h); //set the viewport to the current window specifications
-        glMatrixMode(GL_PROJECTION); //set the matrix to projection
-        glLoadIdentity();
+        //glMatrixMode(GL_PROJECTION); //set the matrix to projection
+        //glLoadIdentity();
+        //
+        //
+        //
+        //gluPerspective(
+        //    FOV,
+        //    (GLfloat)w/(GLfloat)h,
+        //    clipDist[0],
+        //    clipDist[1]
+        //); //set the perspective (angle of sight, width, height, , depth)
+        //
+        //
+        //// ComputeFOVProjection(
+        //// 	projMatrix.get(),
+        //// 	FOV,
+        //// 	w/h,
+        //// 	clipDist[0],
+        //// 	clipDist[1],
+        //// 	false
+        //// );
+        //
+        //glGetFloatv(GL_PROJECTION_MATRIX, projMatrix.get());
+        //
+        //glMatrixMode(GL_MODELVIEW); //set the matrix back to model
+        //
+        ////*180.0f/M_PI / 180 * M_PI
+        //
+        //glLoadIdentity();
+        //
+        //gluLookAt(
+        //    cameraGetPos()->getFX(),
+        //    cameraGetPos()->getFY(),
+        //    cameraGetPos()->getFZ(),
+        //    cameraGetPos()->getFX()+lookAtVec[0],
+        //    cameraGetPos()->getFY()+lookAtVec[1],
+        //    cameraGetPos()->getFZ()+lookAtVec[2],
+        //    0.0f,
+        //    0.0f,
+        //    1.0f
+        //);
+        //
+        //// glRotatef(getCamRot(1)*180.0f/M_PI,0.0f,1.0f,0.0f);
+        //// glRotatef(getCamRot(0)*180.0f/M_PI,0.0f,0.0f,1.0f);
+        //// glTranslated(
+        //// 	-cameraGetPos()->getFX(),
+        //// 	-cameraGetPos()->getFY(),
+        //// 	-cameraGetPos()->getFZ()
+        //// );
+        //
+        //
+        //
+        //glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix.get());
+        float fovRad=FOV*((float)M_PI/180.0f);
 
-        gluPerspective(
-            FOV,
-            (GLfloat)w/(GLfloat)h,
-            clipDist[0],
-            clipDist[1]
-        ); //set the perspective (angle of sight, width, height, , depth)
+        glm::mat4 glmProjMatrix=glm::perspectiveFov(fovRad, (float)w, (float)h, (float)clipDist[0], (float)clipDist[1]);
+        projMatrix=toMatrix4(glmProjMatrix);
 
+        glm::vec3 glmLookAt(cameraGetPos()->getFX()+lookAtVec[0], cameraGetPos()->getFY()+lookAtVec[1], cameraGetPos()->getFZ()+lookAtVec[2]);
+        glm::mat4 glmLightView=glm::lookAt(toVec3(*cameraGetPos()), glmLookAt, glm::vec3(0.0f, 0.0f, 1.0f));
+        lightView=toMatrix4(glmLightView);
 
-        // ComputeFOVProjection(
-        // 	projMatrix.get(),
-        // 	FOV,
-        // 	w/h,
-        // 	clipDist[0],
-        // 	clipDist[1],
-        // 	false
-        // );
-
-        glGetFloatv(GL_PROJECTION_MATRIX, projMatrix.get());
-
-        glMatrixMode(GL_MODELVIEW); //set the matrix back to model
-
-        //*180.0f/M_PI / 180 * M_PI
-
-        glLoadIdentity();
-
-        gluLookAt(
-            cameraGetPos()->getFX(),
-            cameraGetPos()->getFY(),
-            cameraGetPos()->getFZ(),
-            cameraGetPos()->getFX()+lookAtVec[0],
-            cameraGetPos()->getFY()+lookAtVec[1],
-            cameraGetPos()->getFZ()+lookAtVec[2],
-            0.0f,
-            0.0f,
-            1.0f
-        );
-
-        // glRotatef(getCamRot(1)*180.0f/M_PI,0.0f,1.0f,0.0f);
-        // glRotatef(getCamRot(0)*180.0f/M_PI,0.0f,0.0f,1.0f);
-        // glTranslated(
-        // 	-cameraGetPos()->getFX(),
-        // 	-cameraGetPos()->getFY(),
-        // 	-cameraGetPos()->getFZ()
-        // );
-
-
-
-        glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix.get());
-
-
-        ptr1=viewMatrix.get();
-        ptr2=projMatrix.get();
+//        ptr1=viewMatrix.get();
+//        ptr2=projMatrix.get();
 
         pmMatrix=projMatrix*viewMatrix;
 
-        for(i=0; i<16; i++)
-        {
-            viewMatrixD[i]=ptr1[i];
-            projMatrixD[i]=ptr2[i];
-        }
+//        for(i=0; i<16; i++)
+//        {
+//            viewMatrixD[i]=ptr1[i];
+//            projMatrixD[i]=ptr2[i];
+//        }
+//
+//        gluInvertMatrix(viewMatrixD, viewMatrixDI);
+//
+//        glGetIntegerv(GL_VIEWPORT, viewport);
 
-        gluInvertMatrix(viewMatrixD, viewMatrixDI);
 
-        glGetIntegerv(GL_VIEWPORT, viewport);
+//        heightOfNearPlane=
+//            (
+//            ((float)abs(viewport[3]-viewport[1]))/
+//                (2.0f*tan(0.5f*FOV*(float)M_PI/180.0f))
+//                ) *
+//                (
+//                    2.0f/((float)scaleFactor)
+//                    );
 
-
-        heightOfNearPlane=
-            (
-            ((float)abs(viewport[3]-viewport[1]))/
-                (2.0f*tan(0.5f*FOV*M_PI/180.0f))
-                ) *
-                (
-                    2.0f/((float)scaleFactor)
-                    );
+        heightOfNearPlane=(h/(2.0f*tan(0.5f*fovRad)))*(2.0f/((float)scaleFactor));
 
         // lastW = -1; 
         // lastH = -1;
@@ -1234,15 +1372,5 @@ void Renderer::setMatrices(int w, int h)
 
 }
 
-void Renderer::reshape(int w, int h)
-{
 
-    cout<<"reshape\n";
 
-    setWH(w, h);
-
-    screenWidth=w;
-    screenHeight=h;
-
-    setMatrices(baseW, baseH);
-}

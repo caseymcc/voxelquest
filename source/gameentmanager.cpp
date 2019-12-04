@@ -151,7 +151,7 @@ void GameEntManager::init(Singleton* _singleton)
 
     takingTurn=true;
     curActorNeedsRefresh=false;
-    EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
+    GameState::EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
     orgOn=false;
     isDraggingObject=false;
     firstPerson=false;
@@ -410,7 +410,7 @@ bool GameEntManager::anyContainerOpen()
 void GameEntManager::togglePoseEdit()
 {
     g_settings.toggleSetting(E_BS_EDIT_POSE);
-    EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
+    GameState::EDIT_POSE=g_settings.settings[E_BS_EDIT_POSE];
 
     if(g_settings.settings[E_BS_EDIT_POSE])
     {

@@ -6,6 +6,7 @@
 #include "voxelquest/vbos.h"
 #include "voxelquest/tbos.h"
 #include "voxelquest/shader.h"
+#include "voxelquest/timer.h"
 
 int NUM_POLY_STRINGS=0;
 std::string polyFBOStrings[]={
@@ -16,15 +17,23 @@ std::string polyFBOStrings[]={
     "polyFBO4"
 };
 
+class BaseObj;
+class Singleton;
+
 class Renderer
 {
 public:
     static void init(int width, int height);
+    static void setWH(int w, int h);
+    static void reshape(int w, int h);
 
     static GLfloat getCamRot(int ind);
     static FIVector4* cameraGetPos() { return &resultCameraPos; }
     static FIVector4* cameraGetPosNoShake() { return cameraPos; }
     static void performCamShake(BaseObj* ge, float fp);
+
+    static void doShaderRefresh(bool doBake);
+    static void refreshIncludeMap();
 
 	static void bindShader(std::string shaderName);
 	static void unbindShader();
@@ -76,10 +85,6 @@ public:
 	static void setShaderTexture(int multitexNumber, uint texId);
 
 	static void setShaderTexture3D(int multitexNumber, uint texId);
-
-	static void doShaderRefresh(bool doBake);
-
-	static void bindFBODirect(FBOSet *fbos, int doClear=1);
 
 	static void idrawCrossHairs(FIVector4 originVec, float radius);
 
@@ -144,6 +149,8 @@ public:
 
     static void unsampleFBO(std::string fboName, int offset=0, int swapFlag=-1, int minOff=0, int maxOff=-1);
 
+    static void bindFBODirect(FBOSet *fbos, int doClear=1);
+
     // offset - write offset, _minOff - read min, _maxoff - read max
     static void sampleFBODirect(FBOSet *fbos, int offset=0, int _minOff=0, int _maxOff=-1);
 
@@ -171,22 +178,33 @@ public:
 
     static int widthWin;
     static int heightWin;
+    static int baseW;
+    static int baseH;
+    static int lastW;
+    static int lastH;
+
     static float FOV;
     static float heightOfNearPlane;
 
     static Matrix4 pmMatrix;
 
+    static GLuint fsqDL;
     static VBOWrapper fsQuad;
     static TBOWrapper limbTBO;
     static TBOWrapper primTBO;
 
     static float clipDist[2];
     static bool perspectiveOn;
+    static bool lastPersp;
     static bool sphereMapOn;
     static bool drawOrient;
+    static bool bakeParamsOn;
 
     static int forceShadowUpdate;
     static FIVector4 lastLightPos;
+
+    static float cameraShake;
+    static Timer shakeTimer;
 
     static GLfloat camRotation[2];
     static GLfloat curCamRotation[2];
@@ -198,15 +216,19 @@ public:
     static FIVector4 targetCameraPos;
     static FIVector4 baseCameraPos;
 
+    static float scaleFactor;
     static FIVector4 lookAtVec;
     static Matrix4 viewMatrix;
     static Matrix4 projMatrix;
     static Matrix4 curObjMatrix;
     static Matrix3 curObjMatrix3;
+    static GLint viewport[4];
     static float viewMatrixDI[16];
 
     static FIVector4 lightVec;
     static FIVector4 lightVecOrig;
+    static FIVector4 lightLookAt;
+    static Matrix4 lightView;
 
 	static int currentFBOResolutionX;
 	static int currentFBOResolutionY;
@@ -215,12 +237,19 @@ public:
 	static std::map<std::string, Shader*> shaderMap;
 	static std::string curShader;
 	static Shader *curShaderPtr;
+    static std::vector<std::string> shaderStrings;
+    static std::vector<std::string> shaderTextureIds;
+    static int readyToRecompile;
 
     static FIVector4 bufferDim;
     static FIVector4 bufferDimTarg;
     static FIVector4 bufferDimHalf;
     static FIVector4 bufferModDim;
     static FIVector4 bufferRenderDim;
+
+    static FIVector4 rasterLowDim;
+
+    static bool LAST_COMPILE_ERROR;
 };
 
 

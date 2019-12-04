@@ -3,7 +3,7 @@
 
 #include "OpenGLWindow/SimpleCamera.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
-
+#include "CommonInterfaces/CommonGraphicsAppInterface.h"
 
 struct OGLRenderer: public CommonRenderInterface
 {

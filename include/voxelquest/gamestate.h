@@ -11,10 +11,10 @@
 
 enum E_MOVE_TYPES
 {
-	E_MT_NONE,
-	E_MT_RELATIVE,
-	E_MT_TRACKBALL,
-	E_MT_LENGTH
+    E_MT_NONE,
+    E_MT_RELATIVE,
+    E_MT_TRACKBALL,
+    E_MT_LENGTH
 };
 
 class GameWorld;
@@ -33,64 +33,67 @@ class GameState
 public:
     static GameState *singleton();
 
-	void init();
+    void init();
 
-    static int &totPointCount(){return GameState::TOT_POINT_COUNT;}
-    static bool &wsBufferInvalid() {return singleton()->m_wsBufferInvalid;}
+    static int &totPointCount() { return GameState::TOT_POINT_COUNT; }
+    static bool &wsBufferInvalid() { return singleton()->m_wsBufferInvalid; }
     static bool &forceGetPD() { return singleton()->m_forceGetPD; }
-//    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
+    //    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
 
-	static void stopAllThreads();
+    static void stopAllThreads();
 
-    static float cameraShake;
-    static Timer shakeTimer;
+    //static float cameraShake;
+    //static Timer shakeTimer;
 
-	static int tbTicks;
+    static int tbTicks;
 
-//	static FIVector4 lookAtVec;
-	static FIVector4 origin;
-	
-	static bool markerFound;
-	static FIVector4 worldMarker;
+    //	static FIVector4 lookAtVec;
+    static FIVector4 origin;
 
-	static float subjectZoom;
-	static float targetSubjectZoom;
+    static bool markerFound;
+    static FIVector4 worldMarker;
 
-	static bool refreshPaths;
+    static float subjectZoom;
+    static float targetSubjectZoom;
 
-	static float MAX_GPU_MEM;
-	static float VERTEX_MEM_USAGE;
-	static float TOT_GPU_MEM_USAGE;
+    static bool refreshPaths;
 
-	static float MAX_CPU_MEM;
-	static float TOT_CPU_MEM_USAGE;
+    static float MAX_GPU_MEM;
+    static float VERTEX_MEM_USAGE;
+    static float TOT_GPU_MEM_USAGE;
 
-	static int TOT_POINT_COUNT;
+    static float MAX_CPU_MEM;
+    static float TOT_CPU_MEM_USAGE;
 
-	static long long ENT_COUNTER;
+    static int TOT_POINT_COUNT;
 
-	static double timeDelta;
-	static double curTime;
-	static float smoothTime;
-	static double pauseTime;
-	static double clickTime;
-	static double mdTime;
-	static double muTime;
+    static long long ENT_COUNTER;
 
-	static int pathFindingStep;
-	static FIVector4 lastHolderPos;
+    static double timeDelta;
+    static double curTime;
+    static float smoothTime;
+    static double pauseTime;
+    static double clickTime;
+    static double mdTime;
+    static double muTime;
+
+    static int pathFindingStep;
+    static FIVector4 lastHolderPos;
 
     static std::vector<RotationInfo> rotMatStack;
     static std::vector<DynObject *> dynObjects;
 
-	static GameWorld* gw;
-	static GameEntManager* gem;
-	static GamePhysics* gamePhysics;
-	static GameFluid* gameFluid[E_FID_LENGTH];
-	static GameLogic* gameLogic;
-	static GameNetwork* gameNetwork;
-	static GameAI* gameAI;
-	static GameGUI *ui;
+    static bool EDIT_POSE;
+    static AxisRotation axisRotationInstance;
+
+    static GameWorld* gw;
+    static GameEntManager* gem;
+    static GamePhysics* gamePhysics;
+    static GameFluid* gameFluid[E_FID_LENGTH];
+    static GameLogic* gameLogic;
+    static GameNetwork* gameNetwork;
+    static GameAI* gameAI;
+    static GameGUI *ui;
 
 private:
     GameState();

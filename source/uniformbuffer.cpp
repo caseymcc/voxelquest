@@ -1,4 +1,23 @@
-#include "helperclasses.h"
+#include "voxelquest/uniformbuffer.h"
+#include "voxelquest/helperfuncs.h"
+
+char *BUF_NAMES[]=
+{
+    "ublock0",
+    "ublock1",
+    "ublock2",
+    "ublock3",
+    "ublock4",
+    "ublock5",
+    "ublock6",
+    "ublock7",
+    "ublock8",
+    "ublock9",
+    "ublock10",
+    "ublock11",
+    "ublock12",
+    "ublock13"
+};
 
 UniformBuffer::UniformBuffer()
 {
@@ -138,7 +157,7 @@ bool UniformBuffer::wasUpdatedUniformBlock()
     return wasUpdated;
 }
 
-~UniformBuffer()
+UniformBuffer::~UniformBuffer()
 {
 
     if(wasInit)

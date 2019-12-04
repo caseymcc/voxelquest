@@ -1,5 +1,7 @@
 #include "voxelquest/texture3d.h"
 
+#include <cassert>
+
 Texture3D::Texture3D()
 {
 
@@ -12,7 +14,7 @@ void Texture3D::init(int _x, int _y, int _z, uint *data,int _dataSize)
     _z=z;
     dataSize=_x*_y*_z;
 
-    glGenTextures(1, &volIdMat);
+    glGenTextures(1, &id);
     
     glBindTexture(GL_TEXTURE_3D, id);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, x, y, z, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -45,13 +47,12 @@ void Texture3D::update(uint* data, int _dataSize)
         0,
 
         x,
-        x,
-        x,
+        y,
+        z,
 
         GL_RGBA,
         GL_UNSIGNED_BYTE,
-
-        matVol
+        data
     );
     glBindTexture(GL_TEXTURE_3D, 0);
 }

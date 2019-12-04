@@ -5,6 +5,7 @@
 
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btMatrix3x3.h>
+#include <LinearMath/btQuaternion.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 
 btVector3 convertToBTV(FIVector4 &vec4); //should be const but FIVector4 functions are not const
@@ -16,6 +17,7 @@ btVector3 roundBTV(btVector3 v);
 btVector3 floorBTV(btVector3 v);
 btVector3 multByOtherRot(btVector3 imp, btMatrix3x3 otherRot);
 btVector3 rotBTV2D(btVector3 source, float ang);
+btVector3 rotate(const btQuaternion& quat, const btVector3 & vec);
 
 btQuaternion matToQuat(
     float r11, float r12, float r13,

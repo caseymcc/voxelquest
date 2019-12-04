@@ -1,6 +1,9 @@
 #ifndef _voxelquest_helperclasses_h_
 #define _voxelquest_helperclasses_h_
 
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
 
 class UniformBuffer
 {
@@ -20,7 +23,7 @@ public:
 
 	~UniformBuffer();
 
-private:
+//private:
 
 
 

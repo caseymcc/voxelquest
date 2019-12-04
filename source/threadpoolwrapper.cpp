@@ -1,4 +1,13 @@
-#include "threadpoolwrapper.h"
+#include "voxelquest/threadpoolwrapper.h"
+#include "voxelquest/gamepageholder.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/gamechunk.h"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 ThreadPoolWrapper::ThreadPoolWrapper()
 {
@@ -36,33 +45,32 @@ void ThreadPoolWrapper::init(Singleton* _singleton, int _maxThreads, bool _singl
     }
 }
 
-void ThreadPoolWrapper::doSpeak(string speechString)
+void ThreadPoolWrapper::doSpeak(std::string speechString)
 {
-
-    HRESULT hrVoice;
-    ISpVoice * pVoice;
-
-    wstring speechStringW=s2ws(speechString);
-
-    if(FAILED(::CoInitialize(NULL)))
-    {
-        return;
-    }
-
-    hrVoice=CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-    if(SUCCEEDED(hrVoice))
-    {
-
-        hrVoice=pVoice->Speak(speechStringW.c_str(), 0, NULL);
-
-        // Change pitch
-        //hrVoice = pVoice->Speak(L"This sounds normal <pitch middle = '-10'/> but the pitch drops half way through", SPF_IS_XML, NULL );
-
-        pVoice->Release();
-        pVoice=NULL;
-
-    }
-    ::CoUninitialize();
+//    HRESULT hrVoice;
+//    ISpVoice * pVoice;
+//
+//    wstring speechStringW=s2ws(speechString);
+//
+//    if(FAILED(::CoInitialize(NULL)))
+//    {
+//        return;
+//    }
+//
+//    hrVoice=CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+//    if(SUCCEEDED(hrVoice))
+//    {
+//
+//        hrVoice=pVoice->Speak(speechStringW.c_str(), 0, NULL);
+//
+//        // Change pitch
+//        //hrVoice = pVoice->Speak(L"This sounds normal <pitch middle = '-10'/> but the pitch drops half way through", SPF_IS_XML, NULL );
+//
+//        pVoice->Release();
+//        pVoice=NULL;
+//
+//    }
+//    ::CoUninitialize();
 }
 
 void ThreadPoolWrapper::funcTP(int threadId)
@@ -227,10 +235,10 @@ bool ThreadPoolWrapper::anyThreadAvail()
     return true;
 }
 
-bool ThreadPoolWrapper::startThread(bool checkAvail=true)
+bool ThreadPoolWrapper::startThread(bool checkAvail)
 {
     int i;
-    int q;
+//    int q;
 
     if(checkAvail)
     {

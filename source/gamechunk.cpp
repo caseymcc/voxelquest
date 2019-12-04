@@ -1,7 +1,7 @@
 #include "voxelquest/gamechunk.h"
-#include "voxelquest/draw.h"
 #include "voxelquest/gamelogic.h"
 #include "voxelquest/gamestate.h"
+#include "voxelquest/renderer.h"
 
 bool GameChunk::staticInit=false;
 VIStruct GameChunk::chunkVI[NUM_MIP_LEVELS_WITH_FIRST];
@@ -102,7 +102,7 @@ void GameChunk::drawLoadingHolders()
         {
             if(curHolder->lockWrite)
             {
-                drawBox(&(curHolder->gphMinInCells), &(curHolder->gphMaxInCells));
+                Renderer::drawBox(&(curHolder->gphMinInCells), &(curHolder->gphMaxInCells));
             }
         }
     }

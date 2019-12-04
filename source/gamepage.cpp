@@ -1,5 +1,7 @@
 #include "gamepage.h"
 
+int CUR_VG_FBO=0;
+int CUR_VGT_FBO=0;
 
 GamePage::GamePage()
 {
@@ -753,7 +755,7 @@ bool GamePage::generateVolume(bool dd=false)
 
     bool addedVerts=false;
 
-    PAGE_COUNT++;
+    GameState::ui->PAGE_COUNT++;
 
     int curVGFBO=CUR_VG_FBO;
     CUR_VG_FBO++;

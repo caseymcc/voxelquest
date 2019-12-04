@@ -134,8 +134,8 @@ enum E_FLUID_IDS
 
 
 
-int stringToEnum(
-	std::string* enumStringArr,
+inline int stringToEnum(
+	const std::string* enumStringArr,
 	int enumStringArrLength,
 	std::string testString
 )

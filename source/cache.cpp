@@ -1,13 +1,44 @@
 #include "voxelquest/cache.h"
 #include "voxelquest/gamepageholder.h"
 #include "voxelquest/gamestate.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/fileio.h"
+
+#include <iostream>
+
+enum E_CACHE_METADATA
+{
+    E_CMD_MIPMIN_0,
+    E_CMD_MIPMAX_0,
+
+    E_CMD_MIPMIN_1,
+    E_CMD_MIPMAX_1,
+
+    E_CMD_MIPMIN_2,
+    E_CMD_MIPMAX_2,
+
+    E_CMD_MIPMIN_3,
+    E_CMD_MIPMAX_3,
+
+    E_CMD_MIPMIN_4,
+    E_CMD_MIPMAX_4,
+
+    E_CMD_MIPMIN_5,
+    E_CMD_MIPMAX_5,
+
+    E_CMD_VERSION,
+    E_CMD_SIZEINFLOATS,
+    E_CMD_LENGTH
+};
 
 std::string curCLFull;
 std::string curCLBaseDir;
 std::string curCLWorldDir;
 JSONValue *cacheMetaJS;
+int cacheVersion=1;
 
-bool checkCacheEntry(int blockId, int chunkId, int holderId, bool doErase=false)
+bool checkCacheEntry(int blockId, int chunkId, int holderId, bool doErase)
 {
 
     if(DO_CACHE)
@@ -19,7 +50,7 @@ bool checkCacheEntry(int blockId, int chunkId, int holderId, bool doErase=false)
         return false;
     }
 
-    string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
+    std::string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
     GamePageHolder* curHolder=GameState::gameLogic->getHolderById(blockId, chunkId, holderId);
 
     if(curHolder==NULL)
@@ -46,7 +77,7 @@ bool checkCacheEntry(int blockId, int chunkId, int holderId, bool doErase=false)
 
 bool loadCacheEntry(int blockId, int chunkId, int holderId)
 {
-    string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
+    std::string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
     GamePageHolder* curHolder=GameState::gameLogic->getHolderById(blockId, chunkId, holderId);
     JSONValue* curEntry;
 
@@ -67,8 +98,8 @@ bool loadCacheEntry(int blockId, int chunkId, int holderId)
 
         curEntry=cacheMetaJS->Child("pages")->Child(entryName);
 
-        curVersion=curEntry->array_value[E_CMD_VERSION]->number_value;
-        curDataSizeInFloats=curEntry->array_value[E_CMD_SIZEINFLOATS]->number_value;
+        curVersion=(int)curEntry->array_value[E_CMD_VERSION]->number_value;
+        curDataSizeInFloats=(int)curEntry->array_value[E_CMD_SIZEINFLOATS]->number_value;
 
         if(curDataSizeInFloats==0)
         {
@@ -77,8 +108,8 @@ bool loadCacheEntry(int blockId, int chunkId, int holderId)
 
         for(i=0; i<NUM_MIP_LEVELS_WITH_FIRST; i++)
         {
-            curHolder->begMip[i]=curEntry->array_value[i*2+0]->number_value;
-            curHolder->endMip[i]=curEntry->array_value[i*2+1]->number_value;
+            curHolder->begMip[i]=(int)curEntry->array_value[i*2+0]->number_value;
+            curHolder->endMip[i]=(int)curEntry->array_value[i*2+1]->number_value;
         }
 
         curHolder->vertexVec.resize(curDataSizeInFloats);
@@ -101,7 +132,7 @@ bool loadCacheEntry(int blockId, int chunkId, int holderId)
 
 bool saveCacheEntry(int blockId, int chunkId, int holderId)
 {
-    string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
+    std::string entryName="b"+i__s(blockId)+"c"+i__s(chunkId)+"h"+i__s(holderId);
     JSONValue* curEntry;
     bool justCreated=false;
     int i;
@@ -121,7 +152,7 @@ bool saveCacheEntry(int blockId, int chunkId, int holderId)
         return false;
     }
 
-    dataSizeInFloats=curHolder->vertexVec.size();
+    dataSizeInFloats=(int)curHolder->vertexVec.size();
 
     bool doProc=false;
 
@@ -134,7 +165,7 @@ bool saveCacheEntry(int blockId, int chunkId, int holderId)
         doProc=saveFloatArray(
             curCLFull+entryName+".bin",
             &(curHolder->vertexVec[0]),
-            curHolder->vertexVec.size()
+            (int)curHolder->vertexVec.size()
         );
     }
 
@@ -183,12 +214,12 @@ bool loadCacheMetaData()
 {
     if(loadJSON(curCLFull+"meta.js", &cacheMetaJS))
     {
-        cout<<"Cache metadata loaded\n";
+        std::cout<<"Cache metadata loaded\n";
         return true;
     }
     else
     {
-        cout<<"Cache metadata not loaded, creating new metadata\n";
+        std::cout<<"Cache metadata not loaded, creating new metadata\n";
         cleanJVPointer(&cacheMetaJS);
         cacheMetaJS=new JSONValue(JSONObject());
         cacheMetaJS->object_value["pages"]=new JSONValue(JSONObject());
@@ -237,7 +268,7 @@ bool updateCurCacheLoc()
 
     curCLFull+="\\";
 
-    cout<<"curCLFull "<<curCLFull<<"\n";
+    std::cout<<"curCLFull "<<curCLFull<<"\n";
 
     return true;
 }

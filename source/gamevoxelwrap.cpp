@@ -1,7 +1,6 @@
 #include "voxelquest/gamevoxelwrap.h"
 #include "voxelquest/settings.h"
 #include "voxelquest/gamepageholder.h"
-#include "voxelquest/memorypool.h"
 #include "voxelquest/texenums.h"
 #include "voxelquest/geom.h"
 #include "voxelquest/object.h"

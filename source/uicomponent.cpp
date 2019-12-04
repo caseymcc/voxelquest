@@ -1,14 +1,17 @@
-#include "uicomponent.h"
+#include "voxelquest/uicomponent.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gamegui.h"
+#include "voxelquest/jsonhelpers.h"
+#include "voxelquest/helperfuncs.h"
 
+#include <algorithm>
+#include <iostream>
 
 UIComponent::UIComponent()
 {
     singleton=NULL;
     valuePtr=NULL;
 }
-
-
-
 
 void UIComponent::init(
 
@@ -22,7 +25,7 @@ void UIComponent::init(
     bool _isFloating,
 
 
-    string* stringVals,
+    std::string* stringVals,
     double* floatVals
 
 )
@@ -52,7 +55,7 @@ void UIComponent::init(
     parentId=_parentId;
     nodeId=_nodeId;
 
-    flags=floatVals[E_GFT_FLAGS];
+    flags=(uint)floatVals[E_GFT_FLAGS];
 
 
 
@@ -89,13 +92,13 @@ void UIComponent::init(
         valVecMask.setFW(1.0f);
     }
 
-    matCode=floatVals[E_GFT_MATCODE];
+    matCode=(uint)floatVals[E_GFT_MATCODE];
 
     valVec.setFXYZW(
-        floatVals[E_GFT_VALUE0],
-        floatVals[E_GFT_VALUE1],
-        floatVals[E_GFT_VALUE2],
-        floatVals[E_GFT_VALUE3]
+        (float)floatVals[E_GFT_VALUE0],
+        (float)floatVals[E_GFT_VALUE1],
+        (float)floatVals[E_GFT_VALUE2],
+        (float)floatVals[E_GFT_VALUE3]
     );
 
 
@@ -104,8 +107,8 @@ void UIComponent::init(
 
     jvNodeNoTemplate=_jvNodeNoTemplate;
 
-    layer=floatVals[E_GFT_LAYER];
-    hoverType=floatVals[E_GFT_HOVERTYPE];
+    layer=(int)floatVals[E_GFT_LAYER];
+    hoverType=(int)floatVals[E_GFT_HOVERTYPE];
     isFloating=_isFloating;
 
     ss=stringVals[E_GST_SS];
@@ -129,7 +132,7 @@ void UIComponent::init(
         }
         else
         {
-            singleton->compMap[uid].nodeId=nodeId;
+            GameState::ui->compMap[uid].nodeId=nodeId;
         }
 
 
@@ -137,14 +140,14 @@ void UIComponent::init(
 
 
 
-    maxDimInPixels.x=floatVals[E_GFT_MAXDIMX];
-    maxDimInPixels.y=floatVals[E_GFT_MAXDIMY];
+    maxDimInPixels.x=(float)floatVals[E_GFT_MAXDIMX];
+    maxDimInPixels.y=(float)floatVals[E_GFT_MAXDIMY];
 
-    minDimInPixels.x=floatVals[E_GFT_MINDIMX];
-    minDimInPixels.y=floatVals[E_GFT_MINDIMY];
+    minDimInPixels.x=(float)floatVals[E_GFT_MINDIMX];
+    minDimInPixels.y=(float)floatVals[E_GFT_MINDIMY];
 
 
-    guiClass=floatVals[E_GFT_TYPE];
+    guiClass=(int)floatVals[E_GFT_TYPE];
     //guiId = _guiId;
 
 
@@ -155,25 +158,25 @@ void UIComponent::init(
     visible=false;//(hoverType == E_HT_NORMAL);
 
     hasBackground=floatVals[E_GFT_HASBACKGROUND];
-    fillRatioDim.x=floatVals[E_GFT_FILLRATIOX];
-    fillRatioDim.y=floatVals[E_GFT_FILLRATIOY];
+    fillRatioDim.x=(float)floatVals[E_GFT_FILLRATIOX];
+    fillRatioDim.y=(float)floatVals[E_GFT_FILLRATIOY];
 
     singleLine=floatVals[E_GFT_SINGLELINE];
 
 
-    curFont=singleton->fontWrappers[EFW_TEXT];
-    curFontIcons=singleton->fontWrappers[EFW_ICONS];
+    curFont=GameState::ui->fontWrappers[EFW_TEXT];
+    curFontIcons=GameState::ui->fontWrappers[EFW_ICONS];
 
     wasHit=false;
 
-    divisions=floatVals[E_GFT_DIVISIONS];
-    privValueX=floatVals[E_GFT_VALUE];
+    divisions=(float)floatVals[E_GFT_DIVISIONS];
+    privValueX=(float)floatVals[E_GFT_VALUE];
     updateTextNumber();
 
     mouseDown=false;
     mouseOver=false;
 
-    resSS.init(&(singleton->styleSheetMap[ss]));
+    resSS.init(&(GameState::ui->styleSheetMap[ss]));
 
 
     paddingInPixels=resSS.baseSS->compStates[E_COMP_UP].props[E_SS_PADDING];
@@ -221,18 +224,18 @@ void UIComponent::init(
     hitBounds.yMax=0.0f;
 
 
-    align.x=floatVals[E_GFT_ALIGNX];
-    align.y=floatVals[E_GFT_ALIGNY];
-    fillDir=floatVals[E_GFT_FILLDIR];
+    align.x=(int)floatVals[E_GFT_ALIGNX];
+    align.y=(int)floatVals[E_GFT_ALIGNY];
+    fillDir=(int)floatVals[E_GFT_FILLDIR];
 
-    spacing.x=0.0f;
-    spacing.y=0.0f;
+    spacing.x=0;
+    spacing.y=0;
 
 
     if(isFloating)
     {
-        resultDimInPixels.x=singleton->guiWinW;
-        resultDimInPixels.y=singleton->guiWinH;
+        resultDimInPixels.x=(float)GameState::ui->guiWinW;
+        resultDimInPixels.y=(float)GameState::ui->guiWinH;
         originPos.x=0.0;
         originPos.y=0.0;
     }
@@ -255,8 +258,8 @@ UIComponent* UIComponent::getChild(int ind)
 
     int curInd=_children[ind];
 
-    //if (singleton->compStack[curInd].isValid) {
-    return (singleton->compStack[curInd].data);
+    //if (GameState::ui->compStack[curInd].isValid) {
+    return (GameState::ui->compStack[curInd].data);
     // }
     // else {
     // 	return NULL;
@@ -267,8 +270,8 @@ UIComponent* UIComponent::getFloatingChild(int ind)
 
     int curInd=_floatingChildren[ind];
 
-    //if (singleton->compStack[curInd].isValid) {
-    return (singleton->compStack[curInd].data);
+    //if (GameState::ui->compStack[curInd].isValid) {
+    return (GameState::ui->compStack[curInd].data);
     // }
     // else {
     // 	return NULL;
@@ -276,11 +279,11 @@ UIComponent* UIComponent::getFloatingChild(int ind)
 }
 int UIComponent::getChildCount()
 {
-    return _children.size();
+    return (int)_children.size();
 }
 int UIComponent::getFloatingChildCount()
 {
-    return _floatingChildren.size();
+    return (int)_floatingChildren.size();
 }
 
 
@@ -296,11 +299,11 @@ float UIComponent::getDimYClamped(float val)
 
     if(maxDimInPixels.y==0)
     {
-        return max(val, minDimInPixels.y);
+        return std::max(val, minDimInPixels.y);
     }
     else
     {
-        return max(min(maxDimInPixels.y, val), minDimInPixels.y);
+        return std::max(std::min(maxDimInPixels.y, val), minDimInPixels.y);
     }
 }
 
@@ -313,11 +316,11 @@ float UIComponent::getResultDimYClamped()
 
     if(maxDimInPixels.y==0)
     {
-        return max(resultDimInPixels.y, minDimInPixels.y);
+        return std::max(resultDimInPixels.y, minDimInPixels.y);
     }
     else
     {
-        return max(min(maxDimInPixels.y, resultDimInPixels.y), minDimInPixels.y);
+        return std::max(std::min(maxDimInPixels.y, resultDimInPixels.y), minDimInPixels.y);
     }
 }
 
@@ -331,9 +334,9 @@ float UIComponent::getResultDimYClamped()
 // }
 
 
-string UIComponent::findKeyString(int valEnum)
+std::string UIComponent::findKeyString(int valEnum)
 {
-    string resString="";
+    std::string resString="";
     UIComponent* curParent=getParent();
 
 
@@ -364,7 +367,7 @@ string UIComponent::findKeyString(int valEnum)
     return "";
 }
 
-void UIComponent::updateLinkedValues(bool isRead=false)
+void UIComponent::updateLinkedValues(bool isRead)
 {
     int k;
 
@@ -396,17 +399,17 @@ void UIComponent::updateLinkedValues(bool isRead=false)
             (dataRef.compare("")==0)
             )
         {
-            cout<<"missing dataFile or dataRef";
+            std::cout<<"missing dataFile or dataRef";
         }
         else
         {
 
 
-            jvFileBase=singleton->fetchJSONData(dataFile, false);
-            singleton->getJVNodeByString(jvFileBase, &jvNodeBase, dataRef+"."+dataKey);
+            jvFileBase=fetchJSONData(dataFile, false);
+            getJVNodeByString(jvFileBase, &jvNodeBase, dataRef+"."+dataKey);
 
             // if (isRead) {
-            // 	cout << "DF " << dataFile << "\n";
+            // 	std::cout << "DF " << dataFile << "\n";
             // }
 
 
@@ -416,17 +419,17 @@ void UIComponent::updateLinkedValues(bool isRead=false)
                 if(isRead)
                 {
 
-                    //cout << "yay\n";
+                    //std::cout << "yay\n";
 
                     if(jvNodeBase->IsNumber())
                     {
-                        setValue(jvNodeBase->number_value);
+                        setValue((float)jvNodeBase->number_value);
                     }
                     if(jvNodeBase->IsArray())
                     {
                         for(k=0; k<jvNodeBase->array_value.size(); k++)
                         {
-                            valVec.setIndex(k, jvNodeBase->array_value[k]->number_value);
+                            valVec.setIndex(k, (float)jvNodeBase->array_value[k]->number_value);
                         }
                     }
                 }
@@ -497,15 +500,15 @@ void UIComponent::updateTextNumber()
     {
         setText(
             label+": "+
-            i__s(privValueX*divisions)+
+            i__s((int)(privValueX*divisions))+
             //getPaddedInt(privValueX*divisions, divisions) +
             " / "+
-            i__s(divisions)
+            i__s((int)divisions)
         );
     }
 }
 
-void UIComponent::setValue(float _value, bool doEventDispatch=false, bool preventRefresh=false)
+void UIComponent::setValue(float _value, bool doEventDispatch, bool preventRefresh)
 {
     UIComponent* curValuePtr=getValuePtr();
 
@@ -542,7 +545,7 @@ void UIComponent::setValue(float _value, bool doEventDispatch=false, bool preven
 
         if(doEventDispatch)
         {
-            singleton->dispatchEvent(GLUT_LEFT_BUTTON, GLUT_UP, 0, 0, this, true, preventRefresh);
+//            singleton->dispatchEvent(GLUT_LEFT_BUTTON, GLUT_UP, 0, 0, this, true, preventRefresh);
         }
     }
 
@@ -609,7 +612,7 @@ float UIComponent::getValue()
 
 }
 
-void UIComponent::setValueY(float _value, bool doEventDispatch=false, bool preventRefresh=false)
+void UIComponent::setValueY(float _value, bool doEventDispatch, bool preventRefresh)
 {
     UIComponent* curValuePtr=getValuePtr();
 
@@ -720,14 +723,14 @@ UIComponent* UIComponent::getParent()
     }
     else
     {
-        return (singleton->compStack[parentId].data);
+        return (GameState::ui->compStack[parentId].data);
     }
 }
 
 
-UIComponent* UIComponent::findParentByUID(string parUID)
+UIComponent* UIComponent::findParentByUID(std::string parUID)
 {
-    string resString="";
+    std::string resString="";
     UIComponent* curParent=getParent();
 
 
@@ -772,7 +775,7 @@ UIComponent* UIComponent::getValuePtr()
 }
 
 
-UIComponent* UIComponent::findNodeByString(string _uid)
+UIComponent* UIComponent::findNodeByString(std::string _uid)
 {
     int i;
 
@@ -838,7 +841,7 @@ float UIComponent::getMinWidth()
         }
         else
         {
-            totMW=max(totMW, tempMW);
+            totMW=std::max(totMW, tempMW);
         }
     }
 
@@ -850,7 +853,7 @@ float UIComponent::getMinWidth()
 
     curMW+=totMW;
 
-    rmDimInPixels.x=max(curMW, minDimInPixels.x);
+    rmDimInPixels.x=std::max(curMW, minDimInPixels.x);
 
     return rmDimInPixels.x;
 
@@ -888,7 +891,7 @@ float UIComponent::getMinHeight()
         if(fillDir==E_FILL_HORIZONTAL)
         {
 
-            totMH=max(totMH, tempMH);
+            totMH=std::max(totMH, tempMH);
         }
         else
         {
@@ -904,7 +907,7 @@ float UIComponent::getMinHeight()
 
     curMH+=totMH;
 
-    rmDimInPixels.y=max(curMH, minDimInPixels.y);
+    rmDimInPixels.y=std::max(curMH, minDimInPixels.y);
 
     return getDimYClamped(curMH);
 
@@ -915,7 +918,7 @@ float UIComponent::getMinHeight()
 int UIComponent::addChild(
     int _lastIndex,
     int _parentId,
-    string* stringVals,
+    std::string* stringVals,
     double* floatVals,
     bool _isFloating,
     JSONValue* _jvNodeNoTemplate
@@ -926,7 +929,7 @@ int UIComponent::addChild(
     int _nodeId;
     int childCount=0;
 
-    _nodeId=singleton->placeInStack();
+    _nodeId=GameState::ui->placeInStack();
 
 
 
@@ -962,7 +965,7 @@ int UIComponent::addChild(
 
     }
 
-    singleton->compStack[_nodeId].data->init(
+    GameState::ui->compStack[_nodeId].data->init(
         singleton,
         _parentId,
         _nodeId,
@@ -1001,12 +1004,12 @@ void UIComponent::setOrigPos()
         if(fillDir==E_FILL_HORIZONTAL)
         {
             totVals.x+=getChild(i)->resultDimInPixels.x;
-            totVals.y=max(totVals.y, getChild(i)->resultDimInPixels.y);
+            totVals.y=std::max(totVals.y, getChild(i)->resultDimInPixels.y);
         }
         else
         {
             totVals.y+=getChild(i)->resultDimInPixels.y;
-            totVals.x=max(totVals.x, getChild(i)->resultDimInPixels.x);
+            totVals.x=std::max(totVals.x, getChild(i)->resultDimInPixels.x);
         }
 
 
@@ -1099,7 +1102,7 @@ void UIComponent::applyHeight()
         }
     }
 
-    availSpace=max(availSpace, 0.0f);
+    availSpace=std::max(availSpace, 0.0f);
 
 
     if(totalRatios.y==0.0f)
@@ -1179,7 +1182,7 @@ void UIComponent::applyWidth()
 
         }
     }
-    availSpace=max(availSpace, 0.0f);
+    availSpace=std::max(availSpace, 0.0f);
 
     if(totalRatios.x==0.0f)
     {
@@ -1203,7 +1206,7 @@ void UIComponent::applyWidth()
 
 
                 getChild(i)->resultDimInPixels.x=ceil(
-                    max(
+                    std::max(
                     getChild(i)->rmDimInPixels.x+
                     (availSpace*getChild(i)->fillRatioDim.x)/totalRatios.x,
                     getChild(i)->minDimInPixels.x
@@ -1218,7 +1221,7 @@ void UIComponent::applyWidth()
                 if(getChild(i)->fillRatioDim.x==0.0f)
                 {
                     getChild(i)->resultDimInPixels.x=
-                        max(
+                        std::max(
                             getChild(i)->rmDimInPixels.x,
                             getChild(i)->minDimInPixels.x
                         );
@@ -1227,7 +1230,7 @@ void UIComponent::applyWidth()
                 else
                 {
                     getChild(i)->resultDimInPixels.x=
-                        max(
+                        std::max(
                             availSpace,
                             getChild(i)->minDimInPixels.x
                         );
@@ -1253,7 +1256,7 @@ void UIComponent::applyWidth()
 
 }
 
-void UIComponent::gatherDirty(vector<UIComponent*>* dirtyVec)
+void UIComponent::gatherDirty(std::vector<UIComponent*>* dirtyVec)
 {
 
     int i;
@@ -1322,7 +1325,7 @@ void UIComponent::alignToComp(UIComponent* myComp)
 void UIComponent::layout()
 {
 
-    int i;
+//    int i;
 
 
     // if (isDirty) {
@@ -1539,8 +1542,8 @@ void UIComponent::updateValue(float x, float y)
                 scrollMaskY.x+=totOffset.y-scrollOffset.y;
                 scrollMaskY.y+=totOffset.y-scrollOffset.y;
 
-                scrollMaskY.x/=singleton->guiWinH;
-                scrollMaskY.y/=singleton->guiWinH;
+                scrollMaskY.x/=GameState::ui->guiWinH;
+                scrollMaskY.y/=GameState::ui->guiWinH;
                 scrollMaskY.x=((1.0f-scrollMaskY.x)-0.5f)*2.0f;
                 scrollMaskY.y=((1.0f-scrollMaskY.y)-0.5f)*2.0f;
             }
@@ -1601,7 +1604,7 @@ void UIComponent::runReport()
 
     int i;
 
-    //cout << overSelf << " " << text << "\n";
+    //std::cout << overSelf << " " << text << "\n";
 
     for(i=0; i<getChildCount(); i++)
     {
@@ -1688,10 +1691,10 @@ bool UIComponent::findMaxLayer(float x, float y, float xTransformed, float yTran
         enabled &&
         hasBackground&&
         (!overChild)&&
-        (layer>=singleton->maxLayerOver)
+        (layer>=GameState::ui->maxLayerOver)
         )
     {
-        singleton->maxLayerOver=layer;
+        GameState::ui->maxLayerOver=layer;
     }
 
     return overSelf;
@@ -1721,33 +1724,31 @@ void UIComponent::testOver(float x, float y)
         enabled&&
         (hasBackground)&& //||(guiClass == E_GT_DRAGPAD)
         (!overChild)&&
-        (layer>=singleton->maxLayerOver);
+        (layer>=GameState::ui->maxLayerOver);
 
 
 
-    if((mouseOver!=lastOver)&&(!(singleton->dragging)))
+    if((mouseOver!=lastOver)&&(!(GameState::ui->dragging)))
     {
         if(mouseOver)
         {
-            singleton->dispatchEvent(
-                GLUT_NO_BUTTON,
-                GLUT_OVER,
-                x,
-                y,
-                this
-            );
-
-
+//            singleton->dispatchEvent(
+//                GLUT_NO_BUTTON,
+//                GLUT_OVER,
+//                x,
+//                y,
+//                this
+//            );
         }
         else
         {
-            singleton->dispatchEvent(
-                GLUT_NO_BUTTON,
-                GLUT_OUT,
-                x,
-                y,
-                this
-            );
+//            singleton->dispatchEvent(
+//                GLUT_NO_BUTTON,
+//                GLUT_OUT,
+//                x,
+//                y,
+//                this
+//            );
         }
     }
     else
@@ -1768,13 +1769,13 @@ void UIComponent::testOver(float x, float y)
             }
             else
             {
-                singleton->dispatchEvent(
-                    GLUT_NO_BUTTON,
-                    GLUT_CHANGING,
-                    x,
-                    y,
-                    this
-                );
+//                singleton->dispatchEvent(
+//                    GLUT_NO_BUTTON,
+//                    GLUT_CHANGING,
+//                    x,
+//                    y,
+//                    this
+//                );
             }
         }
     }
@@ -1810,12 +1811,9 @@ bool UIComponent::testHit(int button, int state, float x, float y)
     float lastValue=getValue();
     bool tempValue;
 
-
-
-
-    if(button==GLUT_LEFT_BUTTON)
+    if(button==(int)MouseButton::Left)
     {
-        if(state==GLUT_DOWN)
+        if(state==(int)MouseState::Down)
         { // MOUSE DOWN
             if(mouseOver)
             {
@@ -1836,7 +1834,7 @@ bool UIComponent::testHit(int button, int state, float x, float y)
                     dragging=(guiClass==E_GT_MENUBAR);
                     if(dragging)
                     {
-                        singleton->dragging=true;
+                        GameState::ui->dragging=true;
                     }
 
                     if(dragging||(guiClass==E_GT_DRAGPAD))
@@ -1868,7 +1866,7 @@ bool UIComponent::testHit(int button, int state, float x, float y)
 
             }
             dragging=false;
-            singleton->dragging=false;
+            GameState::ui->dragging=false;
 
             if(mouseOver&&wasHit)
             {
@@ -1894,14 +1892,14 @@ bool UIComponent::testHit(int button, int state, float x, float y)
                 case E_GT_RADIO:
                     tempValue=!selected;
 
-                    if(singleton->bCtrl)
+                    if(GameState::ui->bCtrl)
                     {
 
                     }
                     else
                     {
 
-                        if(singleton->bShift)
+                        if(GameState::ui->bShift)
                         {
 
                         }
@@ -2011,11 +2009,11 @@ bool UIComponent::testHit(int button, int state, float x, float y)
     {
         // deepest node
 
-        singleton->dispatchEvent(button, state, x, y, this);
+//        singleton->dispatchEvent(button, state, x, y, this);
     }
 
     bool finalRes=(hitDeepest||hitChild); //(wasHit)
-    if((state==GLUT_UP))
+    if((state==(int)MouseState::Up))
     { //&&(wheelDelta==0.0f)
         wasHit=false;
     }
@@ -2049,7 +2047,7 @@ UIComponent* UIComponent::getHighestCont(UIComponent* curNode, int genCount)
 
 }
 
-void UIComponent::setText(string _text)
+void UIComponent::setText(std::string _text)
 {
 
     UIComponent* highestCont;
@@ -2064,7 +2062,7 @@ void UIComponent::setText(string _text)
 
         highestCont=getHighestCont(this, 0);
         highestCont->isDirty=true;
-        singleton->guiDirty=true;
+        GameState::ui->guiDirty=true;
 
     }
 
@@ -2083,11 +2081,11 @@ void UIComponent::updateVecs()
     lineVec=split(text, '\n');
 
     int i;
-    int j;
+//    int j;
 
     for(i=0; i<lineVec.size(); i++)
     {
-        wordVec.push_back(std::vector<string>());
+        wordVec.push_back(std::vector<std::string>());
         wordVec[i]=split(lineVec[i], ' ');
     }
 
@@ -2158,7 +2156,7 @@ float UIComponent::getLineOffset(int lineCount)
 
 float UIComponent::lengthOfWord(int i, int j, bool isIcon)
 {
-    int numChars=wordVec[i][j].size();
+    int numChars=(int)wordVec[i][j].size();
     int k;
     float tot=0.0f;
 
@@ -2178,7 +2176,7 @@ float UIComponent::lengthOfWord(int i, int j, bool isIcon)
 
 int UIComponent::maxCharsForWord(int i, int j)
 {
-    int numChars=wordVec[i][j].size();
+    int numChars=(int)wordVec[i][j].size();
 
     float tot=0.0f;
 
@@ -2215,7 +2213,7 @@ void UIComponent::renderText(bool getDimensions)
 
     float vspace=resultDimInPixels.y-textDimInPixels.y;
 
-    Singleton::UIQuad* curQuad;
+    UIQuad* curQuad;
 
     caretPos.x=0.0f;
     caretPos.y=0.0f;
@@ -2260,7 +2258,7 @@ void UIComponent::renderText(bool getDimensions)
 
         if(layerId==-1)
         {
-            layerId=singleton->placeInLayer(nodeId, layer);
+            layerId=GameState::ui->placeInLayer(nodeId, layer);
             //singleton->guiLayers[layer].push_back(&uiCont);
         }
 
@@ -2298,7 +2296,7 @@ void UIComponent::renderText(bool getDimensions)
         //words in line
         for(j=0; j<wordVec[i].size(); j++)
         {
-            curSize=wordVec[i][j].size();
+            curSize=(int)wordVec[i][j].size();
 
             if(curSize>0)
             {
@@ -2313,7 +2311,7 @@ void UIComponent::renderText(bool getDimensions)
                     {
                         linePitchVec.push_back(caretPos.x);
                     }
-                    maxCaretPos=max(caretPos.x, maxCaretPos);
+                    maxCaretPos=std::max(caretPos.x, maxCaretPos);
                     caretPos.x=0.0f;
                     if(isRendering)
                     {
@@ -2335,7 +2333,7 @@ void UIComponent::renderText(bool getDimensions)
 
                     if(isRendering)
                     {
-                        uiCont.charVec.push_back(Singleton::UIQuad());
+                        uiCont.charVec.push_back(UIQuad());
                         curQuad=&(uiCont.charVec.back());
                         curQuad->cs=&(curFontIcons->charVals[curChar]);
                         curQuad->fontId=EFW_ICONS;
@@ -2362,7 +2360,7 @@ void UIComponent::renderText(bool getDimensions)
                     // is characters
 
                     //if word won't fit on line, limit chars
-                    maxSize=maxCharsForWord(i, j);
+                    maxSize=(float)maxCharsForWord(i, j);
 
                     for(k=0; k<maxSize; k++)
                     {
@@ -2370,7 +2368,7 @@ void UIComponent::renderText(bool getDimensions)
                         if(isRendering)
                         {
 
-                            uiCont.charVec.push_back(Singleton::UIQuad());
+                            uiCont.charVec.push_back(UIQuad());
                             curQuad=&(uiCont.charVec.back());
                             curQuad->fontId=EFW_TEXT;
                             curQuad->cs=&(curFont->charVals[curChar]);
@@ -2412,7 +2410,7 @@ void UIComponent::renderText(bool getDimensions)
                         if(isRendering)
                         {
 
-                            uiCont.charVec.push_back(Singleton::UIQuad());
+                            uiCont.charVec.push_back(UIQuad());
                             curQuad=&(uiCont.charVec.back());
                             curQuad->fontId=EFW_TEXT;
                             curQuad->cs=&(curFont->charVals[curChar]);
@@ -2445,7 +2443,7 @@ void UIComponent::renderText(bool getDimensions)
             linePitchVec.push_back(caretPos.x);
         }
 
-        maxCaretPos=max(caretPos.x, maxCaretPos);
+        maxCaretPos=std::max(caretPos.x, maxCaretPos);
         caretPos.y+=(curFont->fontHeight*curFont->fontScale+spacing.y);
 
     }
@@ -2455,6 +2453,4 @@ void UIComponent::renderText(bool getDimensions)
         textDimInPixels.x=maxCaretPos-spacing.x;
         textDimInPixels.y=caretPos.y-spacing.y;
     }
-
-
 }

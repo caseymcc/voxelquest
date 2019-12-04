@@ -59,7 +59,7 @@ struct ConnectingNodeStruct
 	int totCost;
 };
 
-bool sortByDist(const ConnectingNodeStruct &lhs, const ConnectingNodeStruct &rhs)
+inline bool sortByDist(const ConnectingNodeStruct &lhs, const ConnectingNodeStruct &rhs)
 {
     return lhs.dist<rhs.dist;
 }

@@ -221,6 +221,8 @@ public:
 
     void applyPat(int patInd, int patShape, int rot, int x, int y, int val, int rad);
     void generatePatterns();
+
+    void updatePrimTBOData();
         
 //private:
     VolumeWrapper* volumeWrappers[E_VW_LENGTH];

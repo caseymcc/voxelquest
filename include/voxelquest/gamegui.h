@@ -19,12 +19,12 @@ DDD(E_FM_HUDMENU) \
 DDD(E_FM_LENGTH)
 
 std::string E_FLOATING_MENU_STRINGS[]={
-	E_FLOATING_MENU(DO_DESCRIPTION)
+    E_FLOATING_MENU(DO_DESCRIPTION)
 };
 
 enum E_FLOATING_MENU_VALS
 {
-	E_FLOATING_MENU(DO_ENUM)
+    E_FLOATING_MENU(DO_ENUM)
 };
 
 #define E_GUI_CHILD_TYPE(DDD) \
@@ -37,54 +37,63 @@ DDD(E_GCT_AUTOMATIC) \
 DDD(E_GCT_LENGTH)
 
 std::string E_GUI_CHILD_TYPE_STRINGS[]={
-	E_GUI_CHILD_TYPE(DO_DESCRIPTION)
+    E_GUI_CHILD_TYPE(DO_DESCRIPTION)
 };
 
 enum E_GUI_CHILD_TYPE_VALS
 {
-	E_GUI_CHILD_TYPE(DO_ENUM)
+    E_GUI_CHILD_TYPE(DO_ENUM)
 };
 
 enum E_FONT_WRAPPERS
 {
-	EFW_TEXT,
-	EFW_ICONS,
-	EFW_LENGTH
+    EFW_TEXT,
+    EFW_ICONS,
+    EFW_LENGTH
 };
 
 enum E_GUI_DATA_STRINGS
 {
-	E_GDS_DATA_SOURCE,
-	E_GDS_DATA_FILE,
-	//E_GDS_CHILD_TYPE,
-	E_GDS_CHILD_NAME,
-	E_GDS_MATERIAL,
-	E_GDS_LAST_KEY,
-	E_GDS_LENGTH
+    E_GDS_DATA_SOURCE,
+    E_GDS_DATA_FILE,
+    //E_GDS_CHILD_TYPE,
+    E_GDS_CHILD_NAME,
+    E_GDS_MATERIAL,
+    E_GDS_LAST_KEY,
+    E_GDS_LENGTH
 };
 
-struct JSONStruct
+enum class MouseButton
 {
-	JSONValue* jv;
+    Left,
+    Right,
+    Middle
+};
+
+enum class MouseState
+{
+    Up,
+    Down
 };
 
 struct PixData
 {
-	FIVector4 pd[3];
+    FIVector4 pd[3];
 };
 
 struct CompStruct
 {
-	bool isValid;
-	UIComponent* data;
+    bool isValid;
+    UIComponent* data;
 };
 
 struct UICStruct
 {
-	int nodeId;
+    int nodeId;
 };
 
-class GameGUI {
+class GameGUI
+{
 public:
     GameGUI();
 
@@ -109,13 +118,13 @@ public:
 
     void guiFromJSON(JSONValue* jv);
 
-	void doRefresh();
+    void doRefresh();
 
     void testOver(int x, int y);
 
     bool testHit(int button, int state, int x, int y);
 
-	UIComponent* findNodeByString(std::string _uid);
+    UIComponent* findNodeByString(std::string _uid);
 
     void renderCharAt(
         UIComponent* uiComp,
@@ -142,120 +151,126 @@ public:
 
     void renderGUI();
 
-	void updateStatGUI();
+    void updateStatGUI();
 
-	void updateStatusHUD();
+    void updateStatusHUD();
 
-	void showHudMenu(bool visible);
+    void showHudMenu(bool visible);
 
-	void showStatMenu(bool visible);
+    void showStatMenu(bool visible);
 
-	void refreshContainers(bool onMousePos);
+    void refreshContainers(bool onMousePos);
 
-	void setGUIText(
-		std::string key,
-		std::string stringValue,
-		float floatValue=0.0f,
-		bool applyVal=false,
-		bool applyString=true
-	);
+    void setGUIText(
+        std::string key,
+        std::string stringValue,
+        float floatValue=0.0f,
+        bool applyVal=false,
+        bool applyString=true
+    );
 
-	float getGUIValue(std::string key);
+    float getGUIValue(std::string key);
 
-	UIComponent* getGUIComp(std::string key);
+    UIComponent* getGUIComp(std::string key);
 
-	void setGUIValue(
-		std::string key,
-		float floatValue,
-		bool dispatchEvent=false,
-		bool preventRefresh=false
-	);
+    void setGUIValue(
+        std::string key,
+        float floatValue,
+        bool dispatchEvent=false,
+        bool preventRefresh=false
+    );
 
-	void loadValuesGUI(bool applyValues=false);
+    void loadValuesGUI(bool applyValues=false);
 
-	void saveExternalJSON();
+    //	void saveExternalJSON();
 
-	void saveGUIValues();
+    void saveGUIValues();
 
-	void updateGUI();
+    void updateGUI();
 
-//private:
-	Singleton* singleton;
+    int placeInStack();
 
-	typedef std::map<std::string, UICStruct>::iterator itUICStruct;
-	std::map<std::string, UICStruct> compMap;
-	std::vector<CompStruct> compStack;
-	std::vector<int> emptyStack;
-	std::vector<int> guiLayers[MAX_UI_LAYERS];
-	//Image* textImage;
-	//GLuint guiTextureId;
+    int placeInLayer(int nodeId, int layer);
 
-	UIComponent* mapComp;
+    //private:
+    Singleton* singleton;
 
-	UIComponent* menuList[E_FM_LENGTH];
+    typedef std::map<std::string, UICStruct>::iterator itUICStruct;
+    std::map<std::string, UICStruct> compMap;
+    std::vector<CompStruct> compStack;
+    std::vector<int> emptyStack;
+    std::vector<int> guiLayers[MAX_UI_LAYERS];
+    //Image* textImage;
+    //GLuint guiTextureId;
 
-	UIComponent* contMenuBar;
-	UIComponent* ddMenuBar;
-	UIComponent* fieldText;
+    UIComponent* mapComp;
 
-	FontWrapper* fontWrappers[EFW_LENGTH];
+    UIComponent* menuList[E_FM_LENGTH];
 
-	//    GameMusic* music[EML_LENGTH];
-	//    map<string, GameSound> soundMap;
+    UIComponent* contMenuBar;
+    UIComponent* ddMenuBar;
+    UIComponent* fieldText;
 
-	std::map<std::string, StyleSheet> styleSheetMap;
-	
-	typedef std::map<std::string, JSONStruct>::iterator itJSStruct;
-	std::map<std::string, JSONStruct> externalJSON;
+    FontWrapper* fontWrappers[EFW_LENGTH];
+
+    //    GameMusic* music[EML_LENGTH];
+    //    map<string, GameSound> soundMap;
+
+    std::map<std::string, StyleSheet> styleSheetMap;
+
+    //	std::map<std::string, JSONStruct> externalJSON;
 
 
-	//Shader shaderGUI;
-	JSONValue* jvRoot;
-	JSONValue* jvTemplates;
-	JSONValue* jvSounds;
+        //Shader shaderGUI;
+    JSONValue* jvRoot;
+    JSONValue* jvTemplates;
+    JSONValue* jvSounds;
 
-	bool guiDirty;
-	bool isReady;
-	bool isLoaded;
+    bool guiDirty;
+    bool isReady;
+    bool isLoaded;
+    bool dragging;
 
-	int maxLayerOver;
-	
-	fVector2 mouseTrans;
-	
-	int guiRenderCount;
-	std::vector<UIComponent*> dirtyVec;
-	
-	std::string tempStrings[10];
-	
-	std::string stringVals[E_GST_LENGTH];
-	double floatVals[E_GFT_LENGTH];
+    int maxLayerOver;
 
-	float guiX;
-	float guiY;
-	int guiWinW;
-	int guiWinH;
+    fVector2 mouseTrans;
 
-	FIVector4 lastCellPos;
+    int guiRenderCount;
+    std::vector<UIComponent*> dirtyVec;
 
-	bool lbDown;
-	bool abDown; // lb, rb, or mb is down
-	bool rbDown;
-	bool mbDown;
+    std::string tempStrings[10];
 
-	bool bShiftOld;
-	bool bCtrlOld;
-	bool bCtrl;
-	bool bShift;
+    std::string stringVals[E_GST_LENGTH];
+    double floatVals[E_GFT_LENGTH];
 
-	PixData spaceUpPixData;
-	PixData mouseUpPixData;
-	PixData mouseDownPixData;
-	PixData mouseMovePixData;
+    float guiX;
+    float guiY;
+    int guiWinW;
+    int guiWinH;
 
-	FIVector4 mouseStart;
-	FIVector4 mouseEnd;
-	FIVector4 mouseMoveVec;
-	FIVector4 *mouseMoving;
+    FIVector4 lastCellPos;
+
+    bool lbDown;
+    bool abDown; // lb, rb, or mb is down
+    bool rbDown;
+    bool mbDown;
+
+    bool bShiftOld;
+    bool bCtrlOld;
+    bool bCtrl;
+    bool bShift;
+
+    PixData spaceUpPixData;
+    PixData mouseUpPixData;
+    PixData mouseDownPixData;
+    PixData mouseMovePixData;
+
+    FIVector4 mouseStart;
+    FIVector4 mouseEnd;
+    FIVector4 mouseMoveVec;
+    FIVector4 *mouseMoving;
+
+    int PAGE_COUNT;
 };
 
 

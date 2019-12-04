@@ -16,11 +16,13 @@ public:
 	
     bool isReady();
 
+//private:
 	std::thread threadMain;
 	std::mutex threadMutex;
 	bool threadRunning; // thread is running (not exclusive)
 
 	int threadDataInt[THREAD_DATA_COUNT];
+    std::string threadDataString[THREAD_DATA_COUNT];
 
 private:
 	bool threadRunningEx; // thread is running (exclusive, must lock)

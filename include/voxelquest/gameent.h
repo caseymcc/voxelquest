@@ -2,7 +2,7 @@
 #define _voxelquest_gameent_h_
 
 #include "voxelquest/gamepageholder.h"
-#include "voxelquest/gameentnode.h"
+//#include "voxelquest/gameentnode.h"
 #include "voxelquest/geom.h"
 
 enum E_ENT_TYPES

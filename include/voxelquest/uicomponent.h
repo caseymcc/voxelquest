@@ -3,6 +3,7 @@
 
 #include "voxelquest/fontwrapper.h"
 #include "voxelquest/stylesheet.h"
+#include "voxelquest/vectors.h"
 
 class Singleton;
 

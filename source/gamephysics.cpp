@@ -8,6 +8,7 @@
 #include "voxelquest/gameorg.h"
 #include "voxelquest/gameworld.h"
 #include "voxelquest/gameaudio.h"
+#include "voxelquest/renderer.h"
 
 #include <iostream>
 
@@ -27,7 +28,7 @@ struct CustFilterCallback: public btOverlapFilterCallback
         btBroadphaseProxy* proxy1) const
     {
 
-        if(EDIT_POSE)
+        if(GameState::EDIT_POSE)
         {
             return false;
         }
@@ -600,7 +601,7 @@ void GamePhysics::explodeBullet(BaseObj * ge)
             4.0
         );
 
-        GameState::performCamShake(ge, 1.0f);
+        Renderer::performCamShake(ge, 1.0f);
     }
 
     sphereStack.push_back(SphereStruct());
@@ -1990,8 +1991,8 @@ void GamePhysics::updateAll()
     int i;
     for(i=0; i<getConst(E_CONST_PHYS_STEPS_PER_FRAME); i++)
     {
-        collideWithWorld(STEP_TIME_IN_SEC);
-        example->stepSimulation((float)STEP_TIME_IN_SEC);
+        collideWithWorld(g_settings.STEP_TIME_IN_SEC);
+        example->stepSimulation((float)g_settings.STEP_TIME_IN_SEC);
     }
 
     //while (singleton->totTimePassedPhysics > getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)) {

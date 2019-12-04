@@ -4,7 +4,11 @@
 #include "CommonInterfaces/CommonGUIHelperInterface.h"
 #include "OpenGLWindow/GLInstanceGraphicsShape.h"
 
-class MyGLHelperInternalData;
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+
+struct MyGLHelperInternalData;
 class Singleton;
 
 class MyGLHelper: public GUIHelperInterface

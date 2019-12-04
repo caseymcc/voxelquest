@@ -1,5 +1,6 @@
 #include "voxelquest/gameplant.h"
 #include "voxelquest/gameplantnode.h"
+#include "voxelquest/gamestate.h"
 
 #include <algorithm>
 
@@ -327,7 +328,7 @@ void GamePlant::applyRules(
         curChild->begPoint.setFXYZRef(&(curParent->endPoint));
         curChild->endPoint.setFXYZRef(&(curParent->endPoint));
 
-        axisRotationInstance.doRotation(
+        GameState::axisRotationInstance.doRotation(
             &tempv0,
             &(curParent->baseShoot),
             &(curParent->tangent),

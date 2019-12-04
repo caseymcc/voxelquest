@@ -10,6 +10,8 @@
 #include <string>
 #include <map>
 
+class Singleton;
+
 class Shader
 {
 public:
@@ -78,7 +80,7 @@ public:
     void setShaderFloatUB(std::string paramName, float x);
     void setShaderfVec4UB(std::string paramName, FIVector4* f);
 
-private:
+//private:
     unsigned int shader_id;
     unsigned int shader_vp;
     unsigned int shader_fp;

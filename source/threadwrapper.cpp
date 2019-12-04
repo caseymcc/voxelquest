@@ -1,4 +1,4 @@
-#include "threadwrapper.h"
+#include "voxelquest/threadwrapper.h"
 
 
 ThreadWrapper::ThreadWrapper()

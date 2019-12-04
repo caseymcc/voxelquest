@@ -1,4 +1,49 @@
 #include "voxelquest/benchmarkdemo.h"
+#include "voxelquest/bullethelpers.h"
+
+#include <iostream>
+
+#define NUMRAYS 500
+#define COLLISION_RADIUS 0.0f
+
+class btRaycastBar2
+{
+public:
+    btVector3 source[NUMRAYS];
+    btVector3 dest[NUMRAYS];
+    btVector3 direction[NUMRAYS];
+    btVector3 hit[NUMRAYS];
+    btVector3 normal[NUMRAYS];
+    struct GUIHelperInterface* m_guiHelper;
+
+    int frame_counter;
+    int ms;
+    int sum_ms;
+    int sum_ms_samples;
+    int min_ms;
+    int max_ms;
+
+#ifdef USE_BT_CLOCK
+    btClock frame_timer;
+#endif //USE_BT_CLOCK
+
+    btScalar dx;
+    btScalar min_x;
+    btScalar max_x;
+    btScalar max_y;
+    btScalar sign;
+
+    btRaycastBar2();
+
+    btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper);
+
+    void move(btScalar dt);
+
+    void cast(btCollisionWorld* cw);
+
+    void draw();
+};
+btRaycastBar2 raycastBar;
 
 btDiscreteDynamicsWorld* BenchmarkDemo::getWorld()
 {
@@ -70,7 +115,7 @@ void BenchmarkDemo::beginDrop(float x, float y, float z)
 
 void BenchmarkDemo::initPhysics()
 {
-	cout<<"BenchmarkDemo:initPhysics()\n";
+	std::cout<<"BenchmarkDemo:initPhysics()\n";
 
 
 	m_guiHelper->setUpAxis(2);

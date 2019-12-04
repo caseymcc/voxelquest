@@ -3,6 +3,20 @@
 
 #include "voxelquest/types.h"
 #include "voxelquest/json.h"
+#include "voxelquest/enums.h"
+
+#define E_JSON_PARAMS(DDD) \
+DDD(E_JP_STATMENUAVAILDIV) \
+DDD(E_JP_LENGTH)
+
+const std::string E_JSON_PARAM_STRINGS[]={
+    E_JSON_PARAMS(DO_DESCRIPTION)
+};
+
+enum E_JSON_PARAM_VALS
+{
+    E_JSON_PARAMS(DO_ENUM)
+};
 
 JSONValue* fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
 

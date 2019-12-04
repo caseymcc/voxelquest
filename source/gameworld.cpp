@@ -7584,8 +7584,22 @@ void GameWorld::generatePatterns()
             }
         }
     }
+}
 
+void GameWorld::updatePrimTBOData()
+{
+    int i;
+    int j;
 
+    for(i=0; i<primTemplateStack.size(); i++)
+    {
 
+        for(j=0; j<4; j++)
+        {
+            primTBOData[i*4+j]=primTemplateStack[i][j];
+        }
 
+    }
+
+    Renderer::primTBO.update(primTBOData, NULL, (int)primTemplateStack.size()*4*4);
 }

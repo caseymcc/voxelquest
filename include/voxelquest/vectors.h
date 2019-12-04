@@ -63,16 +63,7 @@ inline float clampfZO(float val) {
 
 // these random generators are used for things that DO NOT effect networking
 
-inline float fGenRand() {
-	float intPart;
-	float res = fabs (modff((float)(sin(RAND_COUNTER*433.2351267f) * 43758.8563f), &intPart) );
-	RAND_COUNTER += 1.0f;
-	if (RAND_COUNTER >= 8000000.0f) {
-		RAND_COUNTER = 0.0f;
-	}
-	
-	return res;
-}
+float fGenRand();
 
 inline int iGenRand(int nMin, int nMax)
 {
@@ -81,16 +72,7 @@ inline int iGenRand(int nMin, int nMax)
 
 // these random generators are used for things that DO effect networking
 
-inline float fGenRand2() {
-	float intPart;
-	float res = fabs ( modff(sin(RAND_COUNTER2*433.2351267f) * 43758.8563f, &intPart) );
-	RAND_COUNTER2 += 1.0f;
-	if (RAND_COUNTER2 >= 8000000.0f) {
-		RAND_COUNTER2 = 0.0f;
-	}
-	
-	return res;
-}
+float fGenRand2();
 
 inline int iGenRand2(int nMin, int nMax)
 {
@@ -441,7 +423,6 @@ public:
 	
 
 };
-AxisRotation axisRotationInstance;
 
 float getShortestAngle(float begInRad, float endInRad, float amount);
 

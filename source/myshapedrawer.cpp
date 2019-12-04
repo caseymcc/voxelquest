@@ -1,5 +1,23 @@
 #include "voxelquest/myshapedrawer.h"
 #include "voxelquest/renderer.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+
+#include <LinearMath/btIDebugDraw.h>
+#include <LinearMath/btDefaultMotionState.h>
+#include <BulletCollision/CollisionShapes/btUniformScalingShape.h>
+#include <BulletCollision/CollisionShapes/btBoxShape.h>
+#include <BulletCollision/CollisionShapes/btCompoundShape.h>
+#include <BulletCollision/CollisionShapes/btSphereShape.h>
+#include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
+#include <BulletCollision/CollisionShapes/btMultiSphereShape.h>
+#include <BulletCollision/CollisionShapes/btConvexPolyhedron.h>
+
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
+
+std::vector<Matrix4> objMatrixStack;
 
 MyShapeDrawer::MyShapeDrawer(Singleton* _singleton)
 {
@@ -145,6 +163,11 @@ void MyShapeDrawer::renderSquareA(float x, float y, float z)
     // glEnd();
 }
 
+void MyShapeDrawer::glDrawVector(const btVector3& v)
+{
+    glVertex3d(v[0], v[1], v[2]); 
+}
+
 void MyShapeDrawer::setId(
 
     int bodyUID,
@@ -152,8 +175,8 @@ void MyShapeDrawer::setId(
 
 )
 {
-    Renderer::setShaderFloat("bodyUID", bodyUID);
-    Renderer::setShaderFloat("limbUID", limbUID);
+    Renderer::setShaderFloat("bodyUID", (float)bodyUID);
+    Renderer::setShaderFloat("limbUID", (float)limbUID);
 }
 
 
@@ -170,9 +193,9 @@ void MyShapeDrawer::updateMat()
 
     Renderer::curObjMatrix.identity();
 
-    for(i=0; i<singleton->objMatrixStack.size(); i++)
+    for(i=0; i<objMatrixStack.size(); i++)
     {
-        Renderer::curObjMatrix*=singleton->objMatrixStack[i];
+        Renderer::curObjMatrix*=objMatrixStack[i];
     }
     //glGetFloatv(GL_MODELVIEW_MATRIX, Renderer::viewMatrix.get());
     Renderer::setShaderMatrix4x4("objmat", Renderer::curObjMatrix.get(), 1);
@@ -196,7 +219,7 @@ void MyShapeDrawer::updateMat()
 
 void MyShapeDrawer::pushNewMat(btScalar* m)
 {
-    singleton->objMatrixStack.push_back(Matrix4(
+    objMatrixStack.push_back(Matrix4(
         m[0],
         m[1],
         m[2],
@@ -221,7 +244,7 @@ void MyShapeDrawer::pushNewMat(btScalar* m)
 }
 void MyShapeDrawer::popMat()
 {
-    singleton->objMatrixStack.pop_back();
+    objMatrixStack.pop_back();
     updateMat();
 }
 
@@ -499,7 +522,7 @@ void MyShapeDrawer::drawOpenGL(
                 btVector3(-halfExtent[0],-halfExtent[1],-halfExtent[2])};
 #if 1
 
-                if(singleton->drawOrient)
+                if(Renderer::drawOrient)
                 {
                     drawOrient(uid);
                 }
@@ -621,7 +644,7 @@ void MyShapeDrawer::drawOpenGL(
                     {
                         int i;
 
-                        if(singleton->drawOrient)
+                        if(Renderer::drawOrient)
                         {
                             drawOrient(uid);
                         }
@@ -667,7 +690,7 @@ void MyShapeDrawer::drawOpenGL(
                             const unsigned int* idx=hull->getIndexPointer();
                             const btVector3* vtx=hull->getVertexPointer();
 
-                            if(singleton->drawOrient)
+                            if(Renderer::drawOrient)
                             {
                                 drawOrient(uid);
                             }
@@ -882,7 +905,7 @@ void MyShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWor
         const btCollisionObject*	colObj=dynamicsWorld->getCollisionObjectArray()[i];
         const btRigidBody*		body=btRigidBody::upcast(colObj);
 
-        setId(body->bodyUID, body->limbUID);//max(,0) );
+//        setId(body->bodyUID, body->limbUID);//max(,0) );
 
         if(body&&body->getMotionState())
         {
@@ -949,16 +972,16 @@ void MyShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWor
 
         bool doProc=true;
 
-        if(body->bodyUID>=0)
-        {
-            BaseObj* ge=&(GameState::gem->gameObjects[body->bodyUID]);
-
-            if(body->limbUID>=0)
-            {
-                doProc=ge->bodies[body->limbUID].isVisible;
-            }
-        }
-        else
+//        if(body->bodyUID>=0)
+//        {
+//            BaseObj* ge=&(GameState::gem->gameObjects[body->bodyUID]);
+//
+//            if(body->limbUID>=0)
+//            {
+//                doProc=ge->bodies[body->limbUID].isVisible;
+//            }
+//        }
+//        else
         {
             doProc=true;
         }
@@ -974,7 +997,7 @@ void MyShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWor
 
         if(doProc)
         {
-            drawOpenGL(m, colObj->getCollisionShape(), wireColor, debugMode, aabbMin, aabbMax, body->bodyUID);
+            drawOpenGL(m, colObj->getCollisionShape(), wireColor, debugMode, aabbMin, aabbMax, 0);// body->bodyUID);
         }
 
 

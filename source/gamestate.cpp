@@ -3,6 +3,7 @@
 #include "voxelquest/baseobject.h"
 #include "voxelquest/gamelogic.h"
 #include "voxelquest/threadpoolwrapper.h"
+#include "voxelquest/renderer.h"
 
 int GameState::tbTicks;
 FIVector4 GameState::origin;
@@ -14,7 +15,7 @@ FIVector4 GameState::worldMarker;
 
 bool GameState::refreshPaths=false;
 
-float GameState::MAX_GPU_MEM=4096.0f;
+float GameState::MAX_GPU_MEM=2048.0f;
 float GameState::VERTEX_MEM_USAGE=0.0f;
 float GameState::TOT_GPU_MEM_USAGE=0.0f;
 
@@ -38,6 +39,9 @@ FIVector4 GameState::lastHolderPos;
 
 std::vector<RotationInfo> GameState::rotMatStack;
 std::vector<DynObject *> GameState::dynObjects;
+
+bool GameState::EDIT_POSE=false;
+AxisRotation GameState::axisRotationInstance;
 
 GameWorld* GameState::gw=nullptr;
 GameEntManager* GameState::gem=nullptr;
@@ -150,7 +154,7 @@ void GameState::init()
     }
 
     dynObjects[E_OBJ_LIGHT0]->moveType=E_MT_TRACKBALL;
-    cameraPos=&(dynObjects[E_OBJ_CAMERA]->pos);
+    Renderer::cameraPos=&(dynObjects[E_OBJ_CAMERA]->pos);
 }
 
 void GameState::stopAllThreads()

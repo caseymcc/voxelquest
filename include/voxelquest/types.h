@@ -11,12 +11,12 @@ struct intPair
     int v1;
 };
 
-bool operator==(const intPair& lhs, const intPair& rhs)
+inline bool operator==(const intPair& lhs, const intPair& rhs)
 {
     return (lhs.v0==rhs.v0)&&(lhs.v1==rhs.v1);
 }
 
-bool operator>(const intPair& lhs, const intPair& rhs)
+inline bool operator>(const intPair& lhs, const intPair& rhs)
 {
     long lhs2=lhs.v1;
     long rhs2=rhs.v1;
@@ -31,7 +31,7 @@ bool operator>(const intPair& lhs, const intPair& rhs)
     return (lhs2)>(rhs2);
 }
 
-bool operator<(const intPair& lhs, const intPair& rhs)
+inline bool operator<(const intPair& lhs, const intPair& rhs)
 {
     long lhs2=lhs.v1;
     long rhs2=rhs.v1;

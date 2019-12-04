@@ -6,6 +6,7 @@
 #include "voxelquest/gameentmanager.h"
 #include "voxelquest/threadpoolwrapper.h"
 #include "voxelquest/bullethelpers.h"
+#include "voxelquest/renderer.h"
 
 #include <algorithm>
 #include <stdint.h>
@@ -1220,7 +1221,7 @@ void GameFluid::shiftRegion()
 
     if(notThirdPerson&&(volSizePrim<512))
     { // && (mainId==E_FID_SML)
-        newCamPos.addXYZRef(&GameState::lookAtVec, volSizePrim*0.4f);
+        newCamPos.addXYZRef(&Renderer::lookAtVec, volSizePrim*0.4f);
     }
 
     camPosVP.copyFrom(&newCamPos);

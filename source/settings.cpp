@@ -1,4 +1,11 @@
-#include "voxelquest/setting.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameaudio.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/fileio.h"
+
+#include <iostream>
 
 Settings::Settings()
 {
@@ -32,7 +39,17 @@ Settings::Settings()
 	settings[E_BS_EDIT_POSE]=false;
 	settings[E_BS_SHOW_HEALTH]=false;
 
+    for(int i=0; i<E_SDT_LENGTH; i++)
+    {
+        externalJSON[E_SPECIAL_DATA_TYPE_STRINGS[i]].jv=NULL;
+    }
+    externalJSON["kb.js"].jv=NULL;
+
     gammaVal=0.5f;
+
+    fxVolume=0.0f;
+    masterVolume=0.0f;
+    guiVolume=0.0f;
 
 	cavesOn=false;
 
@@ -82,12 +99,17 @@ Settings::Settings()
 
 	guiSaveLoc="..\\data\\saves\\save0\\compMap.txt";
 
+    STEP_TIME_IN_SEC=getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)/1000000.0;
     iNumSteps=16;
+
+    TRACE_ON=false;
+    ND_TRACE_OFF=false;
+    TEMP_DEBUG=false;
 }
 
 void Settings::speakSetting(int settingName)
 {
-	string speakString=makePretty(E_BOOL_SETTING_STRINGS[settingName], "E_BS_");
+	std::string speakString=makePretty(E_BOOL_SETTING_STRINGS[settingName], "E_BS_");
 
 	if(settings[settingName])
 	{
@@ -98,10 +120,10 @@ void Settings::speakSetting(int settingName)
 		speakString+=" off  ";
 	}
 
-	speak(speakString);
+//	GameAudio::speak(speakString);
 }
 
-void Settings::toggleSetting(int settingName, bool withVoice=true)
+void Settings::toggleSetting(int settingName, bool withVoice)
 {
 	settings[settingName]=!(settings[settingName]);
 	if(withVoice)
@@ -110,11 +132,208 @@ void Settings::toggleSetting(int settingName, bool withVoice=true)
 	}
 }
 
-void Settings::setSetting(int settingName, bool value, bool withVoice=true)
+void Settings::setSetting(int settingName, bool value, bool withVoice)
 {
 	settings[settingName]=value;
 	if(withVoice)
 	{
 		speakSetting(settingName);
 	}
+}
+
+JSONValue* Settings::fetchJSONData(std::string dataFile, bool doClean, JSONValue* params)
+{
+    bool doLoad=false;
+    bool loadRes=false;
+    int dataFileEnum;
+
+    if(externalJSON.find(dataFile)==externalJSON.end())
+    {
+        doLoad=true;
+    }
+    else
+    {
+        if(externalJSON[dataFile].jv==NULL)
+        {
+            doLoad=true;
+        }
+        else
+        {
+            if(doClean)
+            {
+                cleanJVPointer(&(externalJSON[dataFile].jv));
+                doLoad=true;
+            }
+        }
+    }
+
+    if(doLoad)
+    {
+        dataFileEnum=stringToEnum(
+            E_SPECIAL_DATA_TYPE_STRINGS,
+            E_SDT_LENGTH,
+            dataFile
+        );
+
+        switch(dataFileEnum)
+        {
+        case E_SDT_SHADERPARAMS:
+            std::cout<<"attempted to load shaderParams\n";
+            break;
+        case -1:
+            std::cout<<"load jv data "+dataFile<<"\n";
+            loadRes=loadJSON(
+                "..\\data\\"+dataFile,
+                &((externalJSON[dataFile]).jv)
+            );
+
+            if(loadRes==false)
+            {
+                return NULL;
+            }
+            break;
+        default:
+            getSpecialData(dataFileEnum, dataFile);
+            break;
+        }
+
+
+
+
+    }
+
+    return (externalJSON[dataFile]).jv;
+}
+
+
+void Settings::getSpecialData(int datEnum, std::string datString)
+{
+    int i;
+    int objectType;
+    int childId;
+
+    JSONValue* tempVal0;
+    JSONValue* tempVal1;
+    BaseObj* curCont;
+
+    cleanJVPointer(&(externalJSON[datString].jv));
+
+    externalJSON[datString].jv=new JSONValue(JSONObject());
+
+    StatSheet* curSS;
+
+    switch(datEnum)
+    {
+    case E_SDT_OBJECTDATA:
+        externalJSON[datString].jv->object_value["objects"]=new JSONValue(JSONArray());
+        tempVal0=externalJSON[datString].jv->object_value["objects"];
+
+        for(itBaseObj iterator=GameState::gem->gameObjects.begin(); iterator!=GameState::gem->gameObjects.end(); iterator++)
+        {
+            // iterator->first = key
+            // iterator->second = value
+
+            curCont=&(GameState::gem->gameObjects[iterator->first]);
+
+            if(curCont->isOpen)
+            {
+
+                tempVal0->array_value.push_back(new JSONValue(JSONObject()));
+
+                tempVal0->array_value.back()->object_value["children"]=new JSONValue(JSONArray());
+                tempVal0->array_value.back()->object_value["objectId"]=new JSONValue(((double)(iterator->first)));
+                tempVal1=tempVal0->array_value.back()->Child("children");
+
+
+                for(i=0; i<curCont->children.size(); i++)
+                {
+                    tempVal1->array_value.push_back(new JSONValue(JSONObject()));
+                    childId=curCont->children[i];
+                    objectType=GameState::gem->gameObjects[childId].objectType;
+                    tempVal1->array_value.back()->object_value["objectType"]=new JSONValue(((double)(objectType)));
+                    tempVal1->array_value.back()->object_value["objectId"]=new JSONValue(((double)(childId)));
+                }
+            }
+        }
+        break;
+    case E_SDT_STATDATA:
+
+        externalJSON[datString].jv->object_value["stats"]=new JSONValue(JSONArray());
+        tempVal0=externalJSON[datString].jv->object_value["stats"];
+
+        if(GameState::gem->getCurActor()==NULL)
+        {
+            std::cout<<"NULL STATS\n";
+            return;
+        }
+        else
+        {
+
+            curSS=&(GameState::gem->getCurActor()->statSheet);
+
+            for(i=0; i<E_CS_LENGTH; i++)
+            {
+                tempVal0->array_value.push_back(new JSONValue(JSONObject()));
+
+                tempVal0->array_value.back()->object_value["label"]=new JSONValue(makePretty(E_CHAR_STAT_STRINGS[i], "E_CS_"));
+                tempVal0->array_value.back()->object_value["value"]=new JSONValue(((double)(curSS->unapplyedStats[i]))/((double)(MAX_STAT_VALUE)));
+                tempVal0->array_value.back()->object_value["divisions"]=new JSONValue(((double)(MAX_STAT_VALUE)));
+
+
+            }
+        }
+        break;
+    case E_SDT_STATUSDATA:
+
+        externalJSON[datString].jv->object_value["status"]=new JSONValue(JSONArray());
+        tempVal0=externalJSON[datString].jv->object_value["status"];
+
+        if(GameState::gem->getCurActor()==NULL)
+        {
+            std::cout<<"NULL STATUS\n";
+            return;
+        }
+        else
+        {
+
+            curSS=&(GameState::gem->getCurActor()->statSheet);
+
+            for(i=0; i<E_STATUS_LENGTH; i++)
+            {
+                tempVal0->array_value.push_back(new JSONValue(JSONObject()));
+
+                tempVal0->array_value.back()->object_value["label"]=new JSONValue(makePretty(E_CHAR_STATUS_STRINGS[i], "E_STATUS_"));
+                tempVal0->array_value.back()->object_value["value"]=new JSONValue(((double)(curSS->curStatus[i]))/((double)(curSS->maxStatus[i])));
+                tempVal0->array_value.back()->object_value["divisions"]=new JSONValue(((double)(curSS->maxStatus[i])));
+
+
+            }
+        }
+        break;
+    default:
+        std::cout<<"ERROR: unexpected type in getSpecialData(): "<<datEnum<<"\n";
+        break;
+    }
+}
+
+void Settings::saveExternalJSON()
+{
+    std::cout<<"Saving External JSON Values\n";
+
+    for(itJSStruct iterator=externalJSON.begin(); iterator!=externalJSON.end(); iterator++)
+    {
+
+        if(iterator->second.jv!=NULL)
+        {
+            saveFileString(
+                "..\\data\\"+iterator->first,
+                &(iterator->second.jv->Stringify())
+            );
+        }
+
+        // iterator->first = key
+        // iterator->second = value
+    }
+
+    std::cout<<"End Saving External JSON Values\n";
 }

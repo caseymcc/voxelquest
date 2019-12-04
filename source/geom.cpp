@@ -1,6 +1,13 @@
 #include "voxelquest/geom.h"
+#include "voxelquest/jsonhelpers.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gamefluid.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/materials.h"
+#include "voxelquest/gameworld.h"
 
 #include <algorithm>
+#include <iostream>
 
 const static int FLOATS_PER_TEMPLATE=((int)E_PRIMTEMP_LENGTH)*4;
 const static float defaultTemplate[FLOATS_PER_TEMPLATE]={
@@ -12,6 +19,7 @@ const static float defaultTemplate[FLOATS_PER_TEMPLATE]={
      0.0, 0.0, 0.0, 0.0
 };
 
+int geomStep;
 float paramArrGeom[128];
 
 float &getGeoParam(int param)
@@ -33,10 +41,6 @@ float getMinGeom(int baseIndex)
 
 }
 
-FIVector4* getGeomRef(int templateId, int enumVal)
-{
-    return &(primTemplateStack[templateId*E_PRIMTEMP_LENGTH+enumVal]);
-}
 
 void setFXYZWGeom(int baseIndex, FIVector4* baseVec)
 {
@@ -142,9 +146,9 @@ bool getPrimTemplateString()
 	float curNumber;
 
 	std::string resString="";
-	resString.append("const int PRIMS_PER_MACRO = "+i__s(gameFluid[E_FID_BIG]->primsPerMacro)+";\n");
-	resString.append("const int VECS_PER_PRIM = "+i__s(gameFluid[E_FID_BIG]->floatsPerPrimEntry/4)+";\n");
-	resString.append("const float PRIM_DIV = "+i__s(gameFluid[E_FID_BIG]->primDiv)+".0;\n");
+	resString.append("const int PRIMS_PER_MACRO = "+i__s(GameState::gameFluid[E_FID_BIG]->primsPerMacro)+";\n");
+	resString.append("const int VECS_PER_PRIM = "+i__s(GameState::gameFluid[E_FID_BIG]->floatsPerPrimEntry/4)+";\n");
+	resString.append("const float PRIM_DIV = "+i__s(GameState::gameFluid[E_FID_BIG]->primDiv)+".0;\n");
 
 
 	for(i=0; i<numTemplates; i++)
@@ -153,7 +157,7 @@ bool getPrimTemplateString()
 		numProps=jv3->CountChildren()-1; //minus one for comment
 		if(numProps!=E_PRIMTEMP_LENGTH)
 		{
-			cout<<"ERROR: invalid number of properties\n";
+			std::cout<<"ERROR: invalid number of properties\n";
 			return false;
 		}
 
@@ -165,7 +169,7 @@ bool getPrimTemplateString()
 			numFields=jv4->CountChildren();
 			if(numFields!=4)
 			{
-				cout<<"ERROR: invalid number of fields\n";
+				std::cout<<"ERROR: invalid number of fields\n";
 				return false;
 			}
 
@@ -173,7 +177,7 @@ bool getPrimTemplateString()
 
 			for(k=0; k<numFields; k++)
 			{
-				curNumber=jv4->Child(k)->number_value;
+				curNumber=(float)jv4->Child(k)->number_value;
 				primTemplateStack.back().setIndex(k, curNumber);
 			}
 
@@ -219,11 +223,11 @@ bool getPrimTemplateString()
 
 	resString.append(");\n");
 
-	//cout << resString << "\n";
+	//std::cout << resString << "\n";
 
 	includeMap["primTemplates"]=resString;
 
-	updatePrimTBOData();
+    GameState::gw->updatePrimTBOData();
 
 	return true;
 }

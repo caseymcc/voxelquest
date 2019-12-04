@@ -1,4 +1,6 @@
-#include "tbos.h"
+#include "voxelquest/tbos.h"
+
+#include <algorithm>
 
 TBOWrapper::TBOWrapper()
 {
@@ -47,7 +49,7 @@ void TBOWrapper::update(float* tbo_data, uint* tbo_data2, int newDataSize)
     }
 
 
-    tempDataSize=min(tempDataSize, dataSize);
+    tempDataSize=std::min(tempDataSize, dataSize);
 
 
 

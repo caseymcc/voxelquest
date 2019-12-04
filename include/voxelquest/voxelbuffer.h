@@ -6,6 +6,13 @@
 #include "voxelquest/ivec.h"
 #include "voxelquest/mat.h"
 
+struct intTrip
+{
+    int v0; // blockId
+    int v1; // chunkId
+    int v2; // holderId
+};
+
 struct VoxelBufferEntry
 {
     uint flags;

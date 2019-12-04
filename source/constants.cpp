@@ -1,14 +1,18 @@
 #include "voxelquest/constants.h"
 #include "voxelquest/jsonhelpers.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/helperfuncs.h"
+
+#include <iostream>
 
 float conVals[E_CONST_LENGTH];
+JSONValue *constRootJS;
 
 void loadConstants()
 {
     int i;
 
-   
-    stopAllThreads();
+    GameState::stopAllThreads();
 
     if(loadJSON("..\\data\\constants.js", &constRootJS))
     {
@@ -53,4 +57,25 @@ int iGetConst(int ev)
 float getConst(int ev)
 {
     return conVals[ev];
+}
+
+float getConst(std::string conName)
+{
+    if(constRootJS==NULL)
+    {
+
+    }
+    else
+    {
+        if(constRootJS->HasChild(conName))
+        {
+            return (float)constRootJS->Child(conName)->number_value;
+        }
+        else
+        {
+            doAlert();
+            std::cout<<"Missing: "<<conName<<"\n";
+        }
+    }
+    return 0.0f;
 }

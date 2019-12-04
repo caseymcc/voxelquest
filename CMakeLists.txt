@@ -79,12 +79,14 @@ set(voxelquest_include
     include/voxelquest/glinfo.h
     include/voxelquest/helperfuncs.h
     include/voxelquest/imageloader.h
-    include/voxelquest/includes.h
+#    include/voxelquest/includes.h #removed
     include/voxelquest/ivec.h
     include/voxelquest/json.h
 	include/voxelquest/jsonhelpers.h
     include/voxelquest/mat.h
+    include/voxelquest/materials.h
     include/voxelquest/memorypool.h
+    include/voxelquest/mydebugdrawer.h
     include/voxelquest/myglhelper.h
 	include/voxelquest/myoglapp.h
     include/voxelquest/myshapedrawer.h
@@ -101,7 +103,7 @@ set(voxelquest_include
     include/voxelquest/settings.h
     include/voxelquest/shader.h
     include/voxelquest/simplex.h
-    include/voxelquest/singleton.h
+#    include/voxelquest/singleton.h #removed
 	include/voxelquest/stylesheet.h
     include/voxelquest/spacebuffer.h
     include/voxelquest/tbos.h
@@ -164,12 +166,14 @@ set(voxelquest_source
     source/glinfo.cpp
     source/helperfuncs.cpp
     source/imageloader.cpp
-    source/includes.cpp
+#    source/includes.cpp #removed
     source/ivec.cpp
     source/json.cpp
 	source/jsonhelpers.cpp
     source/mat.cpp
+    source/materials.cpp
     source/memorypool.cpp
+    source/mydebugdrawer.cpp
     source/myglhelper.cpp
     source/myoglapp.cpp
     source/myshapedrawer.cpp
@@ -184,7 +188,7 @@ set(voxelquest_source
 	source/settings.cpp
     source/shader.cpp
     source/simplex.cpp
-    source/singleton.cpp
+#    source/singleton.cpp #removed
 	source/stylesheet.cpp
     source/tbos.cpp
     source/texture3d.cpp

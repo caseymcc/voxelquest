@@ -1,5 +1,7 @@
 #include "poolmanager.h"
 
+int MAX_HOLDERS=2048;
+
 PoolManager::PoolManager()
 {
 
@@ -27,7 +29,7 @@ float PoolManager::getMaxMem()
 {
     if(isCPU)
     {
-        return MAX_CPU_MEM;
+        return GameState::MAX_CPU_MEM;
     }
     else
     {
@@ -35,11 +37,11 @@ float PoolManager::getMaxMem()
         if(isEntity)
         {
             // TODO: FIX THIS
-            return MAX_GPU_MEM*20.0f;
+            return GameState::MAX_GPU_MEM*20.0f;
         }
         else
         {
-            return MAX_GPU_MEM;
+            return GameState::MAX_GPU_MEM;
         }
 
 
@@ -49,11 +51,11 @@ float PoolManager::getTotMemUsed()
 {
     if(isCPU)
     {
-        return TOT_CPU_MEM_USAGE;
+        return GameState::TOT_CPU_MEM_USAGE;
     }
     else
     {
-        return TOT_GPU_MEM_USAGE;
+        return GameState::TOT_GPU_MEM_USAGE;
     }
 }
 

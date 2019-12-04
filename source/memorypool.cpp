@@ -1,6 +1,7 @@
 #include "voxelquest/memorypool.h"
+#include "voxelquest/settings.h"
 
-static MemoryPool *singleton()
+MemoryPool *MemoryPool::singleton()
 {
     static MemoryPool memoryPool;
 
@@ -9,15 +10,16 @@ static MemoryPool *singleton()
 
 MemoryPool::MemoryPool()
 {
-    for(i=0; i<MAX_PDPOOL_SIZE; i++)
+    int curMipSize=0;
+    int cellsPerHolderPad=g_settings.cellsPerHolderPad;
+    int voxelsPerHolderPad=g_settings.voxelsPerHolderPad;
+    int voxelsPerCell=g_settings.voxelsPerCell;
+
+    for(int i=0; i<MAX_PDPOOL_SIZE; i++)
     {
         pdPool[i].data=new PaddedDataEntry[cellsPerHolderPad*cellsPerHolderPad*cellsPerHolderPad];
         //pdPool[i].voxData = new VoxEntry[voxelsPerCell*voxelsPerCell*voxelsPerCell]
         pdPool[i].isFree=true;
-
-
-
-
 
         pdPool[i].voxelBuffer.vcPitch=cellsPerHolderPad;
         pdPool[i].voxelBuffer.vcSize=cellsPerHolderPad*cellsPerHolderPad*cellsPerHolderPad;
@@ -34,7 +36,7 @@ MemoryPool::MemoryPool()
         if(DO_MIP)
         {
             curMipSize=voxelsPerHolderPad/2;
-            for(j=0; j<NUM_MIP_LEVELS; j++)
+            for(int j=0; j<NUM_MIP_LEVELS; j++)
             {
                 pdPool[i].voxelBuffer.mipMaps[j].mipArr=new bool[curMipSize*curMipSize*curMipSize];
 
@@ -42,9 +44,7 @@ MemoryPool::MemoryPool()
             }
         }
 
-
-
-        for(j=0; j<pdPool[i].voxelBuffer.vcSize; j++)
+        for(int j=0; j<pdPool[i].voxelBuffer.vcSize; j++)
         {
             pdPool[i].voxelBuffer.cellLists[j].curSize=0;
             pdPool[i].voxelBuffer.cellLists[j].indexArr=new int[
@@ -52,7 +52,7 @@ MemoryPool::MemoryPool()
             ];
         }
 
-        for(j=0; j<pdPool[i].voxelBuffer.vbSize; j++)
+        for(int j=0; j<pdPool[i].voxelBuffer.vbSize; j++)
         {
             pdPool[i].voxelBuffer.data[j].vbeIndex=-1;
             pdPool[i].voxelBuffer.data[j].flags=0;

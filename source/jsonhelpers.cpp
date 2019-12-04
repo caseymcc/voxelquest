@@ -1,4 +1,21 @@
 #include "voxelquest/jsonhelpers.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/fileio.h"
+
+#include <iostream>
+
+std::vector<std::string> jsonPostStack;
+std::string jsonPostString;
+
+bool replaceStr(std::string& str, const std::string& from, const std::string& to)
+{
+    size_t start_pos=str.find(from);
+    if(start_pos==std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
 
 bool processJSONFromString(
     std::string* sourceBuffer,
@@ -44,8 +61,8 @@ void specialReplace(
     int baseIndex=0;
     bool doCont=true;
 
-    int preLen=preDelim.size();
-    int pstLen=pstDelim.size();
+    int preLen=(int)preDelim.size();
+    int pstLen=(int)pstDelim.size();
 
     while(doCont)
     {
@@ -54,7 +71,7 @@ void specialReplace(
         {
 
 
-            baseIndex=found+preLen;
+            baseIndex=(int)(found+preLen);
             //allTextString[found] = ' ';
 
             found3=allTextString.find(' ', baseIndex);
@@ -72,14 +89,14 @@ void specialReplace(
                 }
                 else
                 {
-                    baseIndex=found2+pstLen;
+                    baseIndex=(int)(found2+pstLen);
                     //allTextString[found2] = ' ';
 
                     paramName=allTextString.substr(found+preLen, (found2-found)-pstLen);
 
                     jsonPostStack.push_back(paramName);
 
-                    cout<<"PARAM NAME "<<paramName<<"\n";
+                    std::cout<<"PARAM NAME "<<paramName<<"\n";
 
                 }
 
@@ -112,7 +129,7 @@ void jsonPostProc()
     std::string preStr="\"@@";
     std::string pstStr="@@\"";
 
-    cout<<"jsonPostProc\n";
+    std::cout<<"jsonPostProc\n";
 
     specialReplace(jsonPostString, preStr, pstStr);
 
@@ -135,7 +152,7 @@ void jsonPostProc()
             break;
         default:
             doProc=false;
-            cout<<"invalid JSON Post Process Enum "<<jsonPostStack[i]<<"\n";
+            std::cout<<"invalid JSON Post Process Enum "<<jsonPostStack[i]<<"\n";
             break;
         }
 
@@ -171,6 +188,12 @@ bool processJSON(
     int len=sourceBuffer->size;
     //JSONValue *jsonVal = NULL;
 
+    charArr nullBuffer;
+
+    nullBuffer.data=new char[1];
+    nullBuffer.data[0]='\0';
+    nullBuffer.size=0;
+
     if(saveBuffer!=&nullBuffer)
     {
         if(saveBuffer->data!=NULL)
@@ -183,6 +206,7 @@ bool processJSON(
         saveBuffer->size=len;
     }
 
+    delete nullBuffer.data;
     //doTraceND("Begin JSON::Parse()");
 
     if(buf==NULL)
@@ -194,7 +218,7 @@ bool processJSON(
     {
         //doTraceND("buf is not NULL");
 
-        jsonPostString=string(buf);
+        jsonPostString=std::string(buf);
         jsonPostProc();
 
 
@@ -237,6 +261,12 @@ bool loadJSON(
 
     if(loadFile(path, &dest))
     {
+        charArr nullBuffer;
+
+        nullBuffer.data=new char[1];
+        nullBuffer.data[0]='\0';
+        nullBuffer.size=0;
+
         if(processJSON(&dest, &nullBuffer, destObj))
         {
             res=true;
@@ -245,6 +275,8 @@ bool loadJSON(
         {
             res=false;
         }
+
+        delete nullBuffer.data;
     }
     else
     {
@@ -269,7 +301,7 @@ void getJVNodeByString(
 	//, bool dd = false
 )
 {
-	//if (TEMP_DEBUG) cout << "getJVNodeByString(" << stringToSplit <<  ")\n";
+	//if (TEMP_DEBUG) std::cout << "getJVNodeByString(" << stringToSplit <<  ")\n";
 
 	int i;
 	*resultNode=rootNode;
@@ -279,7 +311,7 @@ void getJVNodeByString(
 
 	for(i=0; i<splitStrings.size(); i++)
 	{
-		//if (dd) cout << splitStrings[i] << "\n";
+		//if (dd) std::cout << splitStrings[i] << "\n";
 
 		if(
 			(splitStrings[i][0]>='0')&&

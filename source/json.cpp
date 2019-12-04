@@ -1,5 +1,44 @@
-#include "json.h"
+#include "voxelquest/json.h"
+#include "voxelquest/spacebuffer.h"
 
+#include <sstream>
+
+static inline bool simplejson_wcsnlen(const char *s, size_t n)
+{
+    if(s==0)
+        return false;
+
+    const char *save=s;
+    while(n-->0)
+    {
+        if(*(save++)==0) return false;
+    }
+
+    return true;
+}
+
+static inline int newcasecmp(const char *s1, const char *s2, size_t n)
+{
+    int lc1=0;
+    int lc2=0;
+
+    while(n--)
+    {
+        lc1=towlower(*s1);
+        lc2=towlower(*s2);
+
+        if(lc1!=lc2)
+            return (lc1-lc2);
+
+        if(!lc1)
+            return 0;
+
+        ++s1;
+        ++s2;
+    }
+
+    return 0;
+}
 
 /**
  * Parses a JSON encoded value to a JSONValue object
@@ -528,9 +567,9 @@ int JSONValue::CountChildren() const
 	switch (type)
 	{
 		case JSONType_Array:
-			return array_value.size();
+			return (int)array_value.size();
 		case JSONType_Object:
-			return object_value.size();
+			return (int)object_value.size();
 		default:
 			return 0;
 	}
@@ -628,7 +667,7 @@ bool JSONValue::HasChild(const char* name) const
 	}
 }
 
-bool JSONValue::HasChild(string name) const
+bool JSONValue::HasChild(std::string name) const
 {
 	if (type == JSONType_Object)
 	{
@@ -640,7 +679,7 @@ bool JSONValue::HasChild(string name) const
 	}
 }
 
-void JSONValue::RemoveChild(string name)
+void JSONValue::RemoveChild(std::string name)
 {
 	// JSONObject::const_iterator it = object_value.find(name);
 	// if (it != object_value.end()) {
@@ -692,7 +731,7 @@ JSONValue* JSONValue::Child(const char* name)
 	}
 }
 
-JSONValue* JSONValue::Child(string name)
+JSONValue* JSONValue::Child(std::string name)
 {
 	JSONObject::const_iterator it = object_value.find(name.c_str());
 	if (it != object_value.end())

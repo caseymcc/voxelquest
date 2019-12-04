@@ -1,5 +1,11 @@
 #include "voxelquest/oglrenderer.h"
 
+#include "LinearMath/btVector3.h"
+
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
+
 OGLRenderer::OGLRenderer(int width, int height)
 	:m_width(width),
 	m_height(height)
@@ -97,11 +103,11 @@ void OGLRenderer::drawLines(const float* positions, const float color[4], int nu
 		int index0=indices[i];
 		int index1=indices[i+1];
 
-		btVector3 fromColor=b3MakeVector3(color[0], color[1], color[2]);
-		btVector3 toColor=b3MakeVector3(color[0], color[1], color[2]);
-
-		btVector3 from=b3MakeVector3(positions[index0*pointStrideInFloats], positions[index0*pointStrideInFloats+1], positions[index0*pointStrideInFloats+2]);
-		btVector3 to=b3MakeVector3(positions[index1*pointStrideInFloats], positions[index1*pointStrideInFloats+1], positions[index1*pointStrideInFloats+2]);
+		//btVector3 fromColor=b3MakeVector3(color[0], color[1], color[2]);
+		//btVector3 toColor=b3MakeVector3(color[0], color[1], color[2]);
+        //
+		//btVector3 from=b3MakeVector3(positions[index0*pointStrideInFloats], positions[index0*pointStrideInFloats+1], positions[index0*pointStrideInFloats+2]);
+		//btVector3 to=b3MakeVector3(positions[index1*pointStrideInFloats], positions[index1*pointStrideInFloats+1], positions[index1*pointStrideInFloats+2]);
 
 		// glBegin(GL_LINES);
 		// glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());

@@ -1,5 +1,6 @@
 #include "voxelquest/fbos.h"
 #include "voxelquest/helperfuncs.h"
+#include "voxelquest/gamestate.h"
 
 #include <algorithm>
 #include <iostream>
@@ -146,7 +147,7 @@ int FBOWrapper::init(
 
 
 
-    TOT_GPU_MEM_USAGE+=((float)(w * h * bytesPerChannel*4))/(1024.0f * 1024.0f);
+    GameState::TOT_GPU_MEM_USAGE+=((float)(w * h * bytesPerChannel*4))/(1024.0f * 1024.0f);
 
     return 1;
 

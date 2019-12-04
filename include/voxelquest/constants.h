@@ -5,9 +5,7 @@
 
 #include <string>
 
-int RUN_COUNT;
-
-bool ND_TRACE_OFF=false;
+//int RUN_COUNT;
 
 
 #define DEFAULT_BUFLEN 512
@@ -33,7 +31,7 @@ const static int MAX_PRIMTEST=8;
 
 const static int MAX_DEPTH_PEELS=4;
 
-double STEP_TIME_IN_SEC;
+//double STEP_TIME_IN_SEC;
 
 const static float OFFSET_X[4]={-0.5,0.5,0.5,-0.5};
 const static float OFFSET_Y[4]={-0.5,-0.5,0.5,0.5};
@@ -43,7 +41,7 @@ const static int MAX_EXPLODES=8;
 
 //const static bool DO_CONNECT = true;
 const static bool DO_SHADER_DUMP=false;
-bool EDIT_POSE=false;
+//bool EDIT_POSE=false;
 
 // warning: changing this changes the size of saved poses
 // should be a one time change, then revereted to 1.0 after save
@@ -90,8 +88,8 @@ const static float MASS_PER_LIMB=0.1f;
 
 const static float explodeRad=5.0f;
 
-float RAND_COUNTER=25.0f;
-float RAND_COUNTER2=25.0f;
+//float RAND_COUNTER=25.0f;
+//float RAND_COUNTER2=25.0f;
 
 
 const static int GROUP_ID_NONEXISTENT=-3;
@@ -170,7 +168,7 @@ const static bool PROC_MATRIX[3][3]={
         {false, false, false}
 };
 
-bool TEMP_DEBUG;
+//bool TEMP_DEBUG;
 
 const static int MAX_OBJ_TYPES=1673;
 const static int ITEMS_PER_COL=48;
@@ -271,7 +269,7 @@ const static int DIR_VECS_MOVE[NUM_MOVEABLE_DIRS][3]={
 };
 
 
-float ALL_ROT[16*NUM_ORIENTATIONS*NUM_ORIENTATIONS*NUM_ORIENTATIONS];
+//float ALL_ROT[16*NUM_ORIENTATIONS*NUM_ORIENTATIONS*NUM_ORIENTATIONS];
 //const static int ROT_MAP[36]={
 //
 //    // x, inc theta
@@ -330,28 +328,10 @@ float ALL_ROT[16*NUM_ORIENTATIONS*NUM_ORIENTATIONS*NUM_ORIENTATIONS];
 //
 //};
 
-int totalPointCount;
+//int totalPointCount;
 
 
-bool LAST_COMPILE_ERROR=false;
-
-char *BUF_NAMES[]=
-{
-    "ublock0",
-    "ublock1",
-    "ublock2",
-    "ublock3",
-    "ublock4",
-    "ublock5",
-    "ublock6",
-    "ublock7",
-    "ublock8",
-    "ublock9",
-    "ublock10",
-    "ublock11",
-    "ublock12",
-    "ublock13"
-};
+//bool LAST_COMPILE_ERROR=false;
 
 const static int R_CHANNEL=0;
 const static int G_CHANNEL=1;
@@ -359,10 +339,10 @@ const static int B_CHANNEL=2;
 const static int A_CHANNEL=3;
 
 const static int MAX_VG_FBOS=2;
-int CUR_VG_FBO=0;
+//int CUR_VG_FBO=0;
 
 const static int MAX_VGT_FBOS=2;
-int CUR_VGT_FBO=0;
+//int CUR_VGT_FBO=0;
 
 const static float M_PI=3.14159265359f;
 
@@ -374,20 +354,20 @@ const static float TBDIR_ARR[]={
 };
 
 
-int PAGE_COUNT=0;
+//int PAGE_COUNT=0;
 // set to 0 to disable
-int MAX_HOLDERS=2048;
+//int MAX_HOLDERS=2048;
 
 
-float MAX_GPU_MEM=2560.0f;
-float TOT_GPU_MEM_USAGE=0.0f;
+//float MAX_GPU_MEM=2560.0f;
+//float TOT_GPU_MEM_USAGE=0.0f;
 
-float MAX_CPU_MEM=4096.0f;
-float TOT_CPU_MEM_USAGE=0.0f;
+//float MAX_CPU_MEM=4096.0f;
+//float TOT_CPU_MEM_USAGE=0.0f;
 
-long long ENT_COUNTER=0;
+//long long ENT_COUNTER=0;
 
-bool TRACE_ON=false;
+//bool TRACE_ON=false;
 //#define DEBUG_MODE 1
 
 
@@ -488,7 +468,7 @@ DDD(E_CONST_MAPAMP3) \
 DDD(E_CONST_LENGTH)
 
 
-std::string E_CONST_STRINGS[]={
+const std::string E_CONST_STRINGS[]={
     E_CONST(DO_DESCRIPTION)
 };
 
@@ -500,6 +480,7 @@ enum E_CONST_VALS
 void loadConstants();
 int iGetConst(int ev);
 float getConst(int ev);
+float getConst(std::string conName);
 
 
 #endif//_voxelquest_constants_h_

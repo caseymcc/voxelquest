@@ -1,6 +1,19 @@
 #ifndef _voxelquest_myshapedrawer_h_
 #define _voxelquest_myshapedrawer_h_
 
+#include "LinearMath/btAlignedObjectArray.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+
+struct ShapeCache
+{
+    struct Edge { btVector3 n[2]; int v[2]; };
+    ShapeCache(btConvexShape* s): m_shapehull(s) {}
+    btShapeHull					m_shapehull;
+    btAlignedObjectArray<Edge>	m_edges;
+};
+
+class Singleton;
 
 class MyShapeDrawer
 {
@@ -23,7 +36,7 @@ public:
 
     void renderSquareA(float x, float y, float z);
 
-    inline void glDrawVector(const btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
+    inline void glDrawVector(const btVector3& v);
 
     void setId(
 

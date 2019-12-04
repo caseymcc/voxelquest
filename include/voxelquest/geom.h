@@ -64,7 +64,7 @@ enum E_PRIM_TYPE_EXT
 };
 
 std::vector <FIVector4> primTemplateStack;
-int geomStep;
+//int geomStep;
 FIVector4 geomOrigOffset;
 FIVector4 geomPoints[E_GEOM_POINTS_LENGTH];
 std::vector<ObjectStruct> tempPrimList;

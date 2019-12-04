@@ -1,8 +1,19 @@
-#include "glinfo.h"
+#include "voxelquest/glinfo.h"
 
 #include <glbinding/gl/gl.h>
 
 using namespace gl;
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#endif
+
+#include <sstream>
+#include <iostream>
+
+typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
+PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB=0;
 
 ///////////////////////////////////////////////////////////////////////////////
 // extract openGL info

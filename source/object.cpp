@@ -1,4 +1,30 @@
 #include "voxelquest/object.h"
+#include "voxelquest/geom.h"
+
+#include <algorithm>
+
+inline float opI(float d1, float d2)
+{
+    return std::max(d1, d2);
+}
+
+inline float opS(float d1, float d2)
+{
+    return std::max(-d2, d1);
+}
+
+inline float sdBox(vec3 _p, vec3 b)
+{
+    vec3 p=_p;
+    p.doAbs();
+    vec3 d=p-b;
+
+    float res=std::min(std::max(d.x, std::max(d.y, d.z)), 0.0f);
+    d.doMax(vec3(0.0f));
+    res+=d.length();
+
+    return res;
+}
 
 inline void getBoundsCenRad(
     ObjectStruct* curObj,
@@ -126,8 +152,8 @@ inline vec3 getUVW(
     float curThe=atan2(newNorm2.y, newNorm2.x);
 
     float angMod=
-        (angModBase*2.0f/M_PI) *
-        (max(floor(sqrt(cornerRad*cornerRad*2.0f)), 1.0f));
+        (angModBase*2.0f/(float)M_PI) *
+        (std::max(floor(sqrt(cornerRad*cornerRad*2.0f)), 1.0f));
 
 
     // side corner
@@ -224,11 +250,11 @@ inline float primDis(
 
     newP.x=pow(newP.x, box_power.x);
     newP.y=pow(newP.y, box_power.x);
-    newP.x=pow(newP.x+newP.y, 1.0/box_power.x);
+    newP.x=pow(newP.x+newP.y, 1.0f/box_power.x);
 
     newP.x=pow(newP.x, box_power.y);
     newP.z=pow(newP.z, box_power.y);
-    newP.x=pow(newP.x+newP.z, 1.0/box_power.y);
+    newP.x=pow(newP.x+newP.z, 1.0f/box_power.y);
 
     float finalRes=(newP.x-cornerRad);
 
@@ -243,7 +269,7 @@ inline float primDis(
 
         newBoxDim=innerBoxSize-absVecFromCenter;
 
-        finalRes-=min(min(newBoxDim.x, newBoxDim.y), newBoxDim.z);
+        finalRes-=std::min(std::min(newBoxDim.x, newBoxDim.y), newBoxDim.z);
     }
 
     finalRes=abs(finalRes+wallThickness*0.5f)-wallThickness*0.5f;

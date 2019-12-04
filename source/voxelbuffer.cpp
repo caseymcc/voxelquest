@@ -1,4 +1,6 @@
 #include "voxelquest/voxelbuffer.h"
+#include "voxelquest/texenums.h"
+#include "voxelquest/gameoctree.h"
 
 int VoxelBuffer::addIndex(int val)
 {
@@ -7,7 +9,7 @@ int VoxelBuffer::addIndex(int val)
     voxelList.back().normId=0;
     voxelList.back().matId=TEX_NULL;
 
-    int VLInd=(voxelList.size()-1);
+    int VLInd=(int)(voxelList.size()-1);
 
     data[val].vbeIndex=VLInd;
 
@@ -66,7 +68,7 @@ void VoxelBuffer::clearAllNodes()
     int i;
     int j;
 
-    int mySize=voxelList.size();
+    int mySize=(int)voxelList.size();
     int curInd;
 
     for(i=0; i<mySize; i++)

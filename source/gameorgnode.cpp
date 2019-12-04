@@ -234,7 +234,7 @@ void GameOrgNode::doTransform(
         GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[2]));
         GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFZ());
-        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
 
         popCount++;
     }
@@ -244,7 +244,7 @@ void GameOrgNode::doTransform(
         GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[1]));
         GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFX());
-        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
         popCount++;
     }
     if(orgVecs[E_OV_THETAPHIRHO].getFY()!=0.0f)
@@ -253,7 +253,7 @@ void GameOrgNode::doTransform(
         GameState::rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         GameState::rotMatStack.back().axisAngle.copyFrom(&(readTBN[0]));
         GameState::rotMatStack.back().axisAngle.setFW(orgVecs[E_OV_THETAPHIRHO].getFY());
-        axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(GameState::rotMatStack.back()));
         popCount++;
     }
 
@@ -261,7 +261,7 @@ void GameOrgNode::doTransform(
     for(i=(int)GameState::rotMatStack.size()-(1); i>=0; i--)
     {
 
-        axisRotationInstance.applyRotation(
+        GameState::axisRotationInstance.applyRotation(
             writeTBN,
             readTBN,
             &(GameState::rotMatStack[i])

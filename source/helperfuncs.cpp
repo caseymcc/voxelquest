@@ -1,10 +1,23 @@
-#include "helperfuncs.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gameaudio.h"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#endif
+
+#include <sstream>
+#include <iostream>
+
+int traceLevel=0; 
+int popCount=0;
 
 std::string i__s(int i) {
 	return std::to_string(i);
 }
 std::string fi__s(float f) {
-	int i = f;
+	int i = (int)f;
 	return std::to_string(i);
 }
 std::string f__s(float f) {
@@ -23,9 +36,9 @@ std::wstring s2ws(const std::string& s)
     return r;
 }
 
-string getPaddedInt(int curInt, int maxInt) {
-	string res = i__s(curInt);
-	string maxRes = i__s(maxInt);
+std::string getPaddedInt(int curInt, int maxInt) {
+	std::string res = i__s(curInt);
+	std::string maxRes = i__s(maxInt);
 	
 	while(res.size() < maxRes.size()) {
 		res = '0' + res;
@@ -35,21 +48,11 @@ string getPaddedInt(int curInt, int maxInt) {
 	
 }
 
-
-union hex_converter{
-	float f_val;
-	unsigned int u_val;
-};
 float hexToFloat(std::string* s) {
 	union hex_converter hc;
 	hc.u_val = (uint)strtoul(s->c_str(), NULL, 16);
 	return hc.f_val;
 }
-
-
-
-
-
 
 std::string floatToHex( float f )
 {
@@ -162,11 +165,11 @@ std::string floatToString(float f) {
 //////////
 
 
-void doTraceND(std::string traceVal0 = "", std::string traceVal1 = "",std::string traceVal2 = "",std::string traceVal3 = "",std::string traceVal4 = "",std::string traceVal5 = "", std::string traceVal6 = "",std::string traceVal7 = "",std::string traceVal8 = "",std::string traceVal9 = "",std::string traceVal10 = "") {
+void doTraceND(std::string traceVal0, std::string traceVal1,std::string traceVal2,std::string traceVal3,std::string traceVal4,std::string traceVal5, std::string traceVal6,std::string traceVal7,std::string traceVal8,std::string traceVal9,std::string traceVal10) {
 	
 	int i;
 	
-	if (ND_TRACE_OFF) {
+	if (g_settings.ND_TRACE_OFF) {
 		return;
 	}
 	
@@ -179,7 +182,7 @@ void doTraceND(std::string traceVal0 = "", std::string traceVal1 = "",std::strin
 }
 
 
-void pushTraceND(std::string traceVal0 = "", std::string traceVal1 = "",std::string traceVal2 = "",std::string traceVal3 = "",std::string traceVal4 = "",std::string traceVal5 = "", std::string traceVal6 = "",std::string traceVal7 = "",std::string traceVal8 = "",std::string traceVal9 = "",std::string traceVal10 = "") {
+void pushTraceND(std::string traceVal0, std::string traceVal1,std::string traceVal2,std::string traceVal3,std::string traceVal4,std::string traceVal5, std::string traceVal6,std::string traceVal7,std::string traceVal8,std::string traceVal9,std::string traceVal10) {
 	
 	doTraceND(traceVal0,traceVal1,traceVal2,traceVal3,traceVal4,traceVal5,traceVal6,traceVal7,traceVal8,traceVal9,traceVal10);
 	traceLevel++;
@@ -241,10 +244,10 @@ void popTraceND() {
 
 
 
-void doTrace(std::string traceVal0 = "", std::string traceVal1 = "",std::string traceVal2 = "",std::string traceVal3 = "",std::string traceVal4 = "",std::string traceVal5 = "", std::string traceVal6 = "",std::string traceVal7 = "",std::string traceVal8 = "",std::string traceVal9 = "",std::string traceVal10 = "") {
+void doTrace(std::string traceVal0, std::string traceVal1,std::string traceVal2,std::string traceVal3,std::string traceVal4,std::string traceVal5, std::string traceVal6,std::string traceVal7,std::string traceVal8,std::string traceVal9,std::string traceVal10) {
 	int i;
 
-	if (TRACE_ON) {
+	if (g_settings.TRACE_ON) {
 		for (i = 0; i < traceLevel; i++) {
 			std::cout << "|  ";
 		}
@@ -256,9 +259,9 @@ void doTrace(std::string traceVal0 = "", std::string traceVal1 = "",std::string 
 }
 
 
-void pushTrace(std::string traceVal0 = "", std::string traceVal1 = "",std::string traceVal2 = "",std::string traceVal3 = "",std::string traceVal4 = "",std::string traceVal5 = "", std::string traceVal6 = "",std::string traceVal7 = "",std::string traceVal8 = "",std::string traceVal9 = "",std::string traceVal10 = "") {
+void pushTrace(std::string traceVal0, std::string traceVal1,std::string traceVal2,std::string traceVal3,std::string traceVal4,std::string traceVal5, std::string traceVal6,std::string traceVal7,std::string traceVal8,std::string traceVal9,std::string traceVal10) {
 	
-	if (TRACE_ON) {
+	if (g_settings.TRACE_ON) {
 		doTrace(traceVal0,traceVal1,traceVal2,traceVal3,traceVal4,traceVal5,traceVal6,traceVal7,traceVal8,traceVal9,traceVal10);
 			traceLevel++;
 			popCount=0;
@@ -267,16 +270,18 @@ void pushTrace(std::string traceVal0 = "", std::string traceVal1 = "",std::strin
 }
 void popTrace() {
 	
-	if (TRACE_ON) {
+	if (g_settings.TRACE_ON) {
 		traceLevel--;
 		popCount++;
 		if (popCount >= 2) {
 			doTrace("END");
 		}
 	}
+}
 
-	
-	
+void doAlert()
+{
+    GameAudio::playSound("xylo0", 1.0f);
 }
 
 

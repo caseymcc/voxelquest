@@ -2,6 +2,7 @@
 #define _voxelquest_settings_h_
 
 #include "voxelquest/enums.h"
+#include "voxelquest/jsonhelpers.h"
 
 #include <string>
 
@@ -73,22 +74,51 @@ enum E_BOOL_SETTING_VALS
     E_BOOL_SETTING(DO_ENUM)
 };
 
+#define E_SPECIAL_DATA_TYPE(DDD) \
+DDD(E_SDT_SHADERPARAMS) \
+DDD(E_SDT_OBJECTDATA) \
+DDD(E_SDT_STATDATA) \
+DDD(E_SDT_STATUSDATA) \
+DDD(E_SDT_LENGTH)
+
+std::string E_SPECIAL_DATA_TYPE_STRINGS[]={
+    E_SPECIAL_DATA_TYPE(DO_DESCRIPTION)
+};
+
+enum E_SPECIAL_DATA_TYPE_VALS
+{
+    E_SPECIAL_DATA_TYPE(DO_ENUM)
+};
+
+struct JSONStruct
+{
+    JSONValue* jv;
+};
+typedef std::map<std::string, JSONStruct>::iterator itJSStruct;
 
 class Settings
 {
 public:
     Settings();
 
-	void speakSetting(int settingName);
+    void speakSetting(int settingName);
 
-	void toggleSetting(int settingName, bool withVoice=true);
+    void toggleSetting(int settingName, bool withVoice=true);
 
-	void setSetting(int settingName, bool value, bool withVoice=true);
+    void setSetting(int settingName, bool value, bool withVoice=true);
 
-    
+    JSONValue* Settings::fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
+    void Settings::getSpecialData(int datEnum, std::string datString);
+    void saveExternalJSON();
+
     bool settings[E_BS_LENGTH];
+    std::map<std::string, JSONStruct> externalJSON;
 
     float gammaVal;
+
+    float fxVolume;
+    float masterVolume;
+    float guiVolume;
 
     bool cavesOn;
     float heightMapMaxInCells;
@@ -132,10 +162,14 @@ public:
     float roofHeightInCells;
     float wallRadInCells;
 
-	std::string guiSaveLoc;
+    std::string guiSaveLoc;
 
     int iNumSteps;
-    
+    double STEP_TIME_IN_SEC;
+
+    bool TRACE_ON;
+    bool ND_TRACE_OFF;
+    bool TEMP_DEBUG;
 };
 
 Settings g_settings;

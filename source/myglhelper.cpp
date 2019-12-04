@@ -1,3 +1,47 @@
+#include "voxelquest/myglhelper.h"
+#include "voxelquest/myshapedrawer.h"
+#include "voxelquest/mydebugdrawer.h"
+
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "CommonInterfaces/CommonGraphicsAppInterface.h"
+#include "CommonInterfaces/Common2dCanvasInterface.h"
+
+static btVector4 sColors[4]=
+{
+    btVector4(0.3f, 0.3f, 1.0f, 1.0f),
+    btVector4(0.6f, 0.6f, 1.0f, 1.0f),
+    btVector4(0.0f, 1.0f, 0.0f, 1.0f),
+    btVector4(0.0f, 1.0f, 1.0f, 1.0f)//,
+    //btVector4(1.0f, 1.0f, 0.0f, 1.0f),
+};
+
+struct MyGLHelperInternalData
+{
+    struct CommonGraphicsApp* m_glApp;
+    class MyDebugDrawer* m_debugDraw;
+    MyShapeDrawer* m_gl2ShapeDrawer;
+};
+
+struct MyConvertPointerSizeT
+{
+    union
+    {
+        const void* m_ptr;
+        size_t m_int;
+    };
+};
+
+bool shapePointerCompareFunc(const btCollisionObject* colA, const btCollisionObject* colB)
+{
+    MyConvertPointerSizeT a, b;
+    a.m_ptr=colA->getCollisionShape();
+    b.m_ptr=colB->getCollisionShape();
+    return (a.m_int<b.m_int);
+}
 
 MyGLHelper::MyGLHelper(Singleton* _singleton, CommonGraphicsApp* glApp)
 {
@@ -23,7 +67,7 @@ struct CommonRenderInterface* MyGLHelper::getRenderInterface()
 
 void MyGLHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
 {
-	createCollisionObjectGraphicsObject(body,color);
+	createCollisionObjectGraphicsObject((btCollisionObject *)body, color);
 }
 
 void MyGLHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
@@ -55,7 +99,7 @@ int MyGLHelper::registerGraphicsInstance(int shapeIndex, const float* position, 
 	return m_data->m_glApp->m_renderer->registerGraphicsInstance(shapeIndex,position,quaternion,color,scaling);
 }
 
-static void MyGLHelper::createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void MyGLHelper::createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
 //todo: support all collision shape types
 	switch (collisionShape->getShapeType())
@@ -342,7 +386,7 @@ void MyGLHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 
 }
 
-struct MyGLHelper::Common2dCanvasInterface*	get2dCanvasInterface()
+Common2dCanvasInterface *MyGLHelper::get2dCanvasInterface()
 {
 	return m_data->m_glApp->m_2dCanvasInterface;
 }

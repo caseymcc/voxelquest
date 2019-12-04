@@ -1,6 +1,8 @@
 #ifndef _voxelquest_tbos_h_
 #define _voxelquest_tbos_h_
 
+#include "voxelquest/types.h"
+
 #include <glbinding/gl/gl.h>
 
 using namespace gl;

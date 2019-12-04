@@ -91,7 +91,7 @@ void StyleSheetResult::incrementVal(int enumVal)
 		stateAmounts[i]-=incVal;
 	}
 
-	stateAmounts[enumVal]+=2.0 * incVal;
+	stateAmounts[enumVal]+=2.0f * incVal;
 
 	for(i=0; i<E_COMP_TOTAL; i++)
 	{

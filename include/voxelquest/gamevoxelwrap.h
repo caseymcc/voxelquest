@@ -3,30 +3,7 @@
 
 #include "voxelquest/voxelbuffer.h"
 #include "voxelquest/fbos.h"
-
-struct intTrip
-{
-    int v0; // blockId
-    int v1; // chunkId
-    int v2; // holderId
-};
-
-struct PaddedDataEntry
-{
-    float terVal;
-    int cellVal;
-    bool visited;
-};
-
-struct PaddedData
-{
-    PaddedDataEntry* data;
-    std::vector<VectorI3> fillStack;
-    VoxelBuffer voxelBuffer;
-
-    intTrip boundToHolder;
-    bool isFree;
-};
+#include "voxelquest/memorypool.h"
 
 class GamePageHolder;
 class Singleton;

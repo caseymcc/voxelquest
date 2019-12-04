@@ -1,29 +1,37 @@
 #include "voxelquest/gameaudio.h"
+#include "voxelquest/gamesound.h"
+#include "voxelquest/renderer.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/entenums.h"
+#include "voxelquest/bullethelpers.h"
+#include "voxelquest/settings.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gamegui.h"
 
 GameMusic* GameAudio::music[EML_LENGTH];
 std::map<std::string, GameSound> GameAudio::soundMap;
 
-void GameAudio::prepSound(string soundName)
+void GameAudio::prepSound(std::string soundName)
 {
 	if(soundMap.find(soundName)==soundMap.end())
 	{
-		soundMap.insert(pair<string, GameSound>(soundName, GameSound()));
+		soundMap.insert(std::pair<std::string, GameSound>(soundName, GameSound()));
 		soundMap[soundName].init("..\\data\\sounds\\"+soundName+".wav");
 	}
 }
 
 void GameAudio::playSoundEnt(
-	string soundName,
-	BaseObj* ge=NULL,
-	float variance=0.0f,
-	float volume=1.0f,
-	bool doLoop=false
+	std::string soundName,
+	BaseObj* ge,
+	float variance,
+	float volume,
+	bool doLoop
 )
 {
 
 	if(ge==NULL)
 	{
-		playSoundPosAndPitch(soundName, cameraGetPosNoShake(), cameraGetPosNoShake(), variance, volume, doLoop);
+		playSoundPosAndPitch(soundName, Renderer::cameraGetPosNoShake(), Renderer::cameraGetPosNoShake(), variance, volume, doLoop);
 	}
 	else
 	{
@@ -36,7 +44,9 @@ void GameAudio::playSoundEnt(
 		}
 		else
 		{
-			playSoundPosAndPitch(soundName, cameraGetPosNoShake(), BTV2FIV(ge->getCenterPoint(E_BDG_CENTER)), variance, volume, doLoop);
+            FIVector4 geCenter=convertToVQV(ge->getCenterPoint(E_BDG_CENTER));
+
+			playSoundPosAndPitch(soundName, Renderer::cameraGetPosNoShake(), &geCenter, variance, volume, doLoop);
 		}
 	}
 
@@ -46,12 +56,12 @@ void GameAudio::playSoundEnt(
 }
 
 void GameAudio::playSoundPosAndPitch(
-	string soundName,
+	std::string soundName,
 	FIVector4* listenerPos,
 	FIVector4* soundPos,
-	float variance=0.0f,
-	float volume=1.0f,
-	bool doLoop=false
+	float variance,
+	float volume,
+	bool doLoop
 )
 {
 
@@ -64,7 +74,7 @@ void GameAudio::playSoundPosAndPitch(
 	res.addXYZRef(listenerPos, -1.0f);
 
 	soundMap[soundName].setPitch(
-		(fGenRand()-0.5f)*2.0*variance+1.0f
+		(fGenRand()-0.5f)*2.0f*variance+1.0f
 	);
 
 	soundMap[soundName].setPositionAndMinDis(
@@ -75,15 +85,15 @@ void GameAudio::playSoundPosAndPitch(
 	);
 
 	soundMap[soundName].setLoop(doLoop);
-	soundMap[soundName].play(volume*fxVolume*masterVolume);
+	soundMap[soundName].play(volume*g_settings.fxVolume*g_settings.masterVolume);
 }
 
 void GameAudio::updateSoundPosAndPitch(
-	string soundName,
+	std::string soundName,
 	FIVector4* listenerPos,
 	FIVector4* soundPos,
-	float volume=1.0f,
-	float decay=0.01f
+	float volume,
+	float decay
 )
 {
 
@@ -109,13 +119,13 @@ void GameAudio::updateSoundPosAndPitch(
 
 
 
-void GameAudio::playSound(string soundName, float volume=1.0f)
+void GameAudio::playSound(std::string soundName, float volume)
 {
 	prepSound(soundName);
 	soundMap[soundName].play(volume);
 }
 
-void GameAudio::playSoundEvent(const char* eventName, bool suppress=false)
+void GameAudio::playSoundEvent(const char* eventName, bool suppress)
 {
 
 	if(suppress)
@@ -123,19 +133,19 @@ void GameAudio::playSoundEvent(const char* eventName, bool suppress=false)
 		return;
 	}
 
-	string tempString;
+	std::string tempString;
 	float volume;
 
-	if(mainGUI!=NULL)
+	if(GameState::ui!=NULL)
 	{
-		if(mainGUI->isReady)
+		if(GameState::ui->isReady)
 		{
-			tempString=mainGUI->jvSounds->Child(eventName)->Child("name")->string_value;
-			volume=mainGUI->jvSounds->Child(eventName)->Child("vol")->number_value;
+			tempString=GameState::ui->jvSounds->Child(eventName)->Child("name")->string_value;
+			volume=(float)GameState::ui->jvSounds->Child(eventName)->Child("vol")->number_value;
 
 			if(tempString.size()>0)
 			{
-				playSound(tempString, masterVolume*volume*guiVolume);
+				playSound(tempString, g_settings.masterVolume*volume*g_settings.guiVolume);
 			}
 		}
 	}

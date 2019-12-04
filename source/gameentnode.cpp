@@ -1,5 +1,6 @@
-#include "gameentnode.h"
+#include "voxelquest/gameentnode.h"
 
+const float GameEntNode::multiplier=2.0f;
 
 GameEntNode::GameEntNode(
     GameEntNode* _parent,
@@ -215,7 +216,7 @@ void GameEntNode::doTransform(
 
 
 
-    // 	axisRotationInstance.doRotationTBN(
+    // 	GameState::axisRotationInstance.doRotationTBN(
     // 		writeTBN, // write
     // 		readTBN, // read
     // 		&(singleton->rotStack.back()),
@@ -239,7 +240,7 @@ void GameEntNode::doTransform(
     // 	singleton->rotStack.back().setFW(rotThe);
     // 	singleton->transStack.push_back(orgTrans[0]);
 
-    // 	axisRotationInstance.doRotationTBN(
+    // 	GameState::axisRotationInstance.doRotationTBN(
     // 		writeTBN, // write
     // 		readTBN, // read
     // 		&(singleton->rotStack.back()),
@@ -263,7 +264,7 @@ void GameEntNode::doTransform(
     // 	singleton->rotStack.back().setFW(rotPhi);
     // 	singleton->transStack.push_back(orgTrans[0]);
 
-    // 	axisRotationInstance.doRotationTBN(
+    // 	GameState::axisRotationInstance.doRotationTBN(
     // 		writeTBN, // write
     // 		readTBN, // read
     // 		&(singleton->rotStack.back()),
@@ -293,7 +294,7 @@ void GameEntNode::doTransform(
         singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[2]));
         singleton->rotMatStack.back().axisAngle.setFW(rotRho);
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
 
         popCount++;
     }
@@ -303,7 +304,7 @@ void GameEntNode::doTransform(
         singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[1]));
         singleton->rotMatStack.back().axisAngle.setFW(rotThe);
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
         popCount++;
     }
     if(rotPhi!=0.0f)
@@ -312,7 +313,7 @@ void GameEntNode::doTransform(
         singleton->rotMatStack.back().basePoint.copyFrom(&(orgTrans[0]));
         singleton->rotMatStack.back().axisAngle.copyFrom(&(readTBN[0]));
         singleton->rotMatStack.back().axisAngle.setFW(rotPhi);
-        axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
+        GameState::axisRotationInstance.buildRotMatrix(&(singleton->rotMatStack.back()));
         popCount++;
     }
 
@@ -320,7 +321,7 @@ void GameEntNode::doTransform(
     for(i=singleton->rotMatStack.size()-(1); i>=0; i--)
     {
 
-        // axisRotationInstance.doRotationTBN(
+        // GameState::axisRotationInstance.doRotationTBN(
         // 	writeTBN, // write
         // 	readTBN, // read
         // 	&(singleton->rotStack[i]), //axisAngle
@@ -330,7 +331,7 @@ void GameEntNode::doTransform(
 
 
 
-        axisRotationInstance.applyRotation(
+        GameState::axisRotationInstance.applyRotation(
             writeTBN,
             readTBN,
             &(singleton->rotMatStack[i])

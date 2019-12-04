@@ -4,7 +4,7 @@
 #include <CommonInterfaces/CommonGraphicsAppInterface.h>
 // ??????????????
 
-class OGLRenderer;
+struct OGLRenderer;
 struct MyOGLAppInternalData;
 
 struct MyOGLApp: public CommonGraphicsApp

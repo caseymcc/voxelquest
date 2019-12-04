@@ -1,4 +1,13 @@
-#include "shader.h"
+#include "voxelquest/shader.h"
+#include "voxelquest/helperfuncs.h"
+#include "voxelquest/fileio.h"
+#include "voxelquest/renderer.h"
+
+#include <glbinding/gl/gl.h>
+
+using namespace gl;
+
+#include <iostream>
 
 Shader::Shader(Singleton* _singleton)
 {
@@ -20,7 +29,7 @@ Shader::~Shader()
     //popTrace();
 }
 
-static char* Shader::textFileRead(const char *fileName)
+char* Shader::textFileRead(const char *fileName)
 {
 
     char* text="";
@@ -40,7 +49,7 @@ static char* Shader::textFileRead(const char *fileName)
             {
                 text=new char[(count+1)];
                 //(char*)malloc(sizeof(char) * (count + 1));
-                count=fread(text, sizeof(char), count, file);
+                count=(int)fread(text, sizeof(char), count, file);
                 text[count]='\0';
                 failed=false;
             }
@@ -61,7 +70,7 @@ static char* Shader::textFileRead(const char *fileName)
     return text;
 }
 
-static void Shader::validateShader(GLuint shader, const char* file=0)
+void Shader::validateShader(GLuint shader, const char* file)
 {
     //pushTrace("validateShader(", file, ")");
 
@@ -74,14 +83,14 @@ static void Shader::validateShader(GLuint shader, const char* file=0)
     if(length>0)
     {
         doTraceND("Shader ", i__s(shader), " (", (file?file:""), ") compile error: ", buffer);
-        LAST_COMPILE_ERROR=true;
+        Renderer::LAST_COMPILE_ERROR=true;
     }
     //popTrace();
 
 
 }
 
-static int Shader::validateProgram(GLuint program)
+int Shader::validateProgram(GLuint program)
 {
     //pushTrace("validateProgram()");
 
@@ -95,7 +104,7 @@ static int Shader::validateProgram(GLuint program)
     if(length>0)
     {
         doTraceND("Program ", i__s(program), " link error: ", buffer);
-        LAST_COMPILE_ERROR=true;
+        Renderer::LAST_COMPILE_ERROR=true;
         //popTrace();
         return 0;
     }
@@ -103,10 +112,10 @@ static int Shader::validateProgram(GLuint program)
     glValidateProgram(program);
     GLint status;
     glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-    if(status==GL_FALSE)
+    if(status==(GLint)GL_FALSE)
     {
         doTraceND("Error validating shader ", i__s(program));
-        LAST_COMPILE_ERROR=true;
+        Renderer::LAST_COMPILE_ERROR=true;
         //popTrace();
         return 0;
     }
@@ -116,7 +125,7 @@ static int Shader::validateProgram(GLuint program)
 
 }
 
-int Shader::countOc(string* src, string testStr)
+int Shader::countOc(std::string* src, std::string testStr)
 {
     int totCount=0;
     int bInd=0;
@@ -125,7 +134,7 @@ int Shader::countOc(string* src, string testStr)
 
     while(dc)
     {
-        fnd=src->find(testStr, bInd);
+        fnd=(int)src->find(testStr, bInd);
         if(fnd!=std::string::npos)
         {
             bInd=fnd+1;
@@ -141,13 +150,12 @@ int Shader::countOc(string* src, string testStr)
     return totCount;
 }
 
-void Shader::init(string shaderName, bool doBake, map<string, string>* includeMap)
+void Shader::init(std::string shaderName, bool doBake, std::map<std::string, std::string>* includeMap)
 {
+    std::string shaderFN;
+    std::vector<std::string> shaderNameSplit;
 
-    string shaderFN;
-    vector<string> shaderNameSplit;
-
-    string defineString="\n";
+    std::string defineString="\n";
 
     if(
         shaderName.find('_', 0)!=std::string::npos
@@ -164,12 +172,12 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
     }
 
 
-    string tempFileString="";
-    string tempFileLoc="";
+    std::string tempFileString="";
+    std::string tempFileLoc="";
+    std::string globString;
 
-
-    string shaderRoot="../src/glsl/";
-    string _shaderFile=shaderRoot+shaderFN+".c";
+    std::string shaderRoot="../src/glsl/";
+    std::string _shaderFile=shaderRoot+shaderFN+".c";
 
     const char* shaderFile=_shaderFile.c_str();
 
@@ -190,14 +198,14 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
     int uniCount=0;
     int dolCount=0;
 
-    string allTextStringInc;
+    std::string allTextStringInc;
 
-    vector<string> allTextStringSplit;
-    vector<string> allTextStringSplitInc;
+    std::vector<std::string> allTextStringSplit;
+    std::vector<std::string> allTextStringSplitInc;
 
     bool doCont;
 
-    string paramName;
+    std::string paramName;
 
     int i;
 
@@ -224,12 +232,12 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
     if(allText==NULL)
     {
         doTraceND("Error: Either vertex shader or fragment shader file not found.");
-        LAST_COMPILE_ERROR=true;
+        Renderer::LAST_COMPILE_ERROR=true;
     }
     else
     {
 
-        string allTextString(allText);
+        std::string allTextString(allText);
 
 
 
@@ -270,7 +278,7 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
 
                             //cout << "tempFileLoc " << tempFileLoc << "\n";
 
-                            tempFileString=singleton->loadFileString(shaderRoot+tempFileLoc+".c");
+                            tempFileString=loadFileString(shaderRoot+tempFileLoc+".c");
 
                             if(tempFileString.size()>2)
                             {
@@ -280,7 +288,7 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
                             }
                             else
                             {
-                                cout<<"Error loading "<<shaderRoot+tempFileLoc+".c\n";
+                                std::cout<<"Error loading "<<shaderRoot+tempFileLoc+".c\n";
                             }
 
 
@@ -316,7 +324,7 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
                 {
 
 
-                    baseIndex=found+1;
+                    baseIndex=(int)found+1;
                     allTextString[found]=' ';
 
                     found3=allTextString.find(' ', baseIndex);
@@ -334,7 +342,7 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
                         }
                         else
                         {
-                            baseIndex=found2+1;
+                            baseIndex=(int)found2+1;
                             allTextString[found2]=' ';
 
                             paramName=allTextString.substr(found+1, (found2-found)-1);
@@ -443,8 +451,8 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
 
 
 
-            string vertStr=allTextStringSplit[0]+allTextStringSplit[1];
-            string fragStr=allTextStringSplit[0]+allTextStringSplit[2];
+            std::string vertStr=allTextStringSplit[0]+allTextStringSplit[1];
+            std::string fragStr=allTextStringSplit[0]+allTextStringSplit[2];
 
             if(DO_SHADER_DUMP)
             {
@@ -493,7 +501,7 @@ void Shader::init(string shaderName, bool doBake, map<string, string>* includeMa
         }
         else
         {
-            LAST_COMPILE_ERROR=true;
+            Renderer::LAST_COMPILE_ERROR=true;
             doTraceND("Error: ", shaderFile, "does not contain proper amount of splits ($)\n");
         }
 
@@ -596,7 +604,7 @@ void Shader::setVec(const GLchar* name, const GLfloat* vecData, int vecSize)
     }
 }
 
-void Shader::setVecString(string name, const GLfloat* vecData, int vecSize)
+void Shader::setVecString(std::string name, const GLfloat* vecData, int vecSize)
 {
 
     GLint loc=glGetUniformLocation(shader_id, name.c_str());
@@ -629,7 +637,7 @@ void Shader::setVecString(string name, const GLfloat* vecData, int vecSize)
 //  	GLboolean transpose,
 //  	const GLfloat *value);
 
-void Shader::setShaderMatrix4x4(string paramName, float* x, int count)
+void Shader::setShaderMatrix4x4(std::string paramName, float* x, int count)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
 
@@ -641,7 +649,7 @@ void Shader::setShaderMatrix4x4(string paramName, float* x, int count)
     );
 }
 
-void Shader::setShaderMatrix3x3(string paramName, float* x, int count)
+void Shader::setShaderMatrix3x3(std::string paramName, float* x, int count)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
 
@@ -654,51 +662,51 @@ void Shader::setShaderMatrix3x3(string paramName, float* x, int count)
 }
 
 
-void Shader::setShaderArrayfVec4(string paramName, float* x, int count)
+void Shader::setShaderArrayfVec4(std::string paramName, float* x, int count)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform4fv(loc, count, x);
 }
 
-void Shader::setShaderArrayfVec3(string paramName, float* x, int count)
+void Shader::setShaderArrayfVec3(std::string paramName, float* x, int count)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform3fv(loc, count, x);
 }
 
-void Shader::setShaderArray(string paramName, float* x, int count)
+void Shader::setShaderArray(std::string paramName, float* x, int count)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform1fv(loc, count, x);
 }
 
-GLint Shader::getShaderLoc(string paramName)
+GLint Shader::getShaderLoc(std::string paramName)
 {
     return glGetUniformLocation(shader_id, paramName.c_str());
 }
 
-void Shader::setShaderFloat(string paramName, float x)
+void Shader::setShaderFloat(std::string paramName, float x)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform1f(loc, x);
 }
-void Shader::setShaderVec2(string paramName, float x, float y)
+void Shader::setShaderVec2(std::string paramName, float x, float y)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform2f(loc, x, y);
 }
-void Shader::setShaderVec3(string paramName, float x, float y, float z)
+void Shader::setShaderVec3(std::string paramName, float x, float y, float z)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform3f(loc, x, y, z);
 }
-void Shader::setShaderVec4(string paramName, float x, float y, float z, float w)
+void Shader::setShaderVec4(std::string paramName, float x, float y, float z, float w)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform4f(loc, x, y, z, w);
 }
 
-void Shader::setShaderInt(string paramName, int x)
+void Shader::setShaderInt(std::string paramName, int x)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform1i(loc, x);
@@ -706,38 +714,38 @@ void Shader::setShaderInt(string paramName, int x)
 
 
 
-void Shader::setShaderfVec2(string paramName, FIVector4* f)
+void Shader::setShaderfVec2(std::string paramName, FIVector4* f)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform2f(loc, f->getFX(), f->getFY());
 }
-void Shader::setShaderfVec3(string paramName, FIVector4* f)
+void Shader::setShaderfVec3(std::string paramName, FIVector4* f)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform3f(loc, f->getFX(), f->getFY(), f->getFZ());
 }
-void Shader::setShaderfVec4(string paramName, FIVector4* f)
+void Shader::setShaderfVec4(std::string paramName, FIVector4* f)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform4f(loc, f->getFX(), f->getFY(), f->getFZ(), f->getFW());
 }
 
 
-void Shader::setShaderbtVec3(string paramName, btVector3 f)
+void Shader::setShaderbtVec3(std::string paramName, btVector3 f)
 {
     GLint loc=glGetUniformLocation(shader_id, paramName.c_str());
     glUniform3f(loc, f.getX(), f.getY(), f.getZ());
 }
 
 
-void Shader::setShaderFloatUB(string paramName, float x)
+void Shader::setShaderFloatUB(std::string paramName, float x)
 {
     int cp=uniVec[curUBIndex].uniPosition;
 
     uniVec[curUBIndex].uniData[cp]=x;
     uniVec[curUBIndex].uniPosition+=1;
 }
-void Shader::setShaderfVec4UB(string paramName, FIVector4* f)
+void Shader::setShaderfVec4UB(std::string paramName, FIVector4* f)
 {
 
     int cp=uniVec[curUBIndex].uniPosition;

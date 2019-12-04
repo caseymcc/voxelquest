@@ -1,4 +1,8 @@
-#include "imageloader.h"
+#include "voxelquest/imageloader.h"
+
+#include <fstream>
+#include <cassert>
+#include <ios>
 
 //Converts a four-character array to an integer, using little-endian form
 int toInt(const char* bytes)
@@ -17,7 +21,7 @@ short toShort(const char* bytes)
 }
 
 //Reads the next four bytes as an integer, using little-endian form
-int readInt(ifstream &input)
+int readInt(std::ifstream &input)
 {
     char buffer[4];
     input.read(buffer, 4);
@@ -25,7 +29,7 @@ int readInt(ifstream &input)
 }
 
 //Reads the next two bytes as a short, using little-endian form
-short readShort(ifstream &input)
+short readShort(std::ifstream &input)
 {
     char buffer[2];
     input.read(buffer, 2);
@@ -70,8 +74,6 @@ void Image::setAllValues(int c, int v)
 
 }
 
-
-
 void Image::getTextureId(GLenum filterType)
 {
 
@@ -93,11 +95,11 @@ void Image::getTextureId(GLenum filterType)
 }
 
 
-Image* loadBMP(string fnString)
+Image* loadBMP(std::string fnString)
 {
     const char* filename=fnString.c_str();
-    ifstream input;
-    input.open(filename, ifstream::binary);
+    std::ifstream input;
+    input.open(filename, std::ifstream::binary);
     assert(!input.fail()||!"Could not find file");
     char buffer[2];
     input.read(buffer, 2);
@@ -146,7 +148,7 @@ Image* loadBMP(string fnString)
     int bytesPerRow=((width*3+3)/4)*4-(width*3%4);
     int size=bytesPerRow*height;
     auto_array<char> pixels(new char[size]);
-    input.seekg(dataOffset, ios_base::beg);
+    input.seekg(dataOffset, std::ios_base::beg);
     input.read(pixels.get(), size);
 
     //Get the data into the right format

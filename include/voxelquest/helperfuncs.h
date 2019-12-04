@@ -21,8 +21,6 @@ struct coordAndIndex
     int index;
 };
 
-int traceLevel = 0; int popCount = 0;
-
 std::string i__s(int i);
 std::string fi__s(float f);
 std::string f__s(float f);
@@ -101,6 +99,7 @@ void doTrace(std::string traceVal0="", std::string traceVal1="", std::string tra
 void pushTrace(std::string traceVal0="", std::string traceVal1="", std::string traceVal2="", std::string traceVal3="", std::string traceVal4="", std::string traceVal5="", std::string traceVal6="", std::string traceVal7="", std::string traceVal8="", std::string traceVal9="", std::string traceVal10="");
 void popTrace();
 
+void doAlert();
 
 
 

@@ -12,8 +12,11 @@
 
 GameGUI::GameGUI()
 {
-	guiDirty=true;
-	maxLayerOver=-1;
+    PAGE_COUNT=0;
+
+    guiDirty=true;
+    maxLayerOver=-1;
+    dragging=false;
 }
 
 void GameGUI::init(Singleton* _singleton)
@@ -87,8 +90,8 @@ void GameGUI::addChildFromJSON(
 {
     int i;
     int j;
-//    int k;
-    //int q;
+    //    int k;
+        //int q;
     joi_type iterator;
     //int numEntries;
     int curIcon=0;
@@ -469,7 +472,7 @@ void GameGUI::addChildFromJSON(
                         break;
 
                     case E_GCT_CONTAINER_PARENT:
-						tempJV=findNearestKey(jvChildTemplate, "objectId");
+                        tempJV=findNearestKey(jvChildTemplate, "objectId");
                         if(tempJV!=NULL)
                         {
                             tempJV->Child("objectId")->number_value=curData->Child("objectId")->number_value;
@@ -715,7 +718,7 @@ void GameGUI::refreshNode(UIComponent* oldNode)
     clearRenderOrder();
 
 
-    TEMP_DEBUG=false;
+    g_settings.TEMP_DEBUG=false;
 
 
     testOver((int)guiX, (int)guiY);
@@ -1045,7 +1048,7 @@ void GameGUI::renderQuad(
 
     //border color
     glMultiTexCoord4f(
-		(GLenum)6,
+        (GLenum)6,
         resSS->props[E_SS_BDCOL_R]*selMod2+selMod,
         resSS->props[E_SS_BDCOL_G]*selMod2+selMod,
         resSS->props[E_SS_BDCOL_B]*selMod2,
@@ -1061,7 +1064,7 @@ void GameGUI::renderQuad(
     { // bg with hsv
 
         glMultiTexCoord4f(
-			(GLenum)2,
+            (GLenum)2,
             mixf(uiComp->getValueIndexPtr(0), -1.0f, uiComp->valVecMask[0]),
             mixf(uiComp->getValueIndexPtr(1), -1.0f, uiComp->valVecMask[1]),
             mixf(uiComp->getValueIndexPtr(2), -1.0f, uiComp->valVecMask[2]),
@@ -1152,8 +1155,8 @@ void GameGUI::renderQuadDirect(
     // glEnd();
 
     Renderer::curShaderPtr->setShaderVec4("blitCoords", x0, y0, x1, y1);
-//    singleton->fsQuad.draw();
-	Renderer::drawFSQuad();
+    //    singleton->fsQuad.draw();
+    Renderer::drawFSQuad();
 
 }
 
@@ -1204,7 +1207,7 @@ void GameGUI::renderGUI()
         }
 
         Renderer::setShaderFloat("passNum", (float)i);
-		Renderer::setShaderVec2("resolution", (float)Renderer::currentFBOResolutionX, (float)Renderer::currentFBOResolutionY);
+        Renderer::setShaderVec2("resolution", (float)Renderer::currentFBOResolutionX, (float)Renderer::currentFBOResolutionY);
 
         glBegin(GL_QUADS);
 
@@ -1292,20 +1295,20 @@ void GameGUI::renderGUI()
 
 void GameGUI::updateStatGUI()
 {
-	UIComponent* tempComp;
+    UIComponent* tempComp;
 
 
-	if(GameState::gem->getCurActor()==NULL)
-	{
-		return;
-	}
+    if(GameState::gem->getCurActor()==NULL)
+    {
+        return;
+    }
 
-	StatSheet* curSS=&(GameState::gem->getCurActor()->statSheet);
+    StatSheet* curSS=&(GameState::gem->getCurActor()->statSheet);
 
-	tempComp=getGUIComp("statMenu.availPoints");
-	tempComp->setValue(
-		((float)curSS->availPoints)/((float)(tempComp->divisions))
-	);
+    tempComp=getGUIComp("statMenu.availPoints");
+    tempComp->setValue(
+        ((float)curSS->availPoints)/((float)(tempComp->divisions))
+    );
 
 
 
@@ -1313,393 +1316,409 @@ void GameGUI::updateStatGUI()
 
 void GameGUI::updateStatusHUD()
 {
-	int i;
+    int i;
 
-	if(GameState::gem->getCurActor()==NULL)
-	{
-		return;
-	}
-	if(menuList[E_FM_HUDMENU]==NULL)
-	{
-		return;
-	}
-	if(menuList[E_FM_HUDMENU]->visible)
-	{
+    if(GameState::gem->getCurActor()==NULL)
+    {
+        return;
+    }
+    if(menuList[E_FM_HUDMENU]==NULL)
+    {
+        return;
+    }
+    if(menuList[E_FM_HUDMENU]->visible)
+    {
 
-	}
-	else
-	{
-		return;
-	}
+    }
+    else
+    {
+        return;
+    }
 
-	StatSheet* curStatSheet=&(GameState::gem->getCurActor()->statSheet);
+    StatSheet* curStatSheet=&(GameState::gem->getCurActor()->statSheet);
 
-	UIComponent* tempComp=getGUIComp("hudMenu.statContainer");
-	UIComponent* childComp;
+    UIComponent* tempComp=getGUIComp("hudMenu.statContainer");
+    UIComponent* childComp;
 
-	if(tempComp==NULL)
-	{
-		return;
-	}
+    if(tempComp==NULL)
+    {
+        return;
+    }
 
-	float v1;
-	float v2;
+    float v1;
+    float v2;
 
-	for(i=0; i<E_STATUS_LENGTH; i++)
-	{
-		childComp=tempComp->getChild(i);
+    for(i=0; i<E_STATUS_LENGTH; i++)
+    {
+        childComp=tempComp->getChild(i);
 
-		v1=(float)curStatSheet->curStatus[i];
-		v2=(float)curStatSheet->maxStatus[i];
+        v1=(float)curStatSheet->curStatus[i];
+        v2=(float)curStatSheet->maxStatus[i];
 
-		childComp->setValue(v1/v2);
-	}
+        childComp->setValue(v1/v2);
+    }
 }
 
 
 void GameGUI::showHudMenu(bool visible)
 {
-	if(menuList[E_FM_HUDMENU]!=NULL)
-	{
-		menuList[E_FM_HUDMENU]->visible=visible;
+    if(menuList[E_FM_HUDMENU]!=NULL)
+    {
+        menuList[E_FM_HUDMENU]->visible=visible;
 
-		externalJSON.erase("E_SDT_STATUSDATA"); // mem leak?
+        g_settings.externalJSON.erase("E_SDT_STATUSDATA"); // mem leak?
 
-		refreshNode(
-			findNodeByString("hudMenu.hudContainer")
-		);
+        refreshNode(
+            findNodeByString("hudMenu.hudContainer")
+        );
 
-		if(visible)
-		{
+        if(visible)
+        {
 
-			updateStatGUI();
+            updateStatGUI();
 
-		}
+        }
 
 
-	}
+    }
 }
 
 void GameGUI::showStatMenu(bool visible)
 {
 
 
-	std::cout<<"refreshStats\n";
+    std::cout<<"refreshStats\n";
 
-	if(menuList[E_FM_STATMENU]!=NULL)
-	{
-		menuList[E_FM_STATMENU]->visible=visible;
-		externalJSON.erase("E_SDT_STATDATA"); // mem leak?
-		externalJSON.erase("E_SDT_STATUSDATA"); // mem leak?
+    if(menuList[E_FM_STATMENU]!=NULL)
+    {
+        menuList[E_FM_STATMENU]->visible=visible;
+        g_settings.externalJSON.erase("E_SDT_STATDATA"); // mem leak?
+        g_settings.externalJSON.erase("E_SDT_STATUSDATA"); // mem leak?
 
-		refreshNode(
-			findNodeByString("statMenu.statContainer")
-		);
+        refreshNode(
+            findNodeByString("statMenu.statContainer")
+        );
 
-		if(visible)
-		{
+        if(visible)
+        {
 
-			updateStatGUI();
+            updateStatGUI();
 
-		}
+        }
 
 
-	}
+    }
 
 }
 
 
 void GameGUI::refreshContainers(bool onMousePos)
 {
-	UIComponent* objCont=NULL;
+    UIComponent* objCont=NULL;
 
-	bool oldVis=false;
+    bool oldVis=false;
 
-	if(menuList[E_FM_CONTMENU]!=NULL)
-	{
+    if(menuList[E_FM_CONTMENU]!=NULL)
+    {
+        std::cout<<"refreshContainers\n";
 
-		std::cout<<"refreshContainers\n";
+        g_settings.externalJSON.erase("E_SDT_OBJECTDATA"); // mem leak?
 
-		externalJSON.erase("E_SDT_OBJECTDATA"); // mem leak?
+        oldVis=menuList[E_FM_CONTMENU]->visible;
+        menuList[E_FM_CONTMENU]->visible=GameState::gem->anyContainerOpen();
 
+        objCont=findNodeByString("objectContainer");
+        //objCont->jvNodeNoTemplate->Child("dataParams")->number_value = contIndex;
 
+        refreshNode(objCont);
 
-		oldVis=menuList[E_FM_CONTMENU]->visible;
-		menuList[E_FM_CONTMENU]->visible=GameState::gem->anyContainerOpen();
+        if(onMousePos&&(oldVis==false))
+        {
 
-		objCont=findNodeByString("objectContainer");
-		//objCont->jvNodeNoTemplate->Child("dataParams")->number_value = contIndex;
+            // menuList[E_FM_CONTMENU]->dragOffset.x = 0.0f;
+            // menuList[E_FM_CONTMENU]->dragOffset.y = 0.0f;
+            contMenuBar=menuList[E_FM_CONTMENU]->getChild(0)->getChild(0);
 
-		refreshNode(objCont);
+            contMenuBar->lastDrag.x=(guiX);
+            contMenuBar->lastDrag.y=std::min((float)(guiY), (float)((guiWinH-menuList[E_FM_CONTMENU]->getChild(0)->resultDimInPixels.y)));
+            contMenuBar->forceDragUpdate=true;
+        }
 
-		if(onMousePos&&(oldVis==false))
-		{
-
-			// menuList[E_FM_CONTMENU]->dragOffset.x = 0.0f;
-			// menuList[E_FM_CONTMENU]->dragOffset.y = 0.0f;
-			contMenuBar=menuList[E_FM_CONTMENU]->getChild(0)->getChild(0);
-
-			contMenuBar->lastDrag.x=(guiX);
-			contMenuBar->lastDrag.y=std::min((float)(guiY), (float)((guiWinH-menuList[E_FM_CONTMENU]->getChild(0)->resultDimInPixels.y)));
-			contMenuBar->forceDragUpdate=true;
-		}
-
-	}
+    }
 }
 
 void GameGUI::setGUIText(
-	std::string key,
-	std::string stringValue,
-	float floatValue,
-	bool applyVal,
-	bool applyString
+    std::string key,
+    std::string stringValue,
+    float floatValue,
+    bool applyVal,
+    bool applyString
 )
 {
-	UICStruct* curComp;
-	if(compMap.find(key)==compMap.end())
-	{
-		// invalid key
-	}
-	else
-	{
-		curComp=&(compMap[key]);
+    UICStruct* curComp;
+    if(compMap.find(key)==compMap.end())
+    {
+        // invalid key
+    }
+    else
+    {
+        curComp=&(compMap[key]);
 
-		if(curComp->nodeId<0)
-		{
-			// component was deleted
-		}
-		else
-		{
-			if(applyString)
-			{
-				compStack[curComp->nodeId].data->setText(stringValue);
-			}
-			if(applyVal)
-			{
-				compStack[curComp->nodeId].data->setValue(floatValue);
-			}
+        if(curComp->nodeId<0)
+        {
+            // component was deleted
+        }
+        else
+        {
+            if(applyString)
+            {
+                compStack[curComp->nodeId].data->setText(stringValue);
+            }
+            if(applyVal)
+            {
+                compStack[curComp->nodeId].data->setValue(floatValue);
+            }
 
-		}
-	}
+        }
+    }
 }
 
 float GameGUI::getGUIValue(std::string key)
 {
-	UICStruct* curComp;
-	if(compMap.find(key)==compMap.end())
-	{
-		// invalid key
-	}
-	else
-	{
-		curComp=&(compMap[key]);
+    UICStruct* curComp;
+    if(compMap.find(key)==compMap.end())
+    {
+        // invalid key
+    }
+    else
+    {
+        curComp=&(compMap[key]);
 
-		if(curComp->nodeId<0)
-		{
-			// component was deleted
-		}
-		else
-		{
-			return compStack[curComp->nodeId].data->getValue();
-		}
-	}
+        if(curComp->nodeId<0)
+        {
+            // component was deleted
+        }
+        else
+        {
+            return compStack[curComp->nodeId].data->getValue();
+        }
+    }
 
-	return 0.0;
+    return 0.0;
 }
 
 UIComponent* GameGUI::getGUIComp(std::string key)
 {
-	UICStruct* curComp;
-	if(compMap.find(key)==compMap.end())
-	{
-		// invalid key
-	}
-	else
-	{
-		curComp=&(compMap[key]);
+    UICStruct* curComp;
+    if(compMap.find(key)==compMap.end())
+    {
+        // invalid key
+    }
+    else
+    {
+        curComp=&(compMap[key]);
 
-		if(curComp->nodeId<0)
-		{
-			// component was deleted
-		}
-		else
-		{
-			return compStack[curComp->nodeId].data;
-		}
-	}
+        if(curComp->nodeId<0)
+        {
+            // component was deleted
+        }
+        else
+        {
+            return compStack[curComp->nodeId].data;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 void GameGUI::setGUIValue(
-	std::string key,
-	float floatValue,
-	bool dispatchEvent,
-	bool preventRefresh
+    std::string key,
+    float floatValue,
+    bool dispatchEvent,
+    bool preventRefresh
 )
 {
-	UICStruct* curComp;
+    UICStruct* curComp;
 
-	if(compMap.find(key)==compMap.end())
-	{
-		// invalid key
-	}
-	else
-	{
-		curComp=&(compMap[key]);
+    if(compMap.find(key)==compMap.end())
+    {
+        // invalid key
+    }
+    else
+    {
+        curComp=&(compMap[key]);
 
-		if(curComp->nodeId<0)
-		{
-			// component was deleted
-		}
-		else
-		{
-			compStack[curComp->nodeId].data->setValue(floatValue, dispatchEvent, preventRefresh);
-		}
-	}
+        if(curComp->nodeId<0)
+        {
+            // component was deleted
+        }
+        else
+        {
+            compStack[curComp->nodeId].data->setValue(floatValue, dispatchEvent, preventRefresh);
+        }
+    }
 }
 
 
 void GameGUI::loadValuesGUI(bool applyValues)
 {
-	std::cout<<"Loading GUI Values\n";
+    std::cout<<"Loading GUI Values\n";
 
-	int i;
+    int i;
 
-	charArr dest;
-	dest.data=NULL;
-	dest.size=0;
+    charArr dest;
+    dest.data=NULL;
+    dest.size=0;
 
-//	UICStruct* curComp;
+    //	UICStruct* curComp;
 
-	std::string loadBuf;
-	//vector<string> splitStrings;
+    std::string loadBuf;
+    //vector<string> splitStrings;
 
 
-	if(loadFile(g_settings.guiSaveLoc, &dest))
-	{
-		loadBuf=std::string(dest.data);
+    if(loadFile(g_settings.guiSaveLoc, &dest))
+    {
+        loadBuf=std::string(dest.data);
 
-		splitStrings.clear();
-		splitStrings=split(loadBuf, '^');
+        splitStrings.clear();
+        splitStrings=split(loadBuf, '^');
 
-		for(i=0; i<splitStrings.size(); i+=2)
-		{
+        for(i=0; i<splitStrings.size(); i+=2)
+        {
 
-			setGUIValue(
-				splitStrings[i],
-				hexToFloat(&(splitStrings[i+1])),
-				true,
-				true
-			);
+            setGUIValue(
+                splitStrings[i],
+                hexToFloat(&(splitStrings[i+1])),
+                true,
+                true
+            );
 
-			if(applyValues)
-			{
+            if(applyValues)
+            {
 
-			}
-			else
-			{
+            }
+            else
+            {
 
-			}
+            }
 
-		}
+        }
 
-	}
-	else
-	{
-		std::cout<<"Unable to load GUI Values\n";
-	}
+    }
+    else
+    {
+        std::cout<<"Unable to load GUI Values\n";
+    }
 
-	if(dest.data!=NULL)
-	{
-		delete[] dest.data;
-		dest.data=NULL;
-	}
+    if(dest.data!=NULL)
+    {
+        delete[] dest.data;
+        dest.data=NULL;
+    }
 
-	std::cout<<"End Loading GUI Values\n";
+    std::cout<<"End Loading GUI Values\n";
 }
-
-
-void GameGUI::saveExternalJSON()
-{
-	std::cout<<"Saving External JSON Values\n";
-
-	for(itJSStruct iterator=externalJSON.begin(); iterator!=externalJSON.end(); iterator++)
-	{
-
-		if(iterator->second.jv!=NULL)
-		{
-			saveFileString(
-				"..\\data\\"+iterator->first,
-				&(iterator->second.jv->Stringify())
-			);
-		}
-
-		// iterator->first = key
-		// iterator->second = value
-	}
-
-	std::cout<<"End Saving External JSON Values\n";
-}
-
 
 void GameGUI::saveGUIValues()
 {
-	std::cout<<"Saving GUI Values\n";
+    std::cout<<"Saving GUI Values\n";
 
-	std::string stringBuf="";
+    std::string stringBuf="";
 
-	for(itUICStruct iterator=compMap.begin(); iterator!=compMap.end(); iterator++)
-	{
+    for(itUICStruct iterator=compMap.begin(); iterator!=compMap.end(); iterator++)
+    {
 
-		if(iterator->second.nodeId<0)
-		{
+        if(iterator->second.nodeId<0)
+        {
 
-		}
-		else
-		{
-			if(iterator->first[0]=='$')
-			{ // values with $ are saved
-				stringBuf.append(
-					iterator->first+"^"+floatToHex(compStack[iterator->second.nodeId].data->getValue())+"^"
-				);
-			}
+        }
+        else
+        {
+            if(iterator->first[0]=='$')
+            { // values with $ are saved
+                stringBuf.append(
+                    iterator->first+"^"+floatToHex(compStack[iterator->second.nodeId].data->getValue())+"^"
+                );
+            }
 
 
-		}
+        }
 
-		// iterator->first = key
-		// iterator->second = value
-	}
+        // iterator->first = key
+        // iterator->second = value
+    }
 
-	saveFileString(g_settings.guiSaveLoc, &stringBuf);
+    saveFileString(g_settings.guiSaveLoc, &stringBuf);
 
-	std::cout<<"End Saving GUI Values\n";
+    std::cout<<"End Saving GUI Values\n";
 }
 
 
 void GameGUI::updateGUI()
 {
 
-	float milVox=(
-		((float)(GameState::TOT_POINT_COUNT))/1000000.0f
-		);
+    float milVox=(
+        ((float)(GameState::TOT_POINT_COUNT))/1000000.0f
+        );
 
-	int mvPerPage=1;
+    int mvPerPage=1;
 
-	float voxelsGen=(float)(PAGE_COUNT*mvPerPage);
+    float voxelsGen=(float)(PAGE_COUNT*mvPerPage);
 
-	std::string maxGPUMString=" / "+fi__s(GameState::MAX_GPU_MEM);
+    std::string maxGPUMString=" / "+fi__s(GameState::MAX_GPU_MEM);
 
-	float totUsage=GameState::TOT_GPU_MEM_USAGE+GameState::VERTEX_MEM_USAGE;
+    float totUsage=GameState::TOT_GPU_MEM_USAGE+GameState::VERTEX_MEM_USAGE;
 
-	// if (frameCount%120 == 0) {
+    // if (frameCount%120 == 0) {
 
-	setGUIText("debug.fbMem", "Frame Buffer Mem Used: "+fi__s(GameState::TOT_GPU_MEM_USAGE)+maxGPUMString, GameState::TOT_GPU_MEM_USAGE/GameState::MAX_GPU_MEM, true);
-	setGUIText("debug.vertMem", "Vert Mem Used: "+fi__s(GameState::VERTEX_MEM_USAGE)+maxGPUMString, GameState::VERTEX_MEM_USAGE/GameState::MAX_GPU_MEM, true);
-	setGUIText("debug.totMem", "Total Mem Used: "+fi__s(totUsage)+maxGPUMString, totUsage/GameState::MAX_GPU_MEM, true);
-	setGUIText("debug.numVoxels", "Voxels Generated (In Millions!): "+f__s(milVox));
+    setGUIText("debug.fbMem", "Frame Buffer Mem Used: "+fi__s(GameState::TOT_GPU_MEM_USAGE)+maxGPUMString, GameState::TOT_GPU_MEM_USAGE/GameState::MAX_GPU_MEM, true);
+    setGUIText("debug.vertMem", "Vert Mem Used: "+fi__s(GameState::VERTEX_MEM_USAGE)+maxGPUMString, GameState::VERTEX_MEM_USAGE/GameState::MAX_GPU_MEM, true);
+    setGUIText("debug.totMem", "Total Mem Used: "+fi__s(totUsage)+maxGPUMString, totUsage/GameState::MAX_GPU_MEM, true);
+    setGUIText("debug.numVoxels", "Voxels Generated (In Millions!): "+f__s(milVox));
 
-	// }
+    // }
 
+}
+
+int GameGUI::placeInStack()
+{
+    int curId;
+    int stackSize=(int)emptyStack.size();
+    if(stackSize>0)
+    {
+        curId=emptyStack.back();
+        emptyStack.pop_back();
+        //compStack[curId].data = new UIComponent();
+        compStack[curId].isValid=true;
+
+
+        return curId;
+    }
+    else
+    {
+        compStack.push_back(CompStruct());
+        compStack.back().data=new UIComponent();
+        compStack.back().isValid=true;
+
+
+        return (int)compStack.size()-1;
+
+    }
+}
+
+int GameGUI::placeInLayer(int nodeId, int layer)
+{
+    // int curId;
+    // if (emptyLayers[layer].size() > 0) {
+    // 	curId = emptyLayers[layer].back();
+    // 	emptyLayers[layer].pop_back();
+    // 	guiLayers[layer][curId] = nodeId;
+
+    // 	return curId;
+    // }
+    // else {
+    guiLayers[layer].push_back(nodeId);
+    return (int)guiLayers[layer].size()-1;
+
+    //}
 }

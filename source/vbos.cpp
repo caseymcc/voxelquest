@@ -1,5 +1,7 @@
 #include "voxelquest/vbos.h"
+#include "voxelquest/gamestate.h"
 
+#include <iostream>
 
 VBOWrapper::VBOWrapper()
 {
@@ -13,7 +15,7 @@ VBOWrapper::VBOWrapper()
     procCount=0;
 }
 
-~VBOWrapper::VBOWrapper()
+VBOWrapper::~VBOWrapper()
 {
     remVI();
 }
@@ -49,7 +51,7 @@ void VBOWrapper::setVI(VIStruct* _vi, bool _viIsShared)
 
 int VBOWrapper::getNumVerts()
 {
-    return (vi->vertexVec.size()/(numVecs*4));
+    return (int)(vi->vertexVec.size()/(numVecs*4));
 }
 
 void VBOWrapper::init(
@@ -83,7 +85,7 @@ void VBOWrapper::deallocVBO()
     hasInit=false;
 }
 
-void VBOWrapper::clearVecs(bool shrinkToFit=true)
+void VBOWrapper::clearVecs(bool shrinkToFit)
 {
 
     vi->vertexVec.clear();
@@ -112,11 +114,11 @@ void VBOWrapper::checkInit()
         {
             initBase(
                 &(vi->vertexVec[0]),
-                vi->vertexVec.size(),
-                vi->vertexVec.size(),
+                (int)vi->vertexVec.size(),
+                (int)vi->vertexVec.size(),
                 &(vi->indexVec[0]),
-                vi->indexVec.size(),
-                vi->indexVec.size()
+                (int)vi->indexVec.size(),
+                (int)vi->indexVec.size()
             );
         }
         else
@@ -125,8 +127,8 @@ void VBOWrapper::checkInit()
             {
                 initBase(
                     &(vi->vertexVec[0]),
-                    vi->vertexVec.size(),
-                    vi->vertexVec.size(),
+                    (int)vi->vertexVec.size(),
+                    (int)vi->vertexVec.size(),
                     NULL,
                     0,
                     0
@@ -165,9 +167,9 @@ void VBOWrapper::update()
 
     updateBase(
         vertexPtr,
-        vi->vertexVec.size(),
+        (int)vi->vertexVec.size(),
         indexPtr,
-        vi->indexVec.size()
+        (int)vi->indexVec.size()
     );
 }
 void VBOWrapper::updateNew()
@@ -188,9 +190,9 @@ void VBOWrapper::updateNew()
 
     updateNewBase(
         vertexPtr,
-        vi->vertexVec.size(),
+        (int)vi->vertexVec.size(),
         indexPtr,
-        vi->indexVec.size()
+        (int)vi->indexVec.size()
     );
 }
 
@@ -215,9 +217,9 @@ void VBOWrapper::endFill()
         // todo: handle case where vertex buffer has gone to zero
     }
 
-    VERTEX_MEM_USAGE-=lastVMUsage;
-    float vertMem=(vi->vertexVec.size()+vi->indexVec.size())*4;
-    VERTEX_MEM_USAGE+=vertMem/(1024.0f*1024.0f);
+    GameState::VERTEX_MEM_USAGE-=lastVMUsage;
+    float vertMem=(float)(vi->vertexVec.size()+vi->indexVec.size())*4;
+    GameState::VERTEX_MEM_USAGE+=vertMem/(1024.0f*1024.0f);
     lastVMUsage=vertMem/(1024.0f*1024.0f);
 
 }
@@ -228,7 +230,7 @@ void VBOWrapper::draw()
 
     if(!hasInit)
     {
-        cout<<"NOT INIT!\n";
+        std::cout<<"NOT INIT!\n";
         return;
     }
 
@@ -242,7 +244,7 @@ void VBOWrapper::drawCubes(int numCubes)
 
     if(!hasInit)
     {
-        cout<<"NOT INIT!\n";
+        std::cout<<"NOT INIT!\n";
         return;
     }
 
@@ -256,7 +258,7 @@ void VBOWrapper::drawPoints()
 
     if(!hasInit)
     {
-        cout<<"NOT INIT!\n";
+        std::cout<<"NOT INIT!\n";
         return;
     }
 
@@ -553,7 +555,7 @@ void VBOWrapper::updateNewBase(
     sizeOfVD=_sizeOfVD;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*_sizeOfVD, _vertexData, drawEnum);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*_sizeOfVD, _vertexData, (GLenum)drawEnum);
     //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*_sizeOfVD, _vertexData);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -563,7 +565,7 @@ void VBOWrapper::updateNewBase(
         sizeOfID=_sizeOfID;
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*_sizeOfID, _indexData, drawEnum);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*_sizeOfID, _indexData, (GLenum)drawEnum);
         //glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLuint)*_sizeOfID, _indexData);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -583,7 +585,7 @@ void VBOWrapper::initBase(
 
     if(numVecs==-1)
     {
-        cout<<"DID NOT INIT numVecs!\n";
+        std::cout<<"DID NOT INIT numVecs!\n";
         return;
     }
 
@@ -622,7 +624,7 @@ void VBOWrapper::initBase(
     if(_vertexData!=NULL)
     {
         // fill with data
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*maxSizeOfVD, _vertexData, drawEnum);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*maxSizeOfVD, _vertexData, (GLenum)drawEnum);
     }
 
 
@@ -645,7 +647,7 @@ void VBOWrapper::initBase(
 
 
         // fill with data
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*maxSizeOfID, _indexData, drawEnum);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*maxSizeOfID, _indexData, (GLenum)drawEnum);
 
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -678,8 +680,8 @@ void VBOGrid::init(
     int i;
     int j;
 
-    float fxp=xpitch-2;
-    float fyp=ypitch;
+    float fxp=(float)xpitch-2;
+    float fyp=(float)ypitch;
 
     float fi;
     float fj;
@@ -688,12 +690,12 @@ void VBOGrid::init(
 
     for(j=0; j<ypitch; j++)
     {
-        fj=j;
+        fj=(float)j;
         for(i=0; i<xpitch; i++)
         {
-            fi=i;
-            vboWrapper.vi->vertexVec.push_back(i);
-            vboWrapper.vi->vertexVec.push_back(j);
+            fi=(float)i;
+            vboWrapper.vi->vertexVec.push_back((float)i);
+            vboWrapper.vi->vertexVec.push_back((float)j);
             vboWrapper.vi->vertexVec.push_back(1.0f);
             vboWrapper.vi->vertexVec.push_back(0.0f);
 
@@ -754,6 +756,6 @@ void VBOGrid::init(
 
     vboWrapper.init(
         2,
-        GL_STATIC_DRAW
+        (int)GL_STATIC_DRAW
     );
 }
