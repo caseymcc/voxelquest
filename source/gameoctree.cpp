@@ -152,7 +152,7 @@ int GameOctree::allocNode(int parent)
 // 	float r, g, b;
 
 // 	btVector3 myPoint;
-// 	btVector3 camPoint = singleton->cameraGetPosNoShake()->getBTV();
+// 	btVector3 camPoint = Renderer::cameraGetPosNoShake()->getBTV();
 
 // 	float maxDis = singleton->clipDist[1]-50.0f;
 

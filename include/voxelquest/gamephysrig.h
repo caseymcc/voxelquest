@@ -1,6 +1,13 @@
 #ifndef _voxelquest_gamephsrig_h_
 #define _voxelquest_gamephsrig_h_
 
+#include "voxelquest/rig.h"
+
+class GameOrg;
+class GameOrgNode;
+class BaseObj;
+class btDynamicsWorld;
+class Singleton;
 
 class GamePhysRig
 {
@@ -23,20 +30,16 @@ public:
         GameOrgNode* curNode
     );
 
-
-
-
     void initFromOrg(
         GameOrgNode* curNode,
         int curParent
     );
 
-
     void reinit();
 
     void removeAllBodies();
 
-private:
+//private:
     Singleton* singleton;
     btDynamicsWorld*	m_ownerWorld;
     std::vector<RigJointStruct> rigJoints;
@@ -45,9 +48,6 @@ private:
     btVector3 origOffset;
     GameOrg* baseOrg;
     BaseObj* baseEnt;
-
-
-
     /*
 
     rbA = parentRigidBody
@@ -64,12 +64,7 @@ private:
 
     */
 
-
-
-
-
     //btTypedConstraint** GetJoints() {return &m_joints[0];}
-
 };
 
 

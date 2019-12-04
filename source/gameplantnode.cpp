@@ -1,6 +1,4 @@
-#include "gameplantnode.h"
-
-
+#include "voxelquest/gameplantnode.h"
 
 GamePlantNode::GamePlantNode()
 {

@@ -3,11 +3,29 @@
 
 #include "voxelquest/vectors.h"
 #include "voxelquest/fbos.h"
+#include "voxelquest/vbos.h"
+#include "voxelquest/tbos.h"
 #include "voxelquest/shader.h"
+
+int NUM_POLY_STRINGS=0;
+std::string polyFBOStrings[]={
+    "polyFBO0",
+    "polyFBO1",
+    "polyFBO2",
+    "polyFBO3",
+    "polyFBO4"
+};
 
 class Renderer
 {
 public:
+    static void init(int width, int height);
+
+    static GLfloat getCamRot(int ind);
+    static FIVector4* cameraGetPos() { return &resultCameraPos; }
+    static FIVector4* cameraGetPosNoShake() { return cameraPos; }
+    static void performCamShake(BaseObj* ge, float fp);
+
 	static void bindShader(std::string shaderName);
 	static void unbindShader();
 
@@ -61,7 +79,7 @@ public:
 
 	static void doShaderRefresh(bool doBake);
 
-	static void bindFBODirect(FBOSet *fbos, int doClear);
+	static void bindFBODirect(FBOSet *fbos, int doClear=1);
 
 	static void idrawCrossHairs(FIVector4 originVec, float radius);
 
@@ -117,11 +135,78 @@ public:
 		float zm
 	);
 
+//fbo
+    static void bindFBO(std::string fboName, int swapFlag=-1, int doClear=1);
+
+    static void unbindFBO();
+
+    static void sampleFBO(std::string fboName, int offset=0, int swapFlag=-1, int minOff=0, int maxOff=-1);
+
+    static void unsampleFBO(std::string fboName, int offset=0, int swapFlag=-1, int minOff=0, int maxOff=-1);
+
+    // offset - write offset, _minOff - read min, _maxoff - read max
+    static void sampleFBODirect(FBOSet *fbos, int offset=0, int _minOff=0, int _maxOff=-1);
+
+    // offset - write offset, _minOff - read min, _maxoff - read max
+    static void unsampleFBODirect(FBOSet *fbos, int offset=0, int _minOff=0, int _maxOff=-1);
+
+    static void copyFBO(std::string src, std::string dest, int num=0);
+
+    static void copyFBO2(std::string src, std::string dest, int num1=0, int num2=1);
+
+    static void copyFBO3(std::string src, std::string dest, int num1=0, int num2=1, int num3=2);
+
+    void getMatrixFromFBO(std::string fboName);
+
 	static void drawFBO(std::string fboName, int ind, float zm, int swapFlag=-1);
 
 	static void drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff, float zm);
 
 	static void drawFBOOffset(std::string fboName, int ind, float xOff, float yOff, float zm);
+
+//matrix
+    static void ComputeFOVProjection(float* result, float fov, float aspect, float nearDist, float farDist, bool leftHanded);
+    static void getLSMatrix(FIVector4* lightPosParam, Matrix4 &lsMat, float orthoSize);
+    static void setMatrices(int w, int h);
+
+    static int widthWin;
+    static int heightWin;
+    static float FOV;
+    static float heightOfNearPlane;
+
+    static Matrix4 pmMatrix;
+
+    static VBOWrapper fsQuad;
+    static TBOWrapper limbTBO;
+    static TBOWrapper primTBO;
+
+    static float clipDist[2];
+    static bool perspectiveOn;
+    static bool sphereMapOn;
+    static bool drawOrient;
+
+    static int forceShadowUpdate;
+    static FIVector4 lastLightPos;
+
+    static GLfloat camRotation[2];
+    static GLfloat curCamRotation[2];
+    static float cameraZoom;
+    static FIVector4 *cameraPos;
+    static FIVector4 tempLerpPos;
+    static FIVector4 camLerpPos;
+    static FIVector4 resultCameraPos;
+    static FIVector4 targetCameraPos;
+    static FIVector4 baseCameraPos;
+
+    static FIVector4 lookAtVec;
+    static Matrix4 viewMatrix;
+    static Matrix4 projMatrix;
+    static Matrix4 curObjMatrix;
+    static Matrix3 curObjMatrix3;
+    static float viewMatrixDI[16];
+
+    static FIVector4 lightVec;
+    static FIVector4 lightVecOrig;
 
 	static int currentFBOResolutionX;
 	static int currentFBOResolutionY;
@@ -130,6 +215,12 @@ public:
 	static std::map<std::string, Shader*> shaderMap;
 	static std::string curShader;
 	static Shader *curShaderPtr;
+
+    static FIVector4 bufferDim;
+    static FIVector4 bufferDimTarg;
+    static FIVector4 bufferDimHalf;
+    static FIVector4 bufferModDim;
+    static FIVector4 bufferRenderDim;
 };
 
 

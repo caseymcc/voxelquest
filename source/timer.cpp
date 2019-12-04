@@ -1,14 +1,32 @@
 #include "timer.h"
 
-Timer::Timer()
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#endif
+
+struct TimerHidden
 {
 #ifdef WIN32
-    QueryPerformanceFrequency(&frequency);
-    startCount.QuadPart=0;
-    endCount.QuadPart=0;
+    LARGE_INTEGER frequency;                    // ticks per second
+    LARGE_INTEGER startCount;                   //
+    LARGE_INTEGER endCount;                     //
 #else
-    startCount.tv_sec=startCount.tv_usec=0;
-    endCount.tv_sec=endCount.tv_usec=0;
+    timeval startCount;                         //
+    timeval endCount;                           //
+#endif
+};
+
+Timer::Timer()
+{
+    m_hidden.reset(new TimerHidden());
+#ifdef WIN32
+    QueryPerformanceFrequency(&m_hidden->frequency);
+    m_hidden->startCount.QuadPart=0;
+    m_hidden->endCount.QuadPart=0;
+#else
+    m_hidden->startCount.tv_sec=m_hidden->startCount.tv_usec=0;
+    m_hidden->endCount.tv_sec=m_hidden->endCount.tv_usec=0;
 #endif
 
     stopped=0;
@@ -24,9 +42,9 @@ void   Timer::start()
 {
     stopped=0; // reset stop flag
 #ifdef WIN32
-    QueryPerformanceCounter(&startCount);
+    QueryPerformanceCounter(&m_hidden->startCount);
 #else
-    gettimeofday(&startCount, NULL);
+    gettimeofday(&m_hidden->startCount, NULL);
 #endif
 }
 void   Timer::stop()
@@ -34,9 +52,9 @@ void   Timer::stop()
     stopped=1; // set timer stopped flag
 
 #ifdef WIN32
-    QueryPerformanceCounter(&endCount);
+    QueryPerformanceCounter(&m_hidden->endCount);
 #else
-    gettimeofday(&endCount, NULL);
+    gettimeofday(&m_hidden->endCount, NULL);
 #endif
 }
 double Timer::getElapsedTime()
@@ -58,19 +76,19 @@ double Timer::getElapsedTimeInMicroSec()
 #ifdef WIN32
     if(!stopped)
     {
-        QueryPerformanceCounter(&endCount);
+        QueryPerformanceCounter(&m_hidden->endCount);
     }
 
-    startTimeInMicroSec=startCount.QuadPart * (1000000.0/frequency.QuadPart);
-    endTimeInMicroSec=endCount.QuadPart * (1000000.0/frequency.QuadPart);
+    startTimeInMicroSec=m_hidden->startCount.QuadPart * (1000000.0/m_hidden->frequency.QuadPart);
+    endTimeInMicroSec=m_hidden->endCount.QuadPart * (1000000.0/m_hidden->frequency.QuadPart);
 #else
     if(!stopped)
     {
-        gettimeofday(&endCount, NULL);
+        gettimeofday(&m_hidden->endCount, NULL);
     }
 
-    startTimeInMicroSec=(startCount.tv_sec * 1000000.0)+startCount.tv_usec;
-    endTimeInMicroSec=(endCount.tv_sec * 1000000.0)+endCount.tv_usec;
+    startTimeInMicroSec=(m_hidden->startCount.tv_sec * 1000000.0)+m_hidden->startCount.tv_usec;
+    endTimeInMicroSec=(m_hidden->endCount.tv_sec * 1000000.0)+m_hidden->endCount.tv_usec;
 #endif
 
     return endTimeInMicroSec-startTimeInMicroSec;

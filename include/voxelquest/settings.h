@@ -87,6 +87,9 @@ public:
 
     
     bool settings[E_BS_LENGTH];
+
+    float gammaVal;
+
     bool cavesOn;
     float heightMapMaxInCells;
 
@@ -130,6 +133,8 @@ public:
     float wallRadInCells;
 
 	std::string guiSaveLoc;
+
+    int iNumSteps;
     
 };
 

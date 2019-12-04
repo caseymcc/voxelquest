@@ -13,6 +13,7 @@
 #include "voxelquest/rig.h"
 #include "voxelquest/bullethelpers.h"
 #include "voxelquest/jsonhelpers.h"
+#include "voxelquest/renderer.h"
 
 
 #include <iostream>
@@ -818,7 +819,7 @@ void GameEntManager::updateDragInfo(int bestInd, bool lbDown, bool wasDoubleClic
         {
 
             isDraggingObject=true;
-            //singleton->markerFound = true;
+            //GameState::markerFound = true;
             draggingFromInd=selObjInd;
             draggingFromType=E_DT_WORLD_OBJECT;
 
@@ -1356,7 +1357,7 @@ void GameEntManager::setCurActor(int newUID)
         actObjInd=newUID;
         subjectDistance=convertToVQV(
             ca->getCenterPoint(E_BDG_CENTER)
-        ).distance(GameState::cameraGetPosNoShake());
+        ).distance(Renderer::cameraGetPosNoShake());
         curPoseType=ca->entType;
     }
 
@@ -2807,7 +2808,7 @@ void GameEntManager::makeHit(
                             if(g_settings.settings[E_BS_DESTROY_TERRAIN])
                             {
                                 tempVec1=convertToVQV(geWeapon->getCenterPoint(E_BDG_CENTER));
-                                //singleton->gameFluid[E_FID_BIG]->pushExplodeBullet(true,&tempVec1,0,4.0f);
+                                //GameState::gameFluid[E_FID_BIG]->pushExplodeBullet(true,&tempVec1,0,4.0f);
                             }
 
 

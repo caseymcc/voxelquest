@@ -166,7 +166,7 @@ public:
 
     void maxDirtyRegion();
 
-private:
+//private:
     Singleton* singleton;
 
     uint* volDataPrim[E_PL_LENGTH];

@@ -1,6 +1,8 @@
 #ifndef _voxelquest_rig_h_
 #define _voxelquest_rig_h_
 
+#include "voxelquest/enums.h"
+
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btMatrix3x3.h>
 #include <LinearMath/btQuaternion.h>

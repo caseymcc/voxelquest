@@ -1,6 +1,10 @@
 #ifndef _voxelquest_timer_h_
 #define _voxelquest_timer_h_
 
+#include <memory>
+
+struct TimerHidden;
+
 class Timer
 {
 public:
@@ -16,8 +20,6 @@ public:
 
     double getElapsedTimeInMicroSec();
 
-
-
 protected:
 
 
@@ -25,13 +27,7 @@ private:
     double startTimeInMicroSec;                 // starting time in micro-second
     double endTimeInMicroSec;                   // ending time in micro-second
     int    stopped;                             // stop flag 
-#ifdef WIN32
-    LARGE_INTEGER frequency;                    // ticks per second
-    LARGE_INTEGER startCount;                   //
-    LARGE_INTEGER endCount;                     //
-#else
-    timeval startCount;                         //
-    timeval endCount;                           //
-#endif
+    std::unique_ptr<TimerHidden> m_hidden;
 };
+
 #endif//_voxelquest__h_

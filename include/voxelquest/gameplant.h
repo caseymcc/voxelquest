@@ -1,6 +1,10 @@
 #ifndef _voxelquest_gameplant_h_
 #define _voxelquest_gameplant_h_
 
+#include "voxelquest/vectors.h"
+
+const static int MAX_PLANT_GEN=16;
+
 enum E_PLANT_TYPES
 {
     E_PT_OAK_TRUNK,
@@ -29,6 +33,9 @@ struct PlantRules
 
 
 };
+
+class Singleton;
+class GamePlantNode;
 
 class GamePlant
 {

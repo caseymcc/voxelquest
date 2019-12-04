@@ -1,6 +1,5 @@
-#include "myshapedrawer.h"
-
-
+#include "voxelquest/myshapedrawer.h"
+#include "voxelquest/renderer.h"
 
 MyShapeDrawer::MyShapeDrawer(Singleton* _singleton)
 {
@@ -161,33 +160,33 @@ void MyShapeDrawer::setId(
 void MyShapeDrawer::updateMat2()
 {
 
-    glGetFloatv(GL_MODELVIEW_MATRIX, singleton->viewMatrix.get());
-    Renderer::setShaderMatrix4x4("objmat", singleton->viewMatrix.get(), 1);
+    glGetFloatv(GL_MODELVIEW_MATRIX, Renderer::viewMatrix.get());
+    Renderer::setShaderMatrix4x4("objmat", Renderer::viewMatrix.get(), 1);
 }
 
 void MyShapeDrawer::updateMat()
 {
     int i;
 
-    singleton->curObjMatrix.identity();
+    Renderer::curObjMatrix.identity();
 
     for(i=0; i<singleton->objMatrixStack.size(); i++)
     {
-        singleton->curObjMatrix*=singleton->objMatrixStack[i];
+        Renderer::curObjMatrix*=singleton->objMatrixStack[i];
     }
-    //glGetFloatv(GL_MODELVIEW_MATRIX, singleton->viewMatrix.get());
-    Renderer::setShaderMatrix4x4("objmat", singleton->curObjMatrix.get(), 1);
+    //glGetFloatv(GL_MODELVIEW_MATRIX, Renderer::viewMatrix.get());
+    Renderer::setShaderMatrix4x4("objmat", Renderer::curObjMatrix.get(), 1);
 
-    singleton->curObjMatrix3.set4(singleton->curObjMatrix.get());
-    singleton->curObjMatrix3.invert();
-    singleton->curObjMatrix3.transpose();
+    Renderer::curObjMatrix3.set4(Renderer::curObjMatrix.get());
+    Renderer::curObjMatrix3.invert();
+    Renderer::curObjMatrix3.transpose();
 
-    Renderer::setShaderMatrix3x3("normalRot", singleton->curObjMatrix3.get(), 1);
+    Renderer::setShaderMatrix3x3("normalRot", Renderer::curObjMatrix3.get(), 1);
 
 
 
     //btTransform tr;
-    // tr.setFromOpenGLMatrix(singleton->curObjMatrix.get());
+    // tr.setFromOpenGLMatrix(Renderer::curObjMatrix.get());
     // btQuaternion orn = tr.getRotation();
     // Renderer::setShaderVec4("objQuat",orn.getX(),orn.getY(),orn.getZ(),orn.getW());
 
@@ -343,7 +342,7 @@ void MyShapeDrawer::drawOpenGL(
     //btglMultMatrix(m);
     //updateMat2();
     pushNewMat(m);
-    //GameState::gem->gameObjects[uid].rotMat = singleton->curObjMatrix3;
+    //GameState::gem->gameObjects[uid].rotMat = Renderer::curObjMatrix3;
 
 
     if(shape->getShapeType()==UNIFORM_SCALING_SHAPE_PROXYTYPE)

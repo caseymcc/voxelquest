@@ -3,6 +3,9 @@
 
 #include <string>
 
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+
 class GameSound
 {
 public:

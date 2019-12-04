@@ -1712,7 +1712,7 @@ void GamePageHolder::genCellData()
     VolumeWrapper* curVW;
 
     // if (isBlockHolder) {
-    // 	curVW = (singleton->volumeWrappers[E_VW_WORLD]);
+    // 	curVW = (volumeWrappers[E_VW_WORLD]);
     // 	cout << "genBlockHolder\n";
     // }
     // else {
@@ -1767,7 +1767,7 @@ void GamePageHolder::genCellData()
         ii=p-(kk*cellsPerHolder*cellsPerHolder+jj*cellsPerHolder);
 
         // if (isBlockHolder) {
-        // 	fk = gphMinInCells[2] + kk*singleton->cellsPerBlock;
+        // 	fk = gphMinInCells[2] + kk*g_settings.cellsPerBlock;
         // }
         // else {
         fk=gphMinInCells[2]+kk;
@@ -2415,7 +2415,7 @@ void GamePageHolder::wrapPolys()
     float cellPitch;
 
     // if (isBlockHolder) {
-    // 	cellPitch = singleton->cellsPerBlock;
+    // 	cellPitch = g_settings.cellsPerBlock;
     // }
     // else {
     cellPitch=1.0f;

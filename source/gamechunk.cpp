@@ -122,7 +122,7 @@ void GameChunk::checkHolders()
     testPos.addXYZ(0.5f);
     testPos.multXYZ(cellsPerChunk);
 
-    float testDis=testPos.distance(GameState::cameraGetPosNoShake());
+    float testDis=testPos.distance(Renderer::cameraGetPosNoShake());
 
     testDis/=cellsPerChunk;
 
@@ -348,7 +348,7 @@ void GameChunk::fillVBO()
     //changeCount = 0;
 
     readyToRender=true;
-    GameState::forceShadowUpdate()=32;
+    Renderer::forceShadowUpdate=32;
 
     //cout << "fillVBO b\n";
 

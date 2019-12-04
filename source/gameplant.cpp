@@ -1,4 +1,7 @@
-#include "gameplant.h"
+#include "voxelquest/gameplant.h"
+#include "voxelquest/gameplantnode.h"
+
+#include <algorithm>
 
 GamePlant::GamePlant()
 {
@@ -6,13 +9,13 @@ GamePlant::GamePlant()
     rootsNode=NULL;
 }
 
-static void GamePlant::initAllPlants(Singleton* _singleton)
+void GamePlant::initAllPlants(Singleton* _singleton)
 {
     int i;
-    int j;
+//    int j;
 
 
-    float pi=3.14159;
+    float pi=3.14159f;
 
     PlantRules* pr;
 
@@ -228,13 +231,13 @@ void GamePlant::initBase(
 )
 {
     int i;
-    float curLerp;
+//    float curLerp;
     float maxLength=0.0f;
     //float curMult = 1.0f;
-    int maxGen=rules->numGenerations;
+    int maxGen=(int)rules->numGenerations;
 
 
-    curNode->init(NULL, rules->numChildren[1], gv(rules->numChildren));
+    curNode->init(NULL, (int)rules->numChildren[1], (int)gv(rules->numChildren));
     //curNode->tangent.setFXYZRef(baseVec);
     curNode->begPoint.setFXYZRef(&origin);
     curNode->endPoint.setFXYZRef(&origin);
@@ -317,7 +320,7 @@ void GamePlant::applyRules(
         }
         else
         {
-            curChild->init(curParent, rules->numChildren[1], max(gv(rules->numChildren)-(float)curGen/2, 1.0f));
+            curChild->init(curParent, (int)rules->numChildren[1], (int)std::max(gv(rules->numChildren)-(float)curGen/2, 1.0f));
         }
 
 

@@ -106,6 +106,7 @@ set(voxelquest_include
     include/voxelquest/spacebuffer.h
     include/voxelquest/tbos.h
     include/voxelquest/texenums.h
+    include/voxelquest/texture3d.h
     include/voxelquest/threadpoolwrapper.h
     include/voxelquest/threadwrapper.h
     include/voxelquest/timer.h
@@ -170,7 +171,7 @@ set(voxelquest_source
     source/mat.cpp
     source/memorypool.cpp
     source/myglhelper.cpp
-#	source/myoglapp.cpp
+    source/myoglapp.cpp
     source/myshapedrawer.cpp
 #    source/network.cpp #does not appear to be used
     source/object.cpp
@@ -186,6 +187,7 @@ set(voxelquest_source
     source/singleton.cpp
 	source/stylesheet.cpp
     source/tbos.cpp
+    source/texture3d.cpp
     source/threadpoolwrapper.cpp
     source/threadwrapper.cpp
     source/timer.cpp

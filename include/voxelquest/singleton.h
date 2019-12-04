@@ -895,14 +895,14 @@ public:
 
 
 
-    std::vector<ExplodeStruct> explodeStack;
-    std::vector<DebrisStruct> debrisStack;
+    //std::vector<ExplodeStruct> explodeStack;
+    //std::vector<DebrisStruct> debrisStack;
     //std::vector<btRigidBody*> debrisBodies;
 
 
     // must stop all threads before modifying primTemplateStack
     std::vector<FIVector4> primTemplateStack;
-    std::vector<SphereStruct> sphereStack;
+    //std::vector<SphereStruct> sphereStack;
 
     std::vector<int> guiLayers[MAX_UI_LAYERS];
     //std::vector<int> emptyLayers[MAX_UI_LAYERS];
@@ -923,10 +923,10 @@ public:
     float wallRadInCells;
 
 
-    Image *imageVoro;
-    Image *imageHM0;
-    Image *imageHM1;
-    Image *cloudImage;
+//    Image *imageVoro;
+//    Image *imageHM0;
+//    Image *imageHM1;
+//    Image *cloudImage;
 
 
 

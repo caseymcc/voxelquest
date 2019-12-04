@@ -32,6 +32,8 @@ Settings::Settings()
 	settings[E_BS_EDIT_POSE]=false;
 	settings[E_BS_SHOW_HEALTH]=false;
 
+    gammaVal=0.5f;
+
 	cavesOn=false;
 
 	heightMapMaxInCells=HM_MAX_IN_CELLS;
@@ -79,6 +81,8 @@ Settings::Settings()
 	wallRadInCells=((float)cellsPerNodeXY)/4.0f;
 
 	guiSaveLoc="..\\data\\saves\\save0\\compMap.txt";
+
+    iNumSteps=16;
 }
 
 void Settings::speakSetting(int settingName)

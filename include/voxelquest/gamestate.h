@@ -4,6 +4,7 @@
 #include "voxelquest/enums.h"
 #include "voxelquest/gameent.h"
 #include "voxelquest/vectors.h"
+#include "voxelquest/timer.h"
 
 #include <string>
 #include <map>
@@ -25,6 +26,7 @@ class GameNetwork;
 class GameAI;
 class GameGUI;
 class Shader;
+class BaseObj;
 
 class GameState
 {
@@ -33,19 +35,19 @@ public:
 
 	void init();
 
-    static FIVector4* cameraGetPos() { return &singleton()->resultCameraPos; }
-    static FIVector4* cameraGetPosNoShake() { return singleton()->cameraPos; }
-
-    static int &totPointCount(){return singleton()->TOT_POINT_COUNT;}
+    static int &totPointCount(){return GameState::TOT_POINT_COUNT;}
     static bool &wsBufferInvalid() {return singleton()->m_wsBufferInvalid;}
     static bool &forceGetPD() { return singleton()->m_forceGetPD; }
-    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
+//    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
 
 	static void stopAllThreads();
 
+    static float cameraShake;
+    static Timer shakeTimer;
+
 	static int tbTicks;
 
-	static FIVector4 lookAtVec;
+//	static FIVector4 lookAtVec;
 	static FIVector4 origin;
 	
 	static bool markerFound;
@@ -93,18 +95,8 @@ public:
 private:
     GameState();
 
-    FIVector4* cameraPos;
-    FIVector4 tempLerpPos;
-    FIVector4 camLerpPos;
-    FIVector4 resultCameraPos;
-    FIVector4 targetCameraPos;
-    FIVector4 baseCameraPos;
-
-    
-
     bool m_wsBufferInvalid;
     bool m_forceGetPD;
-    int m_forceShadowUpdate;
 };
 
 #endif//_voxelquest_gamestate_h_

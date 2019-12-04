@@ -1,5 +1,13 @@
+#include "voxelquest/gamephysrig.h"
+#include "voxelquest/gamestate.h"
+#include "voxelquest/gameentmanager.h"
+#include "voxelquest/gameorg.h"
+#include "voxelquest/gamephysics.h"
+#include "voxelquest/bullethelpers.h"
 
-#include "gamephysrig.h"
+#include "BulletDynamics/Dynamics/btDynamicsWorld.h"
+#include "BulletCollision/CollisionShapes/btCapsuleShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 
 GamePhysRig::GamePhysRig(
     Singleton* _singleton,
@@ -9,7 +17,7 @@ GamePhysRig::GamePhysRig(
 )
 {
 
-    int i;
+//    int i;
 
     singleton=_singleton;
     m_ownerWorld=ownerWorld;
@@ -32,7 +40,7 @@ GamePhysRig::GamePhysRig(
 
 }
 
-~GamePhysRig::GamePhysRig()
+GamePhysRig::~GamePhysRig()
 {
     removeAllBodies();
 }
@@ -124,7 +132,7 @@ int GamePhysRig::addJoint(
 )
 {
 
-    int i;
+//    int i;
 
 
     float rad=0.0f;
@@ -144,16 +152,16 @@ int GamePhysRig::addJoint(
     {
     case E_JT_LIMB:
         rad=0.25f;
-        len=curNode->orgTrans[0].getBTV().distance(curNode->orgTrans[2].getBTV());
-        begPos=curNode->orgTrans[0].getBTV();
-        midPos=curNode->orgTrans[1].getBTV();
-        endPos=curNode->orgTrans[2].getBTV();
+        len=convertToBTV(curNode->orgTrans[0]).distance(convertToBTV(curNode->orgTrans[2]));
+        begPos=convertToBTV(curNode->orgTrans[0]);
+        midPos=convertToBTV(curNode->orgTrans[1]);
+        endPos=convertToBTV(curNode->orgTrans[2]);
         break;
     case E_JT_BALL:
         rad=0.05f;
-        begPos=curNode->orgTrans[2].getBTV();
-        midPos=curNode->orgTrans[2].getBTV();
-        endPos=curNode->orgTrans[2].getBTV();
+        begPos=convertToBTV(curNode->orgTrans[2]);
+        midPos=convertToBTV(curNode->orgTrans[2]);
+        endPos=convertToBTV(curNode->orgTrans[2]);
         break;
     case E_JT_NORM:
         // rad = 0.05f;
@@ -164,9 +172,9 @@ int GamePhysRig::addJoint(
     }
 
 
-    btVector3 targAlignT=curNode->tbnRotC[0].getBTV();
-    btVector3 targAlignB=curNode->tbnRotC[1].getBTV();
-    btVector3 targAlignN=curNode->tbnRotC[2].getBTV();
+    btVector3 targAlignT=convertToBTV(curNode->tbnRotC[0]);
+    btVector3 targAlignB=convertToBTV(curNode->tbnRotC[1]);
+    btVector3 targAlignN=convertToBTV(curNode->tbnRotC[2]);
 
 
 
@@ -181,10 +189,10 @@ int GamePhysRig::addJoint(
     btTransform localA, localB, localC;
 
     rigJoints.push_back(RigJointStruct());
-    int curId=rigJoints.size()-1;
+    int curId=(int)rigJoints.size()-1;
 
     RigJointStruct* curJoint=&(rigJoints.back());
-    RigJointStruct* parJoint;
+//    RigJointStruct* parJoint;
     //RigJointStruct* grdJoint;
 
     curJoint->boneId=nodeName;
@@ -249,7 +257,7 @@ int GamePhysRig::addJoint(
 
 
     btVector3 axis;
-    btScalar angle;
+//    btScalar angle;
     btQuaternion quat;
 
 
@@ -324,7 +332,7 @@ int GamePhysRig::addJoint(
     );
     //curJoint->body->bodyUID = uid;
     //curJoint->body->setDamping(0.05, 0.85);
-    curJoint->body->setDeactivationTime(0.8);
+    curJoint->body->setDeactivationTime(0.8f);
     curJoint->body->setSleepingThresholds(0.5f, 0.5f);
 
 

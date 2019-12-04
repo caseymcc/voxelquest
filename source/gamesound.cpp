@@ -1,15 +1,17 @@
-#include "gamesound.h"
+#include "voxelquest/gamesound.h"
+
+#include <iostream>
 
 GameSound::GameSound()
 {
     curVolume=0.0;
 }
 
-void GameSound::init(string path)
+void GameSound::init(std::string path)
 {
     if(!buffer.loadFromFile(path))
     {
-        cout<<"error loading sound";
+        std::cout<<"error loading sound";
         return;
     }
 
@@ -43,28 +45,28 @@ void GameSound::stop()
 
 }
 
-void GameSound::setVolumeSmooth(float volume=1.0f, float decay=0.01f)
+void GameSound::setVolumeSmooth(float volume, float decay)
 {
 
     curVolume+=(volume-curVolume)*decay;
 
 
-    int intVol=curVolume*100.0f;
+    float intVol=curVolume*100.0f;
     sound.setVolume(intVol);
 
 }
 
-void GameSound::setVolume(float volume=1.0f)
+void GameSound::setVolume(float volume)
 {
     curVolume=volume;
-    int intVol=volume*100.0f;
+    float intVol=volume*100.0f;
     sound.setVolume(intVol);
 }
 
-void GameSound::play(float volume=1.0f)
+void GameSound::play(float volume)
 {
     curVolume=volume;
-    int intVol=volume*100.0f;
+    float intVol=volume*100.0f;
 
     sound.setVolume(intVol);
     sound.play();

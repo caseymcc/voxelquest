@@ -1,5 +1,8 @@
 #include "voxelquest/gamestate.h"
 #include "voxelquest/enums.h"
+#include "voxelquest/baseobject.h"
+#include "voxelquest/gamelogic.h"
+#include "voxelquest/threadpoolwrapper.h"
 
 int GameState::tbTicks;
 FIVector4 GameState::origin;
@@ -63,19 +66,23 @@ void GameState::init()
 
     m_wsBufferInvalid=true;
     m_forceGetPD=false;
-    m_forceShadowUpdate=0;
+//    m_forceShadowUpdate=0;
 
-    for(i=0; i<E_OBJ_LENGTH; i++)
+    for(int i=0; i<E_OBJ_LENGTH; i++)
     {
         dynObjects.push_back(new DynObject());
     }
 
     dynObjects[E_OBJ_CAMERA]->init(0, 0, 0, 0, 0, 0, false, E_MT_NONE, NULL, 4.0f);
 
-    for(i=E_OBJ_LIGHT0; i<E_OBJ_LENGTH; i++)
-    {
+    int ccr=0;
+    int ccg=0;
+    int ccb=0;
+    float tempf;
 
-        j=i-E_OBJ_LIGHT0;
+    for(int i=E_OBJ_LIGHT0; i<E_OBJ_LENGTH; i++)
+    {
+        int j=i-E_OBJ_LIGHT0;
 
         switch(j)
         {

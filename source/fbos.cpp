@@ -1081,6 +1081,11 @@ FBOManager *FBOManager::singleton()
 // todo: optimize this
 FBOSet* FBOManager::getFBOByName(std::string &fboName)
 {
+    return singleton()->_getFBOByName(fboName);
+}
+
+FBOSet* FBOManager::_getFBOByName(std::string &fboName)
+{
 
     if(fboMap.find(fboName)==fboMap.end())
     {
@@ -1091,85 +1096,85 @@ FBOSet* FBOManager::getFBOByName(std::string &fboName)
     return &(fboMap[fboName]);
 }
 
-void FBOManager::sampleFBO(
-    std::string fboName,
-    int offset,
-    int swapFlag,
-    int minOff,
-    int maxOff
-)
-{
-    FBOSet *fbos;
-
-    if(swapFlag==-1)
-    {
-        fbos=getFBOByName(fboName);//&(fboMap[fboName]);
-    }
-    else
-    {
-
-        if(swapFlag==0)
-        {
-            fbos=getFBOByName(fboName+"0");
-        }
-        else
-        {
-            fbos=getFBOByName(fboName+"1");
-        }
-
-    }
-
-    if(fbos)
-    {
-        sampleFBODirect(fbos, offset, minOff, maxOff);
-    }
-    else
-    {
-        doTrace("sampleFBO: Invalid FBO Name");
-    }
-
-
-}
-
-void FBOManager::unsampleFBO(
-    std::string fboName,
-    int offset=0,
-    int swapFlag=-1,
-    int minOff=0,
-    int maxOff=-1
-)
-{
-
-    FBOSet *fbos;
-
-    if(swapFlag==-1)
-    {
-        fbos=getFBOByName(fboName);
-    }
-    else
-    {
-
-        if(swapFlag==0)
-        {
-            fbos=getFBOByName(fboName+"0");
-        }
-        else
-        {
-            fbos=getFBOByName(fboName+"1");
-        }
-
-    }
-
-    if(fbos)
-    {
-        unsampleFBODirect(fbos, offset, minOff, maxOff);
-    }
-    else
-    {
-        doTrace("unsampleFBO: Invalid FBO Name");
-    }
-
-}
+//void FBOManager::sampleFBO(
+//    std::string fboName,
+//    int offset,
+//    int swapFlag,
+//    int minOff,
+//    int maxOff
+//)
+//{
+//    FBOSet *fbos;
+//
+//    if(swapFlag==-1)
+//    {
+//        fbos=getFBOByName(fboName);//&(fboMap[fboName]);
+//    }
+//    else
+//    {
+//
+//        if(swapFlag==0)
+//        {
+//            fbos=getFBOByName(fboName+"0");
+//        }
+//        else
+//        {
+//            fbos=getFBOByName(fboName+"1");
+//        }
+//
+//    }
+//
+//    if(fbos)
+//    {
+//        sampleFBODirect(fbos, offset, minOff, maxOff);
+//    }
+//    else
+//    {
+//        doTrace("sampleFBO: Invalid FBO Name");
+//    }
+//
+//
+//}
+//
+//void FBOManager::unsampleFBO(
+//    std::string fboName,
+//    int offset=0,
+//    int swapFlag=-1,
+//    int minOff=0,
+//    int maxOff=-1
+//)
+//{
+//
+//    FBOSet *fbos;
+//
+//    if(swapFlag==-1)
+//    {
+//        fbos=getFBOByName(fboName);
+//    }
+//    else
+//    {
+//
+//        if(swapFlag==0)
+//        {
+//            fbos=getFBOByName(fboName+"0");
+//        }
+//        else
+//        {
+//            fbos=getFBOByName(fboName+"1");
+//        }
+//
+//    }
+//
+//    if(fbos)
+//    {
+//        unsampleFBODirect(fbos, offset, minOff, maxOff);
+//    }
+//    else
+//    {
+//        doTrace("unsampleFBO: Invalid FBO Name");
+//    }
+//
+//}
 
 FBOSet *FBOManager::getFBOSet(std::string fboName)
 {
@@ -1183,145 +1188,145 @@ FBOWrapper *FBOManager::getFBOWrapper(std::string fboName, int offset)
 }
 
 
-void FBOManager::copyFBO(std::string src, std::string dest, int num=0)
-{
-    bindShader("CopyShader");
-    bindFBO(dest);
-    //sampleFBO(src, 0);
-    setShaderTexture(0, getFBOWrapper(src, num)->color_tex);
-    drawFSQuad();
-    setShaderTexture(0, 0);
-    unbindFBO();
-    unbindShader();
-}
-
-void FBOManager::copyFBO2(std::string src, std::string dest, int num1=0, int num2=1)
-{
-    bindShader("CopyShader2");
-    bindFBO(dest);
-    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
-    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
-    drawFSQuad();
-    setShaderTexture(1, 0);
-    setShaderTexture(0, 0);
-    unbindFBO();
-    unbindShader();
-}
-
-void FBOManager::copyFBO3(std::string src, string dest, int num1=0, int num2=1, int num3=2)
-{
-    bindShader("CopyShader3");
-    bindFBO(dest);
-    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
-    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
-    setShaderTexture(2, getFBOWrapper(src, num3)->color_tex);
-    drawFSQuad();
-    setShaderTexture(2, 0);
-    setShaderTexture(1, 0);
-    setShaderTexture(0, 0);
-    unbindFBO();
-    unbindShader();
-}
-
-void FBOManager::bindFBO(std::string fboName, int swapFlag=-1, int doClear=1)
-{
-
-    FBOSet *fbos;
-
-    if(swapFlag==-1)
-    {
-        fbos=getFBOByName(fboName);
-    }
-    else
-    {
-
-        if(swapFlag==0)
-        {
-            fbos=getFBOByName(fboName+"1");
-        }
-        else
-        {
-            fbos=getFBOByName(fboName+"0");
-        }
-
-    }
-
-    if(fbos)
-    {
-        bindFBODirect(fbos, doClear);
-    }
-    else
-    {
-        doTrace("bindFBO: Invalid FBO Name");
-    }
-
-
-}
-
-void FBOManager::unbindFBO()
-{
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    setMatrices(baseW, baseH);
-
-}
-
-void FBOManager::sampleFBODirect(
-    FBOSet *fbos,
-    int offset, /* write offset */
-    int _minOff, /* read min */
-    int _maxOff /* read max */
-
-)
-{
-    int i;
-
-    int minOff=_minOff;
-    int maxOff=_maxOff;
-    if(maxOff==-1)
-    {
-        maxOff=fbos->numBufs;
-    }
-
-    if(shadersAreLoaded)
-    {
-        for(i=minOff; i<maxOff; i++)
-        {
-            setShaderTexture(i-minOff+offset, fbos->fbos[i].color_tex);
-        }
-    }
-}
-
-void FBOManager::unsampleFBODirect(
-    FBOSet *fbos,
-    int offset, /* write offset */
-    int _minOff, /* read min */
-    int _maxOff /* read max */
-
-)
-{
-    int i;
-
-    int minOff=_minOff;
-    int maxOff=_maxOff;
-    if(maxOff==-1)
-    {
-        maxOff=fbos->numBufs;
-    }
-
-    if(shadersAreLoaded)
-    {
-        for(i=maxOff-1; i>=minOff; i--)
-        {
-            setShaderTexture(i-minOff+offset, 0);
-        }
-    }
-}
-
-
-void FBOManager::getMatrixFromFBO(std::string fboName)
-{
-    FBOSet *fbos=getFBOByName(fboName);
-    setMatrices(fbos->width, fbos->height);
-}
+//void FBOManager::copyFBO(std::string src, std::string dest, int num=0)
+//{
+//    bindShader("CopyShader");
+//    bindFBO(dest);
+//    //sampleFBO(src, 0);
+//    setShaderTexture(0, getFBOWrapper(src, num)->color_tex);
+//    drawFSQuad();
+//    setShaderTexture(0, 0);
+//    unbindFBO();
+//    unbindShader();
+//}
+//
+//void FBOManager::copyFBO2(std::string src, std::string dest, int num1=0, int num2=1)
+//{
+//    bindShader("CopyShader2");
+//    bindFBO(dest);
+//    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
+//    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
+//    drawFSQuad();
+//    setShaderTexture(1, 0);
+//    setShaderTexture(0, 0);
+//    unbindFBO();
+//    unbindShader();
+//}
+//
+//void FBOManager::copyFBO3(std::string src, string dest, int num1=0, int num2=1, int num3=2)
+//{
+//    bindShader("CopyShader3");
+//    bindFBO(dest);
+//    setShaderTexture(0, getFBOWrapper(src, num1)->color_tex);
+//    setShaderTexture(1, getFBOWrapper(src, num2)->color_tex);
+//    setShaderTexture(2, getFBOWrapper(src, num3)->color_tex);
+//    drawFSQuad();
+//    setShaderTexture(2, 0);
+//    setShaderTexture(1, 0);
+//    setShaderTexture(0, 0);
+//    unbindFBO();
+//    unbindShader();
+//}
+//
+//void FBOManager::bindFBO(std::string fboName, int swapFlag=-1, int doClear=1)
+//{
+//
+//    FBOSet *fbos;
+//
+//    if(swapFlag==-1)
+//    {
+//        fbos=getFBOByName(fboName);
+//    }
+//    else
+//    {
+//
+//        if(swapFlag==0)
+//        {
+//            fbos=getFBOByName(fboName+"1");
+//        }
+//        else
+//        {
+//            fbos=getFBOByName(fboName+"0");
+//        }
+//
+//    }
+//
+//    if(fbos)
+//    {
+//        Renderer::bindFBODirect(fbos, doClear);
+//    }
+//    else
+//    {
+//        doTrace("bindFBO: Invalid FBO Name");
+//    }
+//
+//
+//}
+//
+//void FBOManager::unbindFBO()
+//{
+//    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+//    setMatrices(baseW, baseH);
+//
+//}
+//
+//void FBOManager::sampleFBODirect(
+//    FBOSet *fbos,
+//    int offset, /* write offset */
+//    int _minOff, /* read min */
+//    int _maxOff /* read max */
+//
+//)
+//{
+//    int i;
+//
+//    int minOff=_minOff;
+//    int maxOff=_maxOff;
+//    if(maxOff==-1)
+//    {
+//        maxOff=fbos->numBufs;
+//    }
+//
+//    if(shadersAreLoaded)
+//    {
+//        for(i=minOff; i<maxOff; i++)
+//        {
+//            setShaderTexture(i-minOff+offset, fbos->fbos[i].color_tex);
+//        }
+//    }
+//}
+//
+//void FBOManager::unsampleFBODirect(
+//    FBOSet *fbos,
+//    int offset, /* write offset */
+//    int _minOff, /* read min */
+//    int _maxOff /* read max */
+//
+//)
+//{
+//    int i;
+//
+//    int minOff=_minOff;
+//    int maxOff=_maxOff;
+//    if(maxOff==-1)
+//    {
+//        maxOff=fbos->numBufs;
+//    }
+//
+//    if(shadersAreLoaded)
+//    {
+//        for(i=maxOff-1; i>=minOff; i--)
+//        {
+//            setShaderTexture(i-minOff+offset, 0);
+//        }
+//    }
+//}
+//
+//
+//void FBOManager::getMatrixFromFBO(std::string fboName)
+//{
+//    FBOSet *fbos=getFBOByName(fboName);
+//    setMatrices(fbos->width, fbos->height);
+//}
 
 

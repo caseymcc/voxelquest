@@ -13,6 +13,14 @@
 #include <math.h>
 #include <vector>
 
+enum E_PLANE_TYPES
+{
+    E_PLANE_XY,
+    E_PLANE_YZ,
+    E_PLANE_XZ,
+    E_PLANE_LENGTH
+};
+
 int boolToInt(bool val);
 
 uint* toUintPtr(char* baseAdr);
@@ -104,18 +112,6 @@ unsigned int intLogB2(unsigned int val);
 int intPow(int x, int p);
 
 int wrapCoord(int val, int max);
-
-struct materialNode
-{
-    float h;
-    float s;
-    float l;
-    float r;
-    float g;
-    float b;
-    float power;
-    float ratio;
-};
 
 struct iVector4
 {
@@ -373,9 +369,6 @@ typedef Vector4 vec4;
 
 
 
-void hsv2rgb(materialNode* matNode);
-
-
 struct RotationInfo {
 	float rotMatrix[16];
 	FIVector4 basePoint;
@@ -451,14 +444,6 @@ public:
 AxisRotation axisRotationInstance;
 
 float getShortestAngle(float begInRad, float endInRad, float amount);
-
-struct SphereStruct {
-	FIVector4 position;
-	float maxRad;
-	float curRad;
-	float radVel;
-	float radAcc;
-};
 
 inline float qSign(float x) {return (x >= 0.0f) ? +1.0f : -1.0f;}
 inline float qNorm(float a, float b, float c, float d) {return sqrt(a * a + b * b + c * c + d * d);}

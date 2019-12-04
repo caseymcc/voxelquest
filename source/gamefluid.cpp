@@ -1211,7 +1211,7 @@ void GameFluid::shiftRegion()
 
     if(notThirdPerson)
     {
-        newCamPos.copyFrom(GameState::cameraGetPosNoShake());
+        newCamPos.copyFrom(Renderer::cameraGetPosNoShake());
     }
     else
     {

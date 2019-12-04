@@ -13,7 +13,7 @@ bool ND_TRACE_OFF=false;
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
-const static int MAX_LIMB_DATA_IN_BYTES=65536;
+//const static int MAX_LIMB_DATA_IN_BYTES=65536;
 
 //const static bool POLYS_FOR_CELLS=true;
 //const static bool POLY_COLLISION = false;
@@ -119,7 +119,7 @@ const static int FLOATS_PER_LIGHT=12;
 
 const static float UI_SCALE_FACTOR=1.0f;
 
-const static int MAX_PLANT_GEN=16;
+//const static int MAX_PLANT_GEN=16;
 
 const static int MAX_TER_TEX=9;
 
