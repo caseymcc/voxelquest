@@ -6,7 +6,7 @@
 
 FontWrapper::FontWrapper()
 {
-
+    jsRoot=NULL;
 }
 
 void FontWrapper::init(
@@ -81,9 +81,13 @@ void FontWrapper::init(
         if(loadFile("..\\data\\fonts\\"+fontName+".js", &lastJSONBuffer))
         {
             charArr nullBuffer;
+
+            nullBuffer.data=new char[1];
+            nullBuffer.data[0]='\0';
+            nullBuffer.size=0;
+
             if(processJSON(&lastJSONBuffer, &(nullBuffer), &jsRoot))
             {
-
                 ascender=(float)jsRoot->Child("metrics")->Child("ascender")->number_value;
                 descender=(float)jsRoot->Child("metrics")->Child("descender")->number_value;
                 fontHeight=(float)jsRoot->Child("metrics")->Child("height")->number_value;
@@ -112,10 +116,9 @@ void FontWrapper::init(
                         maxWidth=charVals[i].consumedW;
                     }
                 }
-
-
-
             }
+
+            delete nullBuffer.data;
         }
     }
 }

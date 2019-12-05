@@ -12,6 +12,23 @@
 GameMusic* GameAudio::music[EML_LENGTH];
 std::map<std::string, GameSound> GameAudio::soundMap;
 
+void GameAudio::init()
+{
+    std::string musicStrings[]={
+        "birdsong0",
+        "crickets0",
+        "oceanwaves0",
+        "underwater0"
+    };
+
+    for(int i=0; i<EML_LENGTH; i++)
+    {
+        music[i]=new GameMusic();
+        music[i]->init("..\\data\\music\\"+musicStrings[i]+".ogg");
+        music[i]->setLoop(true);
+    }
+}
+
 void GameAudio::prepSound(std::string soundName)
 {
 	if(soundMap.find(soundName)==soundMap.end())

@@ -9,10 +9,10 @@ Texture3D::Texture3D()
 
 void Texture3D::init(int _x, int _y, int _z, uint *data,int _dataSize)
 {
-    _x=x;
-    _y=y;
-    _z=z;
-    dataSize=_x*_y*_z;
+    x=_x;
+    y=_y;
+    z=_z;
+    dataSize=x*y*z;
 
     glGenTextures(1, &id);
     

@@ -17,6 +17,7 @@
 #include "voxelquest/timer.h"
 #include "voxelquest/hpclock.h"
 #include "voxelquest/gamenetwork.h"
+#include "voxelquest/gamefluid.h"
 
 #include <algorithm>
 #include <iostream>
@@ -101,11 +102,9 @@ GameGUI *GameState::ui=nullptr;
 //	init();
 //}
 
-void GameState::init()
+void GameState::init(int w, int h)
 {
 	tbTicks=0;
-
-    
 //    m_forceShadowUpdate=0;
 
     for(int i=0; i<E_OBJ_LENGTH; i++)
@@ -189,15 +188,32 @@ void GameState::init()
         );
     }
 
-    initGameItems();
+    initGameItems(w, h);
 
     dynObjects[E_OBJ_LIGHT0]->moveType=E_MT_TRACKBALL;
     Renderer::cameraPos=&(dynObjects[E_OBJ_CAMERA]->pos);
 }
 
-void GameState::initGameItems()
+void GameState::initGameItems(int w, int h)
 {
 //init game items
+    gameNetwork=new GameNetwork();
+    gameNetwork->init(nullptr);
+
+    gameNetwork->socketConnect(true);
+
+    for(int i=0; i<E_FID_LENGTH; i++)
+    {
+        gameFluid[i]=new GameFluid();
+        gameFluid[i]->init(nullptr, i);
+    }
+
+    gameLogic=new GameLogic();
+    gameLogic->init(nullptr);
+
+    GameAudio::init();
+    Renderer::init(w, h);
+
     ui=new GameGUI();
     ui->init(nullptr);
 
@@ -209,6 +225,12 @@ void GameState::initGameItems()
     gw=new GameWorld();
     gw->init(nullptr);
     gw->initMap();
+
+    // must be done after all are init
+    for(int i=0; i<E_FID_LENGTH; i++)
+    {
+        gameFluid[i]->updateTBOData(true, false);
+    }
 
     gameAI=new GameAI();
     gameAI->init(nullptr);
@@ -320,10 +342,11 @@ void GameState::display(bool doFrameRender)
             {
                 gamePhysics->updateAll();
             }
+
+            gamePhysics->updateBullets();
         }
     }
-    gamePhysics->updateBullets();
-
+    
     if(
         //true  
         // ( 

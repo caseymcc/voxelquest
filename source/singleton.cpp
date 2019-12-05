@@ -529,9 +529,6 @@ void Singleton::init(int _defaultWinW, int _defaultWinH, int _scaleFactor
         exit(0);
     }
 
-
-
-
     globWheelDelta=0.0f;
     amountInvalidMove=0.0f;
     amountInvalidRotate=0.0f;

@@ -26,10 +26,14 @@ void GameBlock::init(
     int _zw
 )
 {
+    terDataBufAmount=g_settings.terDataBufAmount;
+    terDataVisSize=g_settings.terDataVisSize;
+    terDataBufSize=g_settings.terDataBufSize;
+
     if(!bufferInit)
     {
         rbStack=new int[terDataBufSize];
-        rbHeightStack=new int[g_settings.terDataBufSize];
+        rbHeightStack=new int[terDataBufSize];
         bufferInit=true;
     }
 
@@ -317,11 +321,6 @@ void GameBlock::init(
     {
         chunkData[i]=NULL;
     }
-
-
-    terDataBufAmount=g_settings.terDataBufAmount;
-    terDataVisSize=g_settings.terDataVisSize;
-    terDataBufSize=g_settings.terDataBufSize;
 
     terDataVisPitchXY=g_settings.terDataVisPitchXY;
     fTerDataVisPitchXY=(float)g_settings.terDataVisPitchXY;

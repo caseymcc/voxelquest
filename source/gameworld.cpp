@@ -309,12 +309,68 @@ void GameWorld::init(Singleton *_singleton)
     // 	blockHolder = new GamePageHolder();
     // 	blockHolder->init(singleton, -1, -1, 0,0,0, true);
     // }
-
-
-
+    initVolumeWrappers();
 }
 
 
+void GameWorld::initVolumeWrappers()
+{
+    int tz=0;
+    gl::GLenum clampType;
+    int vwChan=1;
+    bool doProc;
+    int filterType;
+
+    for(int i=0; i<E_VW_LENGTH; i++)
+    {
+        filterType=(int)GL_LINEAR;
+        vwChan=1;
+        doProc=true;
+
+        switch(i)
+        {
+
+            // tx = 4096;
+            // ty = 4096;
+            // tz = 256;
+
+            // tx = 2048;
+            // ty = 1024;
+            // tz = 128;
+        case E_VW_HOLDER:
+            tz=g_settings.cellsPerHolder;
+            clampType=GL_CLAMP_TO_EDGE; //GL_CLAMP_TO_BORDER
+            break;
+        case E_VW_WORLD:
+
+            // vwChan = 4;
+            // filterType = GL_NEAREST,
+            // tz = blocksPerWorld;
+            // clampType = GL_REPEAT; //GL_CLAMP_TO_BORDER
+            // if (!GEN_POLYS_WORLD) {
+            doProc=false;
+            // }
+
+            break;
+            // case E_VW_TERGEN:
+            // 	tz = 128;
+            // 	clampType = GL_CLAMP_TO_EDGE;//GL_CLAMP_TO_BORDER
+            // break;
+        case E_VW_VORO:
+            tz=256;
+            clampType=GL_REPEAT;
+            break;
+        }
+
+        if(doProc)
+        {
+            volumeWrappers[i]=new VolumeWrapper();
+            volumeWrappers[i]->init(tz, clampType, (vwChan==4), filterType); //volumeWrapperStrings[i]
+            //fboMap[volumeWrapperStrings[i]].init(1, tx, ty, vwChan, false);
+        }
+
+    }
+}
 
 
 // x, y, and z are measured in blocks
@@ -3917,15 +3973,11 @@ void GameWorld::initMap()
 
     mapStep=0.0f;
 
-
-
     FBOWrapper *fbow=FBOManager::getFBOWrapper("hmFBO", 0);
     FBOWrapper *fbow2=FBOManager::getFBOWrapper("cityFBO", 0);
 
     curFBO=fbow;
     curFBO2=fbow2;
-
-
 
     FIVector4 startVec;
     FIVector4 endVec;
@@ -3934,14 +3986,10 @@ void GameWorld::initMap()
     int w=fbow2->width;
     int h=fbow2->height;
 
-
     //0:r
     //1:g
     //2:b
     //3:a
-
-
-
 
     int i;
     int j;
@@ -3975,8 +4023,6 @@ void GameWorld::initMap()
     int count;
     int p1;
     int p2;
-
-
 
     // int alleyFlag = 32;
     // int streetFlag = 64;
@@ -4022,8 +4068,6 @@ void GameWorld::initMap()
     int avgSL=0;
     //int totFilled = 0;
 
-
-
     for(i=0; i<16; i++)
     {
         paramArrMap[i*3+0]=fGenRand();
@@ -4049,12 +4093,8 @@ void GameWorld::initMap()
         }
     }
 
-
-
     for(q=0; q<2; q++)
     {
-
-
         Renderer::bindShader("Simplex2D");
         Renderer::bindFBO("simplexFBO");
         Renderer::setShaderFloat("curTime", fGenRand() * 100.0f);
@@ -4088,9 +4128,7 @@ void GameWorld::initMap()
         fbow->setAllPixels(idChannel, 0);
         fbow->setAllPixels(blockChannel, 0);
 
-
         // determine sea level
-
         for(i=0; i<256; i++)
         {
             histogram[i]=0;
@@ -4123,9 +4161,7 @@ void GameWorld::initMap()
 
     seaLevel=100;
 
-
     Renderer::copyFBO("hmFBOLinear", "hmFBOLinearBig");
-
 
     seaSlack=seaLevel-1;
     std::cout<<"Sea Level: "<<seaLevel<<"\n";
@@ -4135,17 +4171,14 @@ void GameWorld::initMap()
 
     goto DONE_WITH_MAP;
 
-
     std::cout<<"start place cities\n";
 
     for(i=1; i<numProvinces; i++)
     {
-
         isValid=false;
 
         do
         {
-
             xind=(int)(fGenRand() * fbow->width);
             yind=(int)(fGenRand() * fbow->height);
 
@@ -4161,7 +4194,6 @@ void GameWorld::initMap()
                 {
                     notFound=true;
                 }
-
             }
 
             if(notFound)
@@ -4188,16 +4220,10 @@ void GameWorld::initMap()
                     }
                 }
             }
-
-
-
         } while(!isValid);
-
     }
 
     std::cout<<"end place cities\n";
-
-
     std::cout<<"start grow provinces\n";
 
     fbow->cpuToGPU();
@@ -4223,7 +4249,6 @@ void GameWorld::initMap()
     }
     Renderer::unbindShader();
 
-
     Renderer::bindShader("MapBorderShader");
     mapStep=1.0f;
     for(i=0; i<256; i++)
@@ -4244,16 +4269,12 @@ void GameWorld::initMap()
     }
     Renderer::unbindShader();
 
-
     Renderer::copyFBO("swapFBO0", "hmFBO");
-
 
     fbow->getPixels();
     fbow->updateMips();
 
     std::cout<<"end grow provinces\n";
-
-
     std::cout<<"start find neighboring cities\n";
 
     for(i=0; i<numProvinces * numProvinces; i++)
@@ -4271,7 +4292,6 @@ void GameWorld::initMap()
 
         testPix=fbow->getPixelAtIndex(fbow->getIndex(curX+1, curY), idChannel);
         testPix2=fbow->getPixelAtIndex(fbow->getIndex(curX, curY+1), idChannel);
-
 
         if(basePix!=0)
         {
@@ -4294,30 +4314,20 @@ void GameWorld::initMap()
                 }
             }
         }
-
-
     }
 
     std::cout<<"end find neighboring cities\n";
-
-
-
-
     // 1 - x+
     // 2 - x-
     // 4 - y+
     // 8 - y-
-
-
     std::cout<<"start find city blocks\n";
-
 
     fbow2->getPixels(true);
     fbow2->setAllPixels(btChannel, 15);
     fbow2->setAllPixels(stChannel, 0);
     fbow2->setAllPixels(pathChannel, 0);
     fbow2->setAllPixels(houseChannel, 0);
-
 
     int blockMod=g_settings.holdersPerBlock;
     for(k=0; k<totSize; k++)
@@ -4334,9 +4344,7 @@ void GameWorld::initMap()
         testPix3=fbow->getMipVal(curX, curY, blockMip, idChannel, MAX_MIP, -1, 0, -1);
         testPix4=fbow->getMipVal(curX, curY, blockMip, idChannel, MAX_MIP, -1, 0, 1);
 
-
         // TODO: EDIT CITY
-
         //testPix > xxx <- (xxx = 0: no city, xxx = 255: all city, def: 220)
         if(testPix1!=testPix2||testPix3!=testPix4||testPix>0)
         {
@@ -4346,15 +4354,12 @@ void GameWorld::initMap()
         {
             fbow->setPixelAtIndex(curInd, blockChannel, basePix);
         }
-
     }
 
     fbow->cpuToGPU();
     Renderer::copyFBO("hmFBO", "hmFBOLinear");
 
     std::cout<<"end find city blocks\n";
-
-
     std::cout<<"start add in city roads\n";
     //add in city roads
 
@@ -4366,7 +4371,6 @@ void GameWorld::initMap()
 
         while(btStackInd>-1)
         {
-
             curInd=btStack[btStackInd];
             curY=curInd/w;
             curX=curInd-curY*w;
@@ -4378,13 +4382,11 @@ void GameWorld::initMap()
             notFound=true;
             bestDelta=FLT_MAX;
 
-
             testPix2=fbow->getPixelAtIndex(curInd, blockChannel);
 
             //testPix2 = fbow->getMipVal(curX,curY,blockMip,densityChannel,AVG_MIP);
             //testPix3 = fbow->getMipVal(curX,curY,blockMip,idChannel,MIN_MIP);
             //testPix4 = fbow->getMipVal(curX,curY,blockMip,idChannel,MAX_MIP);
-
 
             if(testPix2!=0)
             {
@@ -4403,7 +4405,6 @@ void GameWorld::initMap()
                         //not visited, proceed
                         notFound=false;
 
-
                         delta=(float)abs(
                             fbow->getPixelAtIndex(curInd, hmChannel)-
                             fbow->getPixelAtIndex(testInd, hmChannel)
@@ -4417,7 +4418,6 @@ void GameWorld::initMap()
                         }
 
                     }
-
                     count++;
                 } while(count<4); //notFound &&
             }
@@ -4428,7 +4428,6 @@ void GameWorld::initMap()
             }
             else
             {
-
                 // join the two and remove walls
                 fbow2->andPixelAtIndex(curInd, btChannel, dirFlags[bestDir]);
                 fbow2->andPixelAtIndex(bestInd, btChannel, dirFlagsOp[bestDir]);
@@ -4441,8 +4440,6 @@ void GameWorld::initMap()
     }
 
     std::cout<<"end add in city roads\n";
-
-
 
     // clear visited
     for(k=0; k<totSize; k++)
@@ -4464,8 +4461,6 @@ void GameWorld::initMap()
         fbow2->andPixelAtIndex(k, btChannel, visFlagO);
     }
 
-
-
     std::cout<<"start link close cities\n";
 
     // link close cities
@@ -4474,15 +4469,12 @@ void GameWorld::initMap()
     {
         for(j=i+1; j<numProvinces; j++)
         {
-
             curInd=i+j*numProvinces;
 
             if(provinceGrid[curInd]==1)
             {
                 p1=i;
                 p2=j;
-
-
 
                 tempVec1.setIXYZ(provinceX[p1], provinceY[p1], 0);
                 tempVec2.setIXYZ(provinceX[p2], provinceY[p2], 0);
@@ -4506,11 +4498,7 @@ void GameWorld::initMap()
         }
     }
 
-
-
     std::cout<<"end link close cities\n";
-
-
 
     floatAndIndex *oceanRes=new floatAndIndex[numProvinces * numProvinces];
 
@@ -4523,10 +4511,8 @@ void GameWorld::initMap()
 
     std::cout<<"start find biggest ocean gaps\n";
 
-
     for(k=0; k<2; k++)
     {
-
         std::cout<<"iteration: "<<k<<"\n";
 
         count=0;
@@ -4604,20 +4590,9 @@ void GameWorld::initMap()
             }
 
         }
-
-
     }
 
-
-
     std::cout<<"end find biggest ocean gaps\n";
-
-
-
-
-
-
-
 
     mapSwapFlag=0;
     mapStep=0.0f;
@@ -4647,11 +4622,6 @@ void GameWorld::initMap()
     Renderer::copyFBO("swapFBO0", "cityFBO");
     fbow2->getPixels();
     //fbow2->updateMips();
-
-
-
-
-
 
     //bool notCovered = true;
     int id=1;

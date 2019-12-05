@@ -61,6 +61,8 @@ const static float ORG_SCALE_BASE=0.5f;
 // qqqq
 
 //#define STREAM_RES 1
+const static int SHADOW_MAP_RES=2048;
+const static int SHADOW_MAP_LOW_RES=512;
 
 #ifdef STREAM_RES
 const static int DEF_WIN_W=2048; //2048;//

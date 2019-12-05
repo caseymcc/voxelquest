@@ -52,8 +52,7 @@ int main(int argc, char* argv[])
         //        glfwSetCursorPosCallback(window, mouseMovementWithoutButton);
         glfwSetMouseButtonCallback(window, mouseClick);
 
-        GameState::init();
-        Renderer::init(winW, winH);
+        GameState::init(winW, winH);
 
         while(!glfwWindowShouldClose(window))
         {

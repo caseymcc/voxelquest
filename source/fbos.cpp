@@ -1,9 +1,13 @@
 #include "voxelquest/fbos.h"
 #include "voxelquest/helperfuncs.h"
 #include "voxelquest/gamestate.h"
+#include "voxelquest/renderer.h"
+#include "voxelquest/gameworld.h"
+#include "voxelquest/imageloader.h"
 
 #include <algorithm>
 #include <iostream>
+#include <cassert>
 
 int FBOWrapper::init(
     int _width,
@@ -1079,6 +1083,90 @@ FBOManager *FBOManager::singleton()
     return &fboManager;
 }
 
+FBOManager::FBOManager()
+{
+    initFBOs();
+}
+
+void FBOManager::initFBOs()
+{
+    int numMaps=2;
+    int numChannels=4;
+    bool fboHasDepth=true;
+    int bufferDiv=1;
+    int newPitch=(GameState::gw->imageHM0->width)*2*HOLDER_MOD;
+    int mapPitch=(GameState::gw->imageHM0->width);
+
+    fboMap["prelightFBO"].init(4, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), 1, false, GL_LINEAR);
+
+    // fboMap["allTargFBO"].init(6, bufferRenderDim.getIX(), bufferRenderDim.getIY(), numChannels, fboHasDepth);
+    // fboMap["allDepthFBO"].init(numMaps, bufferDimTarg.getIX(), bufferDimTarg.getIY(), numChannels, fboHasDepth, GL_LINEAR);
+    
+    fboMap["prmTargFBO"].init(8, Renderer::bufferRenderDim.getIX(), Renderer::bufferRenderDim.getIY(), numChannels, fboHasDepth);
+    fboMap["prmDepthFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth, GL_LINEAR);
+    
+    fboMap["numstepsFBO"].init(1, Renderer::bufferRenderDim.getIX(), Renderer::bufferRenderDim.getIY(), numChannels, fboHasDepth);
+    
+    fboMap["terTargFBO"].init(8, Renderer::bufferRenderDim.getIX(), Renderer::bufferRenderDim.getIY(), numChannels, fboHasDepth);
+    fboMap["limbFBO"].init(1, Renderer::bufferRenderDim.getIX(), Renderer::bufferRenderDim.getIY(), numChannels, fboHasDepth);
+    fboMap["terDepthFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth, GL_LINEAR);
+    
+    for(int i=0; i<=NUM_POLY_STRINGS; i++)
+        fboMap[polyFBOStrings[i]].init(1, Renderer::bufferRenderDim.getIX(), Renderer::bufferRenderDim.getIY(), 4, true);
+    
+    fboMap["shadowMapFBO"].init(1, SHADOW_MAP_RES, SHADOW_MAP_RES, 4, true, GL_LINEAR);
+    fboMap["rasterFBO0"].init(3, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 4, true, GL_NEAREST);
+    fboMap["rasterFBO1"].init(3, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 4, true, GL_NEAREST);
+    
+    fboMap["rasterLowFBO"].init(3, Renderer::rasterLowDim.getIX(), Renderer::rasterLowDim.getIY(), 4, true, GL_NEAREST);
+    fboMap["shadowLowFBO"].init(3, SHADOW_MAP_LOW_RES, SHADOW_MAP_LOW_RES, 4, true, GL_LINEAR);
+    
+    fboMap["readFBO"].init(3, Renderer::rasterLowDim.getIX(), Renderer::rasterLowDim.getIY(), 4, true, GL_NEAREST);
+    
+    // fboMap["rasterPosFBO"].init(1, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth, GL_LINEAR);//, GL_REPEAT);
+    // fboMap["rasterSourceFBO"].init(1, bufferDim.getIX(), bufferDim.getIY(), 1, false, GL_NEAREST);//, GL_REPEAT);
+    
+    if(USE_SPHERE_MAP)
+    {
+        fboMap["sphTargFBO"].init(8, (int)((float)Renderer::bufferRenderDim.getIX()*SPHEREMAP_SCALE_FACTOR), (int)((float)Renderer::bufferRenderDim.getIY()*SPHEREMAP_SCALE_FACTOR), numChannels, fboHasDepth);
+        fboMap["sphDepthFBO"].init(numMaps, (int)((float)Renderer::bufferDimTarg.getIX()*SPHEREMAP_SCALE_FACTOR), (int)((float)Renderer::bufferDimTarg.getIY()*SPHEREMAP_SCALE_FACTOR), numChannels, fboHasDepth, GL_LINEAR, GL_REPEAT);
+    }
+    
+    fboMap["solidBaseTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth);
+    fboMap["solidTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth);
+    
+    fboMap["waterTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth);
+    
+    fboMap["swapTargFBO0"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, false);
+    fboMap["swapTargFBO1"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, false);
+    
+    fboMap["geomBaseTargFBO"].init(numMaps+1, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, true);
+    fboMap["geomTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, true);
+    fboMap["combineWithWaterTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, fboHasDepth);
+    
+    fboMap["debugTargFBO"].init(numMaps, Renderer::bufferDimTarg.getIX(), Renderer::bufferDimTarg.getIY(), numChannels, true);
+    
+    fboMap["noiseFBO"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_NEAREST, GL_REPEAT);
+    fboMap["noiseFBOLinear"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_LINEAR, GL_REPEAT);
+    //fboMap["guiFBO"].init(1, guiWinW, guiWinH, 1, false, GL_LINEAR);
+    fboMap["resultFBO0"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_NEAREST);
+    fboMap["resultFBO1"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_NEAREST);
+    fboMap["lastFBO"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_NEAREST);
+    //fboMap["waveFBO"].init(1, Renderer::bufferDim.getIX()/2, Renderer::bufferDim.getIY()/2, 1, false, GL_LINEAR, GL_MIRRORED_REPEAT);
+    fboMap["swapFBOLin0"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_LINEAR);
+    fboMap["swapFBOLin1"].init(1, Renderer::bufferDim.getIX(), Renderer::bufferDim.getIY(), 1, false, GL_LINEAR);
+    fboMap["swapFBOBLin0"].init(1, Renderer::bufferDim.getIX()/bufferDiv, Renderer::bufferDim.getIY()/bufferDiv, 1, false, GL_LINEAR);
+    fboMap["swapFBOBLin1"].init(1, Renderer::bufferDim.getIX()/bufferDiv, Renderer::bufferDim.getIY()/bufferDiv, 1, false, GL_LINEAR);
+    fboMap["swapFBOLinHalf0"].init(1, Renderer::bufferDim.getIX()/bufferDiv, Renderer::bufferDim.getIY()/bufferDiv, 1, false, GL_LINEAR);
+    fboMap["swapFBOLinHalf1"].init(1, Renderer::bufferDim.getIX()/bufferDiv, Renderer::bufferDim.getIY()/bufferDiv, 1, false, GL_LINEAR);
+    fboMap["cityFBO"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
+    fboMap["hmFBO"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
+    fboMap["hmFBOLinear"].init(1, newPitch, newPitch, 1, false, GL_LINEAR, GL_REPEAT);
+    fboMap["hmFBOLinearBig"].init(1, mapPitch, mapPitch, 1, false, GL_NEAREST, GL_REPEAT);
+    fboMap["simplexFBO"].init(1, newPitch, newPitch, 1, false, GL_LINEAR, GL_REPEAT);
+    fboMap["swapFBO0"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
+    fboMap["swapFBO1"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
+}
 // todo: optimize this
 FBOSet* FBOManager::getFBOByName(std::string &fboName)
 {
@@ -1091,6 +1179,7 @@ FBOSet* FBOManager::_getFBOByName(std::string &fboName)
     if(fboMap.find(fboName)==fboMap.end())
     {
         std::cout<<"invalid key "<<fboName<<"\n";
+        assert(false);
         exit(0);
     }
 

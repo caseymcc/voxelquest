@@ -49,7 +49,7 @@ void GameGUI::loadGUI()
         // iterator->second = value
     }
 
-    JSONValue *guiRootJS;
+    JSONValue *guiRootJS=nullptr;
 
     if(
         loadJSON("..\\data\\lastJSONBufferGUI.js", &guiRootJS)

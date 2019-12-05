@@ -35,7 +35,7 @@ struct materialNode
 };
 void hsv2rgb(materialNode* matNode);
 
-const static int MAX_PRIM_DATA_IN_BYTES=8*1024*1024;
+//const static int MAX_PRIM_DATA_IN_BYTES=8*1024*1024;
 const static int MAX_LIMB_DATA_IN_BYTES=65536;
 const static int MAX_ZO_CUBES=64;
 
@@ -89,6 +89,7 @@ public:
     ~GameWorld();
 
     void init(Singleton *_singleton);
+    void initVolumeWrappers();
 
     GameBlock *getBlockAtCoords(int xInBlocks, int yInBlocks, int zInBlocks, bool createOnNull=false);
 
@@ -442,7 +443,7 @@ public:
     PatternStruct patterns[E_PAT_LENGTH*4];
 
     float limbTBOData[MAX_LIMB_DATA_IN_BYTES];
-    float primTBOData[MAX_PRIM_DATA_IN_BYTES];
+//    float primTBOData[MAX_PRIM_DATA_IN_BYTES];
 
     int mapPitch;
     Image *imageVoro;

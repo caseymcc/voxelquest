@@ -4,6 +4,8 @@
 #include "voxelquest/vectors.h"
 #include "voxelquest/object.h"
 
+const static int MAX_PRIM_DATA_IN_BYTES=8*1024*1024;
+
 enum E_GEOM_PARAMS
 {
     E_GP_RESERVED0, //visMin
@@ -69,12 +71,12 @@ enum E_PRIM_TYPE_EXT
 #define GEOM_EXTERN extern
 #endif
 
+GEOM_EXTERN float primTBOData[MAX_PRIM_DATA_IN_BYTES];
 GEOM_EXTERN std::vector <FIVector4> primTemplateStack;
 GEOM_EXTERN int geomStep;
 GEOM_EXTERN FIVector4 geomOrigOffset;
 GEOM_EXTERN FIVector4 geomPoints[E_GEOM_POINTS_LENGTH];
 GEOM_EXTERN std::vector<ObjectStruct> tempPrimList;
-
 
 float &getGeoParam(int param);
 
@@ -102,5 +104,7 @@ void resetGeom();
 FIVector4* getGeomRef(int templateId, int enumVal);
 
 bool getPrimTemplateString();
+
+void updatePrimTBOData();
 
 #endif//_voxelquest_geom_h_

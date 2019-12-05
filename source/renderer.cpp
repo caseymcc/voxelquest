@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 
 FIVector4 tempVec1;
 FIVector4 tempVec2;
@@ -336,6 +337,7 @@ void Renderer::bindShader(std::string shaderName)
     if(shaderMap.find(shaderName)==shaderMap.end())
     {
         std::cout<<"invalid shader name "<<shaderName<<"\n";
+        assert(false);
         exit(0);
     }
 

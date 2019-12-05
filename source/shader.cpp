@@ -8,6 +8,7 @@
 using namespace gl;
 
 #include <iostream>
+#include <cassert>
 
 Shader::Shader(Singleton* _singleton)
 {
@@ -32,7 +33,7 @@ Shader::~Shader()
 char* Shader::textFileRead(const char *fileName)
 {
 
-    char* text="";
+    char* text=nullptr;
     bool failed=true;
 
     if(fileName!=NULL)
@@ -56,6 +57,8 @@ char* Shader::textFileRead(const char *fileName)
             fclose(file);
         }
     }
+    else
+    { assert(false); }
 
     if(failed)
     {

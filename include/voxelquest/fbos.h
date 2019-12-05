@@ -174,6 +174,8 @@ class FBOManager
 public:
     static FBOManager *singleton();
 
+    void initFBOs();
+
     static FBOSet* getFBOByName(std::string &fboName);
 
 //    static void sampleFBO(
@@ -229,7 +231,7 @@ public:
     FBOSet* _getFBOByName(std::string &fboName);
 
 private:
-    FBOManager() {}//make it a singleton
+    FBOManager(); //make it a singleton
 
     std::map<std::string, FBOSet> fboMap;
 };

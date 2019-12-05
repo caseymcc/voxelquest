@@ -7,6 +7,7 @@
 #include "voxelquest/helperfuncs.h"
 #include "voxelquest/materials.h"
 #include "voxelquest/gameworld.h"
+#include "voxelquest/renderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -228,7 +229,26 @@ bool getPrimTemplateString()
 
 	includeMap["primTemplates"]=resString;
 
-    GameState::gw->updatePrimTBOData();
+//    GameState::gw->updatePrimTBOData();
+    updatePrimTBOData();
 
 	return true;
+}
+
+void updatePrimTBOData()
+{
+    int i;
+    int j;
+
+    for(i=0; i<primTemplateStack.size(); i++)
+    {
+
+        for(j=0; j<4; j++)
+        {
+            primTBOData[i*4+j]=primTemplateStack[i][j];
+        }
+
+    }
+
+    Renderer::primTBO.update(primTBOData, NULL, (int)primTemplateStack.size()*4*4);
 }

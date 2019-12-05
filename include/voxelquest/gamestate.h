@@ -33,9 +33,9 @@ class GameState
 public:
 //    static GameState *singleton();
 
-    static void init();
+    static void init(int w, int h);
 
-    static void initGameItems();
+    static void initGameItems(int w, int h);
 
     static int &totPointCount() { return GameState::TOT_POINT_COUNT; }
 //    static bool &wsBufferInvalid() { return m_wsBufferInvalid; }
