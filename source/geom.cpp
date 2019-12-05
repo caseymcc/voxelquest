@@ -1,4 +1,6 @@
+#define GEOM_NOEXTERN
 #include "voxelquest/geom.h"
+
 #include "voxelquest/jsonhelpers.h"
 #include "voxelquest/gamestate.h"
 #include "voxelquest/gamefluid.h"
@@ -19,7 +21,6 @@ const static float defaultTemplate[FLOATS_PER_TEMPLATE]={
      0.0, 0.0, 0.0, 0.0
 };
 
-int geomStep;
 float paramArrGeom[128];
 
 float &getGeoParam(int param)
@@ -125,7 +126,7 @@ bool getPrimTemplateString()
 {
 	primTemplateStack.clear();
 
-	JSONValue* jv=fetchJSONData("primTemplates.js", true);
+	JSONValue* jv=g_settings.fetchJSONData("primTemplates.js", true);
 	JSONValue* jv2=jv->Child("primTemplates");
 	JSONValue* jv3=NULL;
 	JSONValue* jv4=NULL;

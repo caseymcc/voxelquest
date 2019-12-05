@@ -138,7 +138,7 @@ DDD(E_PG_WPSTAFF) \
 DDD(E_PG_WPSPEAR) \
 DDD(E_PG_LENGTH)
 
-std::string E_POSE_GROUP_STRINGS[]={
+const std::string E_POSE_GROUP_STRINGS[]={
     E_POSE_GROUPS(DO_DESCRIPTION)
 };
 
@@ -244,7 +244,7 @@ enum E_BONES_HUMAN
 
 // TODO: FIX THIS SLOP
 // MUST CALL THIS, BONE NAMES GOT REVERSED
-int getCorrectedName(int curNodeName)
+inline int getCorrectedName(int curNodeName)
 {
 
     if(curNodeName<E_BONE_C_BEG)

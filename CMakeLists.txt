@@ -9,6 +9,11 @@ HunterGate(
 
 project(voxelquest)
 
+option(SFML_ROOT_DIRECTORY "Directory for SMFL" "")
+
+hunter_add_package(CreateLaunchers)
+find_package(CreateLaunchers CONFIG REQUIRED)
+
 hunter_add_package(glbinding)
 find_package(glbinding CONFIG REQUIRED)
 
@@ -78,6 +83,7 @@ set(voxelquest_include
     include/voxelquest/geompage.h
     include/voxelquest/glinfo.h
     include/voxelquest/helperfuncs.h
+    include/voxelquest/hpclock.h
     include/voxelquest/imageloader.h
 #    include/voxelquest/includes.h #removed
     include/voxelquest/ivec.h
@@ -97,6 +103,7 @@ set(voxelquest_include
 #    include/voxelquest/pooledresource.h #does not appear to be used
 #    include/voxelquest/poolmanager.h #does not appear to be used
 #    include/voxelquest/poolpagemanager.h #does not appear to be used
+    include/voxelquest/raycastbar.h
 	include/voxelquest/renderer.h
 #    include/voxelquest/rhfactory.h #does not appear to be used
     include/voxelquest/rig.h
@@ -165,11 +172,13 @@ set(voxelquest_source
     source/geom.cpp
     source/glinfo.cpp
     source/helperfuncs.cpp
+    source/hpclock.cpp
     source/imageloader.cpp
 #    source/includes.cpp #removed
     source/ivec.cpp
     source/json.cpp
 	source/jsonhelpers.cpp
+    source/main.cpp
     source/mat.cpp
     source/materials.cpp
     source/memorypool.cpp
@@ -183,6 +192,7 @@ set(voxelquest_source
 #    source/pooledresource.cpp #does not appear to be used
 #    source/poolmanager.cpp #does not appear to be used
 #    source/poolpagemanager.cpp #does not appear to be used
+    source/raycastbar.cpp
 	source/renderer.cpp
 #    source/rhfactory.cpp #does not appear to be used
 	source/settings.cpp
@@ -203,26 +213,45 @@ set(voxelquest_source
     source/voxelbuffer.cpp
 #    source/wsrequesthandler.cpp #does not appear to be used
 #    source/wsserver.cpp #does not appear to be used
+
+    include/OpenGLWindow/SimpleCamera.cpp
+)
+
+set(voxelquest_libraries
+    glbinding::glbinding
+    Boost::system 
+    Boost::filesystem 
+    Poco::Foundation
+    Poco::Util
+    Poco::Net
+    OpenGL::GL
+    glfw
+    PNG::png
+    bullet::Bullet3Common
+    bullet::BulletCollision
+    bullet::BulletDynamics
+    bullet::BulletSoftBody
+    bullet::LinearMath
+    glm
 )
 
 include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
-include_directories("${CMAKE_CURRENT_LIST_DIR}/../../sfml/include")
+include_directories("${SFML_ROOT_DIRECTORY}/include")
 add_executable(voxelquest ${voxelquest_include} ${voxelquest_source})
 find_package(OpenGL REQUIRED)
 
 target_link_libraries(voxelquest 
-    glbinding::glbinding
-#    Boost::system 
-#    Boost::filesystem 
-#    Poco::Foundation
-#    Poco::Util
-#    Poco::Net
-    OpenGL::GL
-    glfw
-    PNG::png
-#    bullet::BulletCollision
-#    bullet::BulletDynamics
-#    bullet::BulletSoftBody
-#    bullet::LinearMath
-    glm
+    ${voxelquest_libraries}
+    "${SFML_ROOT_DIRECTORY}/build/lib/Debug/sfml-audio-d.lib"
+)
+
+include(CreateLaunchers)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/targetInfo.cmake)
+
+set(vs_enviroment_dir)
+get_target_link_directories(vs_enviroment_dir ${voxelquest_libraries})
+
+create_target_launcher(voxelquest
+    RUNTIME_LIBRARY_DIRS "${vs_enviroment_dir}" "${SFML_ROOT_DIRECTORY}/build/lib/Debug" "${SFML_ROOT_DIRECTORY}/extlibs/bin/x64"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/data"
 )

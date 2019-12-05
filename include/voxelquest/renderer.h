@@ -8,8 +8,8 @@
 #include "voxelquest/shader.h"
 #include "voxelquest/timer.h"
 
-int NUM_POLY_STRINGS=0;
-std::string polyFBOStrings[]={
+const int NUM_POLY_STRINGS=0;
+const std::string polyFBOStrings[]={
     "polyFBO0",
     "polyFBO1",
     "polyFBO2",
@@ -27,6 +27,9 @@ public:
     static void setWH(int w, int h);
     static void reshape(int w, int h);
 
+    static void updateCamVals();
+    static void handleMovement();
+    
     static GLfloat getCamRot(int ind);
     static FIVector4* cameraGetPos() { return &resultCameraPos; }
     static FIVector4* cameraGetPosNoShake() { return cameraPos; }

@@ -6,6 +6,8 @@
 #include <CommonInterfaces/CommonRigidBodyBase.h>
 #pragma warning(pop)
 
+class RagDoll;
+
 class BenchmarkDemo: public CommonRigidBodyBase
 {
 

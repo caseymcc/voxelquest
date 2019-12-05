@@ -18,7 +18,7 @@ DDD(E_PIK_LERPSPEED) \
 DDD(E_PIK_TIMEINTERVAL) \
 DDD(E_PIK_LENGTH)
 
-std::string E_PIK_STRINGS[]={
+const std::string E_PIK_STRINGS[]={
 	E_PIK(DO_DESCRIPTION)
 };
 

@@ -306,7 +306,7 @@ void getJVNodeByString(
 	int i;
 	*resultNode=rootNode;
 
-	splitStrings.clear();
+    std::vector<std::string> splitStrings;
 	splitStrings=split(stringToSplit, '.');
 
 	for(i=0; i<splitStrings.size(); i++)

@@ -424,6 +424,7 @@ public:
 
 };
 
+void angleToVec(FIVector4* fv, float xr, float yr);
 float getShortestAngle(float begInRad, float endInRad, float amount);
 
 inline float qSign(float x) {return (x >= 0.0f) ? +1.0f : -1.0f;}

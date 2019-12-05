@@ -1,6 +1,9 @@
+#define MATERIAL_NOEXTERN
 #include "voxelquest/materials.h"
+
 #include "voxelquest/jsonhelpers.h"
 #include "voxelquest/helperfuncs.h"
+#include "voxelquest/settings.h"
 
 #include <string>
 
@@ -8,7 +11,7 @@ void getMaterialString()
 {
     std::string resString="\n";
 
-    JSONValue* jv=fetchJSONData("materials.js", false);
+    JSONValue* jv=g_settings.fetchJSONData("materials.js", false);
 
     if(jv!=NULL)
     {
@@ -25,7 +28,7 @@ void getMaterialString()
             curChild=jv2->Child(i);
             lastKey=jv2->lastKey;
 
-            splitStrings.clear();
+            std::vector<std::string> splitStrings;
             splitStrings=split(lastKey, '_');
 
             resString.append("const float TEX_"+splitStrings[1]+"="+i__s(i)+".0/255.0;\n");

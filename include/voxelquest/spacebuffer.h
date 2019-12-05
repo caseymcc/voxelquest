@@ -4,7 +4,7 @@
 //WTF is this and why, however felt this had to have its own file
 #include <string>
 
-std::string SPACE_BUFFER[]=
+const std::string SPACE_BUFFER[]=
 {
     " ",
     "  ",

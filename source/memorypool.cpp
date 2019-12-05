@@ -66,3 +66,17 @@ MemoryPool::MemoryPool()
         // );
     }
 }
+
+int MemoryPool::getAvailPD()
+{
+    int q;
+    int count=0;
+    for(q=0; q<MAX_PDPOOL_SIZE; q++)
+    {
+        if(singleton()->pdPool[q].isFree)
+        {
+            count++;
+        }
+    }
+    return count;
+}

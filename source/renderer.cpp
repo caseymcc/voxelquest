@@ -10,6 +10,7 @@
 #include "voxelquest/gamestate.h"
 #include "voxelquest/gameentmanager.h"
 #include "voxelquest/glmhelpers.h"
+#include "voxelquest/gameworld.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -41,7 +42,7 @@ int Renderer::lastW;
 int Renderer::lastH;
 
 float Renderer::FOV=45.0f;
-float heightOfNearPlane=1.0f;
+float Renderer::heightOfNearPlane=1.0f;
 
 Matrix4 Renderer::pmMatrix;
 
@@ -232,6 +233,78 @@ void Renderer::reshape(int w, int h)
 //    screenHeight=h;
 
     setMatrices(baseW, baseH);
+}
+
+void Renderer::updateCamVals()
+{
+    if(camLerpPos.getFX()>((float)g_settings.cellsPerWorld)/2.0)
+    {
+        camLerpPos.setFX(camLerpPos.getFX()-((float)g_settings.cellsPerWorld));
+    }
+    if(camLerpPos.getFX()<-((float)g_settings.cellsPerWorld)/2.0)
+    {
+        camLerpPos.setFX(camLerpPos.getFX()+((float)g_settings.cellsPerWorld));
+    }
+    if(camLerpPos.getFY()>((float)g_settings.cellsPerWorld)/2.0)
+    {
+        camLerpPos.setFY(camLerpPos.getFY()-((float)g_settings.cellsPerWorld));
+    }
+    if(camLerpPos.getFY()<-((float)g_settings.cellsPerWorld)/2.0)
+    {
+        camLerpPos.setFY(camLerpPos.getFY()+((float)g_settings.cellsPerWorld));
+    }
+
+    if(cameraPos->getFX()>((float)g_settings.cellsPerWorld)/2.0)
+    {
+        cameraPos->setFX(cameraPos->getFX()-((float)g_settings.cellsPerWorld));
+    }
+    if(cameraPos->getFX()<-((float)g_settings.cellsPerWorld)/2.0)
+    {
+        cameraPos->setFX(cameraPos->getFX()+((float)g_settings.cellsPerWorld));
+    }
+    if(cameraPos->getFY()>((float)g_settings.cellsPerWorld)/2.0)
+    {
+        cameraPos->setFY(cameraPos->getFY()-((float)g_settings.cellsPerWorld));
+    }
+    if(cameraPos->getFY()<-((float)g_settings.cellsPerWorld)/2.0)
+    {
+        cameraPos->setFY(cameraPos->getFY()+((float)g_settings.cellsPerWorld));
+    }
+
+    if(g_settings.smoothMove)
+    {
+        // tempLerpPos.copyFrom(cameraPos);
+        // tempLerpPos.lerpXYZ(&camLerpPos,0.1f);
+
+        //&camLerpPos);
+        // tempLerpPos.addXYZRef(cameraPos,-1.0f);
+        // tempLerpPos.multXYZ(timeDelta*8.0f);
+
+        cameraPos->lerpXYZ(&camLerpPos, getConst(E_CONST_CAM_LERP_AMOUNT));
+
+        GameState::gw->amountInvalidMove=camLerpPos.length();
+        GameState::gw->depthInvalidMove=GameState::gw->amountInvalidMove>0.01f;
+
+        //cameraPos->addXYZRef(&tempLerpPos);
+    }
+    else
+    {
+        cameraPos->copyFrom(&camLerpPos);
+    }
+
+    GameState::lastHolderPos.copyIntDiv(cameraPos, g_settings.cellsPerHolder);
+
+    float resultShake=-cameraShake*sinf((float)shakeTimer.getElapsedTimeInMilliSec()/20.0f);
+
+    resultCameraPos.copyFrom(cameraPos);
+    resultCameraPos.addXYZ(0.0f, 0.0f, resultShake*0.5f);
+
+    cameraShake+=(0.0f-cameraShake)*(float)GameState::timeDelta*8.0f;
+}
+
+void Renderer::handleMovement()
+{
+
 }
 
 GLfloat Renderer::getCamRot(int ind)

@@ -232,10 +232,10 @@ bool BaseObj::allFalling()
     return true;
 }
 
-//bool baseContact()
-//{
-//    return bodies[E_BDG_CENTER].hasContact;
-//}
+bool BaseObj::baseContact()
+{
+    return bodies[E_BDG_CENTER].hasContact;
+}
 
 float BaseObj::getPlanarVel()
 {

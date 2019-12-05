@@ -18,7 +18,7 @@ DDD(E_FM_STATMENU) \
 DDD(E_FM_HUDMENU) \
 DDD(E_FM_LENGTH)
 
-std::string E_FLOATING_MENU_STRINGS[]={
+const std::string E_FLOATING_MENU_STRINGS[]={
     E_FLOATING_MENU(DO_DESCRIPTION)
 };
 
@@ -36,7 +36,7 @@ DDD(E_GCT_CONTAINER_PARENT) \
 DDD(E_GCT_AUTOMATIC) \
 DDD(E_GCT_LENGTH)
 
-std::string E_GUI_CHILD_TYPE_STRINGS[]={
+const std::string E_GUI_CHILD_TYPE_STRINGS[]={
     E_GUI_CHILD_TYPE(DO_DESCRIPTION)
 };
 
@@ -98,6 +98,8 @@ public:
     GameGUI();
 
     void init(Singleton* _singleton);
+
+    void loadGUI();
 
     JSONValue* findNearestKey(JSONValue* jv, std::string key);
 
@@ -191,6 +193,8 @@ public:
     int placeInStack();
 
     int placeInLayer(int nodeId, int layer);
+
+    bool anyMenuVisible();
 
     //private:
     Singleton* singleton;

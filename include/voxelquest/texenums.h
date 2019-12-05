@@ -36,7 +36,7 @@ DDD(TEX_MEAT) \
 DDD(TEX_BONE) \
 DDD(TEX_LENGTH)
 
-std::string E_TEXENTRY_STRINGS[]={
+const std::string E_TEXENTRY_STRINGS[]={
     E_TEXENTRY(DO_DESCRIPTION)
 };
 

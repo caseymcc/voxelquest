@@ -2749,7 +2749,7 @@ void Singleton::getMaterialString()
 {
     string resString="\n";
 
-    JSONValue* jv=fetchJSONData("materials.js", false);
+    JSONValue* jv=g_settings.fetchJSONData("materials.js", false);
 
     if(jv!=NULL)
     {
@@ -2878,7 +2878,7 @@ bool Singleton::getPrimTemplateString()
 
     primTemplateStack.clear();
 
-    JSONValue* jv=fetchJSONData("primTemplates.js", true);
+    JSONValue* jv=g_settings.fetchJSONData("primTemplates.js", true);
     JSONValue* jv2=jv->Child("primTemplates");
     JSONValue* jv3=NULL;
     JSONValue* jv4=NULL;

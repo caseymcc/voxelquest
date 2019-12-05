@@ -2006,13 +2006,31 @@ void GamePhysics::updateAll()
     remFarAway();
 }
 
+void GamePhysics::updateBullets()
+{
+    int i;
+    SphereStruct* ss;
 
+    for(i=0; i<sphereStack.size(); i++)
+    {
+        ss=&(sphereStack[i]);
 
+        ss->radVel+=ss->radAcc*(float)GameState::timeDelta;
+        ss->curRad+=ss->radVel*(float)GameState::timeDelta;
 
+        if(ss->curRad>=ss->maxRad)
+        {
+            ss->curRad=ss->maxRad;
+            ss->radVel=0.0f;
+        }
+    }
 
-
-
-
-
-
-
+    for(i=0; i<sphereStack.size(); i++)
+    {
+        ss=&(sphereStack[i]);
+        if(ss->curRad<=0.0)
+        {
+            sphereStack.erase(sphereStack.begin()+i);
+        }
+    }
+}

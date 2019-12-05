@@ -64,7 +64,7 @@ void getVisCenRad(
 
 }
 
-inline vec3 getUVW(
+vec3 getUVW(
     vec3 _pos,
     ObjectStruct* curObj,
     FIVector4* baseGeom,
@@ -212,7 +212,7 @@ inline vec3 getUVW(
 
 
 
-inline float primDis(
+float primDis(
     vec3 pos,
     ObjectStruct* curObj,
     FIVector4* baseGeom

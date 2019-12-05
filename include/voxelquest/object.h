@@ -30,7 +30,7 @@ void getVisCenRad(
     vec3 &visRad
 );
 
-inline vec3 getUVW(
+vec3 getUVW(
     vec3 _pos,
     ObjectStruct* curObj,
     FIVector4* baseGeom,
@@ -40,7 +40,7 @@ inline vec3 getUVW(
     bool mirrored
 );
 
-inline float primDis(
+float primDis(
     vec3 pos,
     ObjectStruct* curObj,
     FIVector4* baseGeom

@@ -65,7 +65,7 @@ DDD(E_BS_SHOW_HEALTH) \
 DDD(E_BS_PLACING_GEOM) \
 DDD(E_BS_LENGTH)
 
-std::string E_BOOL_SETTING_STRINGS[]={
+const std::string E_BOOL_SETTING_STRINGS[]={
     E_BOOL_SETTING(DO_DESCRIPTION)
 };
 
@@ -81,7 +81,7 @@ DDD(E_SDT_STATDATA) \
 DDD(E_SDT_STATUSDATA) \
 DDD(E_SDT_LENGTH)
 
-std::string E_SPECIAL_DATA_TYPE_STRINGS[]={
+const std::string E_SPECIAL_DATA_TYPE_STRINGS[]={
     E_SPECIAL_DATA_TYPE(DO_DESCRIPTION)
 };
 
@@ -115,9 +115,12 @@ public:
     std::map<std::string, JSONStruct> externalJSON;
 
     float gammaVal;
+    bool ignoreFrameLimit;
+    bool smoothMove;
 
     float fxVolume;
     float masterVolume;
+    float ambientVolume;
     float guiVolume;
 
     bool cavesOn;
@@ -167,13 +170,18 @@ public:
     int iNumSteps;
     double STEP_TIME_IN_SEC;
 
+    bool fpsTest;
     bool TRACE_ON;
     bool ND_TRACE_OFF;
     bool TEMP_DEBUG;
 };
 
-Settings g_settings;
+#ifdef SETTINGS_NOEXTERN
+#define SETTINGS_EXTERN
+#else
+#define SETTINGS_EXTERN extern
+#endif
 
-
+SETTINGS_EXTERN Settings g_settings;
 
 #endif//_voxelquest_settings_h_

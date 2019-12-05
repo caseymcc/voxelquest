@@ -432,6 +432,11 @@ inline float Vector3::length() const {
     return sqrtf(x*x + y*y + z*z);
 }
 
+inline float Vector3::distance(const Vector3& vec) const
+{
+    return sqrtf((vec.x-x)*(vec.x-x)+(vec.y-y)*(vec.y-y)+(vec.z-z)*(vec.z-z));
+}
+
 inline float Vector3::distance2(const Vector3& vec, float powVal) const
 {
     Vector3 newVec=vec-(*this);

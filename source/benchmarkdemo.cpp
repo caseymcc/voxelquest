@@ -1,48 +1,17 @@
 #include "voxelquest/benchmarkdemo.h"
 #include "voxelquest/bullethelpers.h"
+#include "voxelquest/raycastbar.h"
+
+#include <Benchmarks/TaruData.h>
 
 #include <iostream>
 
-#define NUMRAYS 500
 #define COLLISION_RADIUS 0.0f
 
-class btRaycastBar2
-{
-public:
-    btVector3 source[NUMRAYS];
-    btVector3 dest[NUMRAYS];
-    btVector3 direction[NUMRAYS];
-    btVector3 hit[NUMRAYS];
-    btVector3 normal[NUMRAYS];
-    struct GUIHelperInterface* m_guiHelper;
+#pragma warning(push)
+#pragma warning(disable:4305)
 
-    int frame_counter;
-    int ms;
-    int sum_ms;
-    int sum_ms_samples;
-    int min_ms;
-    int max_ms;
 
-#ifdef USE_BT_CLOCK
-    btClock frame_timer;
-#endif //USE_BT_CLOCK
-
-    btScalar dx;
-    btScalar min_x;
-    btScalar max_x;
-    btScalar max_y;
-    btScalar sign;
-
-    btRaycastBar2();
-
-    btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper);
-
-    void move(btScalar dt);
-
-    void cast(btCollisionWorld* cw);
-
-    void draw();
-};
 btRaycastBar2 raycastBar;
 
 btDiscreteDynamicsWorld* BenchmarkDemo::getWorld()
@@ -424,3 +393,594 @@ void BenchmarkDemo::createTest2()
 	createTowerCircle(btVector3(25.0f, 0.0f, 0.0f), 8, 24, btVector3(cubeSize, cubeSize, cubeSize));
 
 }
+
+void BenchmarkDemo::createTest5()
+{
+    //setCameraDistance(btScalar(250.));
+    btVector3 boxSize(1.5f, 1.5f, 1.5f);
+    float boxMass=1.0f;
+    float sphereRadius=1.5f;
+    float sphereMass=1.0f;
+    float capsuleHalf=2.0f;
+    float capsuleRadius=1.0f;
+    float capsuleMass=1.0f;
+
+    btRigidBody* tempBody=NULL;
+
+    {
+        int size=10;
+        int height=10;
+
+        const float cubeSize=boxSize[0];
+        float spacing=2.0f;
+        btVector3 pos(0.0f, 0.0f, 20.0f);
+        float offset=-size*(cubeSize * 2.0f+spacing) * 0.5f;
+
+        int numBodies=0;
+
+        for(int k=0; k<height; k++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                pos[1]=offset+(float)j * (cubeSize * 2.0f+spacing);
+                for(int i=0; i<size; i++)
+                {
+                    pos[0]=offset+(float)i * (cubeSize * 2.0f+spacing);
+                    btVector3 bpos=btVector3(0, 0, 300)+btVector3(5.0f, 5.0f, 1.0f)*pos+initOffset;
+                    int idx=rand()%9;
+                    btTransform trans;
+                    trans.setIdentity();
+                    trans.setOrigin(bpos);
+
+                    switch(idx)
+                    {
+                    case 0:case 1:case 2:
+                    {
+                        float r=0.5f * (idx+1);
+                        btBoxShape* boxShape=new btBoxShape(boxSize*r);
+                        tempBody=createRigidBody(boxMass*r, trans, boxShape);
+                    }
+                    break;
+
+                    case 3:case 4:case 5:
+                    {
+                        float r=0.5f * (idx-3+1);
+                        btSphereShape* sphereShape=new btSphereShape(sphereRadius*r);
+                        tempBody=createRigidBody(sphereMass*r, trans, sphereShape);
+                    }
+                    break;
+
+                    case 6:case 7:case 8:
+                    {
+                        float r=0.5f * (idx-6+1);
+                        btCapsuleShape* capsuleShape=new btCapsuleShape(capsuleRadius*r, capsuleHalf*r);
+                        tempBody=createRigidBody(capsuleMass*r, trans, capsuleShape);
+                    }
+                    break;
+                    }
+
+//                    tempBody->bodyUID=-1;
+//                    tempBody->limbUID=-1;
+
+                    numBodies++;
+                }
+            }
+            offset-=0.05f * spacing * (size-1);
+            spacing*=1.1f;
+            pos[1]+=(cubeSize * 2.0f+spacing);
+        }
+    }
+
+    //createLargeMeshBody();
+}
+void BenchmarkDemo::createTest6()
+{
+    setCameraDistance(btScalar(250.));
+
+    btVector3 boxSize(1.5f, 1.5f, 1.5f);
+
+    btConvexHullShape* convexHullShape=new btConvexHullShape();
+
+    for(int i=0; i<TaruVtxCount; i++)
+    {
+        btVector3 vtx(TaruVtx[i*3], TaruVtx[i*3+1], TaruVtx[i*3+2]);
+        convexHullShape->addPoint(vtx);
+    }
+
+    btTransform trans;
+    trans.setIdentity();
+
+    float mass=1.f;
+    btVector3 localInertia(0, 0, 0);
+    convexHullShape->calculateLocalInertia(mass, localInertia);
+
+
+    {
+        int size=10;
+        int height=10;
+
+        const float cubeSize=boxSize[0];
+        float spacing=2.0f;
+        btVector3 pos(0.0f, 20.0f, 0.0f);
+        float offset=-size*(cubeSize * 2.0f+spacing) * 0.5f;
+
+
+        for(int k=0; k<height; k++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                pos[2]=offset+(float)j * (cubeSize * 2.0f+spacing);
+                for(int i=0; i<size; i++)
+                {
+                    pos[0]=offset+(float)i * (cubeSize * 2.0f+spacing);
+                    btVector3 bpos=btVector3(0, 25, 0)+btVector3(5.0f, 1.0f, 5.0f)*pos;
+                    trans.setOrigin(bpos);
+
+                    createRigidBody(mass, trans, convexHullShape);
+                }
+            }
+            offset-=0.05f * spacing * (size-1);
+            spacing*=1.1f;
+            pos[1]+=(cubeSize * 2.0f+spacing);
+        }
+    }
+
+
+    //createLargeMeshBody();
+}
+
+class RagDoll
+{
+    enum
+    {
+        BODYPART_PELVIS=0,
+        BODYPART_SPINE,
+        BODYPART_HEAD,
+
+        BODYPART_LEFT_UPPER_LEG,
+        BODYPART_LEFT_LOWER_LEG,
+
+        BODYPART_RIGHT_UPPER_LEG,
+        BODYPART_RIGHT_LOWER_LEG,
+
+        BODYPART_LEFT_UPPER_ARM,
+        BODYPART_LEFT_LOWER_ARM,
+
+        BODYPART_RIGHT_UPPER_ARM,
+        BODYPART_RIGHT_LOWER_ARM,
+
+        BODYPART_COUNT
+    };
+
+    enum
+    {
+        JOINT_PELVIS_SPINE=0,
+        JOINT_SPINE_HEAD,
+
+        JOINT_LEFT_HIP,
+        JOINT_LEFT_KNEE,
+
+        JOINT_RIGHT_HIP,
+        JOINT_RIGHT_KNEE,
+
+        JOINT_LEFT_SHOULDER,
+        JOINT_LEFT_ELBOW,
+
+        JOINT_RIGHT_SHOULDER,
+        JOINT_RIGHT_ELBOW,
+
+        JOINT_COUNT
+    };
+
+    btDynamicsWorld* m_ownerWorld;
+    btCollisionShape* m_shapes[BODYPART_COUNT];
+    btRigidBody* m_bodies[BODYPART_COUNT];
+    btTypedConstraint* m_joints[JOINT_COUNT];
+
+    btRigidBody* createRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
+    {
+        bool isDynamic=(mass!=0.f);
+
+        btVector3 localInertia(0, 0, 0);
+        if(isDynamic)
+            shape->calculateLocalInertia(mass, localInertia);
+
+        btDefaultMotionState* myMotionState=new btDefaultMotionState(startTransform);
+
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
+        btRigidBody* body=new btRigidBody(rbInfo);
+
+        m_ownerWorld->addRigidBody(body);
+
+        return body;
+    }
+
+public:
+    RagDoll(btDynamicsWorld* ownerWorld, const btVector3& positionOffset, btScalar scale)
+        : m_ownerWorld(ownerWorld)
+    {
+        // Setup the geometry
+        m_shapes[BODYPART_PELVIS]=new btCapsuleShape(btScalar(0.15)*scale, btScalar(0.20)*scale);
+        m_shapes[BODYPART_SPINE]=new btCapsuleShape(btScalar(0.15)*scale, btScalar(0.28)*scale);
+        m_shapes[BODYPART_HEAD]=new btCapsuleShape(btScalar(0.10)*scale, btScalar(0.05)*scale);
+        m_shapes[BODYPART_LEFT_UPPER_LEG]=new btCapsuleShape(btScalar(0.07)*scale, btScalar(0.45)*scale);
+        m_shapes[BODYPART_LEFT_LOWER_LEG]=new btCapsuleShape(btScalar(0.05)*scale, btScalar(0.37)*scale);
+        m_shapes[BODYPART_RIGHT_UPPER_LEG]=new btCapsuleShape(btScalar(0.07)*scale, btScalar(0.45)*scale);
+        m_shapes[BODYPART_RIGHT_LOWER_LEG]=new btCapsuleShape(btScalar(0.05)*scale, btScalar(0.37)*scale);
+        m_shapes[BODYPART_LEFT_UPPER_ARM]=new btCapsuleShape(btScalar(0.05)*scale, btScalar(0.33)*scale);
+        m_shapes[BODYPART_LEFT_LOWER_ARM]=new btCapsuleShape(btScalar(0.04)*scale, btScalar(0.25)*scale);
+        m_shapes[BODYPART_RIGHT_UPPER_ARM]=new btCapsuleShape(btScalar(0.05)*scale, btScalar(0.33)*scale);
+        m_shapes[BODYPART_RIGHT_LOWER_ARM]=new btCapsuleShape(btScalar(0.04)*scale, btScalar(0.25)*scale);
+
+        // Setup all the rigid bodies
+        btTransform offset; offset.setIdentity();
+        offset.setOrigin(positionOffset);
+
+        btTransform transform;
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.), btScalar(1.), btScalar(0.)));
+        m_bodies[BODYPART_PELVIS]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_PELVIS]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.), btScalar(1.2), btScalar(0.)));
+        m_bodies[BODYPART_SPINE]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_SPINE]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.), btScalar(1.6), btScalar(0.)));
+        m_bodies[BODYPART_HEAD]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_HEAD]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(-0.18), btScalar(0.65), btScalar(0.)));
+        m_bodies[BODYPART_LEFT_UPPER_LEG]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_LEG]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(-0.18), btScalar(0.2), btScalar(0.)));
+        m_bodies[BODYPART_LEFT_LOWER_LEG]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_LEG]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.18), btScalar(0.65), btScalar(0.)));
+        m_bodies[BODYPART_RIGHT_UPPER_LEG]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_LEG]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.18), btScalar(0.2), btScalar(0.)));
+        m_bodies[BODYPART_RIGHT_LOWER_LEG]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_LEG]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
+        transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+        m_bodies[BODYPART_LEFT_UPPER_ARM]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_UPPER_ARM]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
+        transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+        m_bodies[BODYPART_LEFT_LOWER_ARM]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_LEFT_LOWER_ARM]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
+        transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+        m_bodies[BODYPART_RIGHT_UPPER_ARM]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_UPPER_ARM]);
+
+        transform.setIdentity();
+        transform.setOrigin(scale*btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
+        transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+        m_bodies[BODYPART_RIGHT_LOWER_ARM]=createRigidBody(btScalar(1.), offset*transform, m_shapes[BODYPART_RIGHT_LOWER_ARM]);
+
+        // Setup some damping on the m_bodies
+        for(int i=0; i<BODYPART_COUNT; ++i)
+        {
+            m_bodies[i]->setDamping(btScalar(0.05), btScalar(0.85));
+            m_bodies[i]->setDeactivationTime(btScalar(0.8));
+            m_bodies[i]->setSleepingThresholds(btScalar(1.6), btScalar(2.5));
+        }
+
+        // Now setup the constraints
+        btHingeConstraint* hingeC;
+        btConeTwistConstraint* coneC;
+
+        btTransform localA, localB;
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
+        hingeC=new btHingeConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB);
+        hingeC->setLimit(btScalar(-M_PI_4), btScalar(M_PI_2));
+        m_joints[JOINT_PELVIS_SPINE]=hingeC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_PELVIS_SPINE], true);
+
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, 0, M_PI_2); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+        coneC=new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
+        coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
+        m_joints[JOINT_SPINE_HEAD]=coneC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_SPINE_HEAD], true);
+
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, 0, -M_PI_4*5); localA.setOrigin(scale*btVector3(btScalar(-0.18), btScalar(-0.10), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, 0, -M_PI_4*5); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+        coneC=new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_LEFT_UPPER_LEG], localA, localB);
+        coneC->setLimit(M_PI_4, M_PI_4, 0);
+        m_joints[JOINT_LEFT_HIP]=coneC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_HIP], true);
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+        hingeC=new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_LEG], *m_bodies[BODYPART_LEFT_LOWER_LEG], localA, localB);
+        hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+        m_joints[JOINT_LEFT_KNEE]=hingeC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_KNEE], true);
+
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, 0, M_PI_4); localA.setOrigin(scale*btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, 0, M_PI_4); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
+        coneC=new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
+        coneC->setLimit(M_PI_4, M_PI_4, 0);
+        m_joints[JOINT_RIGHT_HIP]=coneC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_HIP], true);
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
+        hingeC=new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_LEG], *m_bodies[BODYPART_RIGHT_LOWER_LEG], localA, localB);
+        hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
+        m_joints[JOINT_RIGHT_KNEE]=hingeC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_KNEE], true);
+
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, 0, M_PI); localA.setOrigin(scale*btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+        coneC=new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
+        coneC->setLimit(M_PI_2, M_PI_2, 0);
+        m_joints[JOINT_LEFT_SHOULDER]=coneC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_SHOULDER], true);
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+        hingeC=new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_ARM], *m_bodies[BODYPART_LEFT_LOWER_ARM], localA, localB);
+        hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+        m_joints[JOINT_LEFT_ELBOW]=hingeC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_ELBOW], true);
+
+
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, 0, 0); localA.setOrigin(scale*btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, 0, M_PI_2); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
+        coneC=new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
+        coneC->setLimit(M_PI_2, M_PI_2, 0);
+        m_joints[JOINT_RIGHT_SHOULDER]=coneC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_SHOULDER], true);
+
+        localA.setIdentity(); localB.setIdentity();
+        localA.getBasis().setEulerZYX(0, M_PI_2, 0); localA.setOrigin(scale*btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
+        localB.getBasis().setEulerZYX(0, M_PI_2, 0); localB.setOrigin(scale*btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
+        hingeC=new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_ARM], *m_bodies[BODYPART_RIGHT_LOWER_ARM], localA, localB);
+        hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+        m_joints[JOINT_RIGHT_ELBOW]=hingeC;
+        m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
+    }
+
+    virtual	~RagDoll()
+    {
+        int i;
+
+        // Remove all constraints
+        for(i=0; i<JOINT_COUNT; ++i)
+        {
+            m_ownerWorld->removeConstraint(m_joints[i]);
+            delete m_joints[i]; m_joints[i]=0;
+        }
+
+        // Remove all bodies and shapes
+        for(i=0; i<BODYPART_COUNT; ++i)
+        {
+            m_ownerWorld->removeRigidBody(m_bodies[i]);
+
+            delete m_bodies[i]->getMotionState();
+
+            delete m_bodies[i]; m_bodies[i]=0;
+            delete m_shapes[i]; m_shapes[i]=0;
+        }
+    }
+};
+
+void BenchmarkDemo::createTest3()
+{
+    setCameraDistance(btScalar(50.));
+
+    int size=16;
+
+    float sizeX=1.f;
+    float sizeY=1.f;
+
+    //int rc=0;
+
+    btScalar scale(3.5);
+    btVector3 pos(0.0f, sizeY, 0.0f);
+    while(size)
+    {
+        float offset=-size*(sizeX * 6.0f) * 0.5f;
+        for(int i=0; i<size; i++)
+        {
+            pos[0]=offset+(float)i * (sizeX * 6.0f);
+
+            RagDoll* ragDoll=new RagDoll(m_dynamicsWorld, pos, scale);
+            m_ragdolls.push_back(ragDoll);
+        }
+
+        offset+=sizeX;
+        pos[1]+=(sizeY * 7.0f);
+        pos[2]-=sizeX*2.0f;
+        size--;
+    }
+
+}
+void BenchmarkDemo::createTest4()
+{
+    setCameraDistance(btScalar(50.));
+
+    int size=8;
+    const float cubeSize=1.5f;
+    float spacing=cubeSize;
+    btVector3 pos(0.0f, cubeSize*2, 0.0f);
+    float offset=-size*(cubeSize * 2.0f+spacing) * 0.5f;
+
+    btConvexHullShape* convexHullShape=new btConvexHullShape();
+
+    btScalar scaling(1);
+
+    convexHullShape->setLocalScaling(btVector3(scaling, scaling, scaling));
+
+    for(int i=0; i<TaruVtxCount; i++)
+    {
+        btVector3 vtx(TaruVtx[i*3], TaruVtx[i*3+1], TaruVtx[i*3+2]);
+        convexHullShape->addPoint(vtx*btScalar(1./scaling));
+    }
+
+    //this will enable polyhedral contact clipping, better quality, slightly slower
+    //convexHullShape->initializePolyhedralFeatures();
+
+    btTransform trans;
+    trans.setIdentity();
+
+    float mass=1.f;
+    btVector3 localInertia(0, 0, 0);
+    convexHullShape->calculateLocalInertia(mass, localInertia);
+
+    for(int k=0; k<15; k++)
+    {
+        for(int j=0; j<size; j++)
+        {
+            pos[2]=offset+(float)j * (cubeSize * 2.0f+spacing);
+            for(int i=0; i<size; i++)
+            {
+                pos[0]=offset+(float)i * (cubeSize * 2.0f+spacing);
+                trans.setOrigin(pos);
+                createRigidBody(mass, trans, convexHullShape);
+            }
+        }
+        offset-=0.05f * spacing * (size-1);
+        spacing*=1.01f;
+        pos[1]+=(cubeSize * 2.0f+spacing);
+    }
+}
+
+void BenchmarkDemo::initRays()
+{
+    raycastBar=btRaycastBar2(2500.0, 0, 50.0, m_guiHelper);
+}
+
+
+
+void BenchmarkDemo::castRays()
+{
+    raycastBar.cast(m_dynamicsWorld);
+}
+
+void BenchmarkDemo::createTest7()
+{
+
+    createTest6();
+    setCameraDistance(btScalar(150.));
+    initRays();
+}
+
+
+void BenchmarkDemo::createTest8()
+{
+    setCameraDistance(btScalar(250.));
+    btVector3 boxSize(1.5f, 1.5f, 1.5f);
+    float boxMass=1.0f;
+    float sphereRadius=1.5f;
+    float sphereMass=1.0f;
+    float capsuleHalf=2.0f;
+    float capsuleRadius=1.0f;
+    float capsuleMass=1.0f;
+
+    {
+        int size=10;
+        int height=10;
+
+        const float cubeSize=boxSize[0];
+        float spacing=2.0f;
+        btVector3 pos(0.0f, 20.0f, 0.0f);
+        float offset=-size*(cubeSize * 2.0f+spacing) * 0.5f;
+
+        int numBodies=0;
+
+        for(int k=0; k<height; k++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                pos[2]=offset+(float)j * (cubeSize * 2.0f+spacing);
+                for(int i=0; i<size; i++)
+                {
+                    pos[0]=offset+(float)i * (cubeSize * 2.0f+spacing);
+                    btVector3 bpos=btVector3(0, 25, 0)+btVector3(5.0f, 1.0f, 5.0f)*pos;
+                    int idx=rand()%9;
+                    btTransform trans;
+                    trans.setIdentity();
+                    trans.setOrigin(bpos);
+
+                    switch(idx)
+                    {
+                    case 0:case 1:case 2:
+                    {
+                        float r=0.5f * (idx+1);
+                        btBoxShape* boxShape=new btBoxShape(boxSize*r);
+                        createRigidBody(boxMass*r, trans, boxShape);
+                    }
+                    break;
+
+                    case 3:case 4:case 5:
+                    {
+                        float r=0.5f * (idx-3+1);
+                        btSphereShape* sphereShape=new btSphereShape(sphereRadius*r);
+                        createRigidBody(sphereMass*r, trans, sphereShape);
+                    }
+                    break;
+
+                    case 6:case 7:case 8:
+                    {
+                        float r=0.5f * (idx-6+1);
+                        btCapsuleShape* capsuleShape=new btCapsuleShape(capsuleRadius*r, capsuleHalf*r);
+                        createRigidBody(capsuleMass*r, trans, capsuleShape);
+                    }
+                    break;
+                    }
+
+                    numBodies++;
+                }
+            }
+            offset-=0.05f * spacing * (size-1);
+            spacing*=1.1f;
+            pos[1]+=(cubeSize * 2.0f+spacing);
+        }
+    }
+
+    //createLargeMeshBody();
+}
+
+void BenchmarkDemo::exitPhysics()
+{
+    int i;
+
+    for(i=0; i<m_ragdolls.size(); i++)
+    {
+        RagDoll* doll=m_ragdolls[i];
+        delete doll;
+    }
+    m_ragdolls.clear();
+
+    CommonRigidBodyBase::exitPhysics();
+
+
+}
+
+#pragma warning(pop)

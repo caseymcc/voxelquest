@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <iostream>
 
+std::string guiStringValues[E_GST_LENGTH];
+double guiFloatValues[E_GFT_LENGTH];
+
 GameGUI::GameGUI()
 {
     PAGE_COUNT=0;
@@ -24,6 +27,57 @@ void GameGUI::init(Singleton* _singleton)
     singleton=_singleton;
     isReady=false;
     isLoaded=false;
+
+    fontWrappers[EFW_ICONS]=new FontWrapper();
+    fontWrappers[EFW_ICONS]->init(_singleton, "icons", true, 1.0f, 0.0f);
+
+    fontWrappers[EFW_TEXT]=new FontWrapper();
+    fontWrappers[EFW_TEXT]->init(_singleton, "arial_regular_14", false, 1.0f);
+}
+
+void GameGUI::loadGUI()
+{
+    int i;
+
+    g_settings.externalJSON.clear();
+    Renderer::doShaderRefresh(Renderer::bakeParamsOn);
+
+    for(itUICStruct iterator=compMap.begin(); iterator!=compMap.end(); iterator++)
+    {
+        iterator->second.nodeId=-1;
+        // iterator->first = key
+        // iterator->second = value
+    }
+
+    JSONValue *guiRootJS;
+
+    if(
+        loadJSON("..\\data\\lastJSONBufferGUI.js", &guiRootJS)
+        )
+    {
+        guiFromJSON(guiRootJS);
+
+        // for(itUICStruct iterator = compMap.begin(); iterator != compMap.end(); iterator++) {
+        // 	if (iterator->second.nodeId != -1) {
+        // 		//iterator->second.uic = (compStack[iterator->second.nodeId].data);
+        // 	}
+        // }
+
+    }
+
+    for(i=0; i<E_FM_LENGTH; i++)
+    {
+        menuList[i]=getGUIComp("guiHandles."+E_FLOATING_MENU_STRINGS[i]);
+        if(menuList[i]!=NULL)
+        {
+            menuList[i]->visible=false;
+        }
+    }
+
+    mapComp=getGUIComp("map.mapHolder");
+    fieldText=getGUIComp("fieldMenu.field");
+
+    GameState::updateMatFlag=true;
 }
 
 // inline bool compChildStr(string childStr) {
@@ -266,11 +320,11 @@ void GameGUI::addChildFromJSON(
 
                 if(jv->HasChild("dataParams"))
                 {
-                    jvDataRoot=fetchJSONData(tempStrings[E_GDS_DATA_FILE], false, jv->Child("dataParams"));
+                    jvDataRoot=g_settings.fetchJSONData(tempStrings[E_GDS_DATA_FILE], false, jv->Child("dataParams"));
                 }
                 else
                 {
-                    jvDataRoot=fetchJSONData(tempStrings[E_GDS_DATA_FILE], false, NULL);
+                    jvDataRoot=g_settings.fetchJSONData(tempStrings[E_GDS_DATA_FILE], false, NULL);
                 }
             }
             else
@@ -416,8 +470,8 @@ void GameGUI::addChildFromJSON(
                         break;
 
                     case E_GCT_GENERIC:
-
-                        splitStrings.clear();
+                    {
+                        std::vector<std::string> splitStrings;
                         splitStrings=split(tempStrings[E_GDS_LAST_KEY], '_');
 
                         if(jvChildTemplate->HasChild("label"))
@@ -460,7 +514,7 @@ void GameGUI::addChildFromJSON(
 
 
                         break;
-
+                    }
                     case E_GCT_CONTAINER:
 
                         // curIcon = GameState::gem->entIdToIcon[
@@ -1580,7 +1634,7 @@ void GameGUI::loadValuesGUI(bool applyValues)
     {
         loadBuf=std::string(dest.data);
 
-        splitStrings.clear();
+        std::vector<std::string> splitStrings;
         splitStrings=split(loadBuf, '^');
 
         for(i=0; i<splitStrings.size(); i+=2)
@@ -1721,4 +1775,22 @@ int GameGUI::placeInLayer(int nodeId, int layer)
     return (int)guiLayers[layer].size()-1;
 
     //}
+}
+
+bool GameGUI::anyMenuVisible()
+{
+    bool doProc=false;
+    int i;
+
+    for(i=0; i<E_FM_LENGTH; i++)
+    {
+        if(menuList[i]!=NULL)
+        {
+            if(menuList[i]->visible)
+            {
+                doProc=true;
+            }
+        }
+    }
+    return doProc;
 }

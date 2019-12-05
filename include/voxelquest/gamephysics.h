@@ -69,6 +69,8 @@ public:
     void remFarAway();
 
     void updateAll();
+    
+    void updateBullets();
 
     //private:
     Singleton* singleton;

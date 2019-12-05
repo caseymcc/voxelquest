@@ -8,16 +8,16 @@
 
 class Singleton;
 
-uint E_OCT_XP=1;
-uint E_OCT_XM=2;
-uint E_OCT_YP=4;
-uint E_OCT_YM=8;
-uint E_OCT_ZP=16;
-uint E_OCT_ZM=32;
-uint E_OCT_VISITED=64;
-uint E_OCT_SOLID=128;
-uint E_OCT_SURFACE=256;
-uint E_OCT_NOTNEW=512;
+const uint E_OCT_XP=1;
+const uint E_OCT_XM=2;
+const uint E_OCT_YP=4;
+const uint E_OCT_YM=8;
+const uint E_OCT_ZP=16;
+const uint E_OCT_ZM=32;
+const uint E_OCT_VISITED=64;
+const uint E_OCT_SOLID=128;
+const uint E_OCT_SURFACE=256;
+const uint E_OCT_NOTNEW=512;
 
 
 struct OctNode

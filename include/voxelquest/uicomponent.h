@@ -32,7 +32,7 @@ enum GUI_STRING_TYPES
 	E_GST_LENGTH
 };
 
-char* guiStringTypes[]={
+const char* const guiStringTypes[]={
 	"label",
 	"uid",
 	"ss",
@@ -78,7 +78,8 @@ enum GUI_FLOAT_TYPES
 	E_GFT_MATCODE,
 	E_GFT_LENGTH
 };
-char* guiFloatTypes[]={
+
+const char* const guiFloatTypes[]={
 	"type",
 	"divisions",
 	"value",
@@ -111,9 +112,6 @@ enum E_GUI_FLAGS
 	E_GF_W=8,
 	E_GF_MAT=16
 };
-
-std::string guiStringValues[E_GST_LENGTH];
-double guiFloatValues[E_GFT_LENGTH];
 
 enum eAlignH
 {

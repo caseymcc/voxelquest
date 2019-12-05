@@ -1991,11 +1991,15 @@ void AxisRotation::doRotationTBN(
 
 }
 
-
-
-
-
-
+void angleToVec(FIVector4* fv, float xr, float yr)
+{
+    fv->setFXYZ(
+        cos(xr)*sin(yr),
+        sin(xr)*sin(yr),
+        cos(yr)
+    );
+    fv->normalize();
+}
 
 float getShortestAngle(float begInRad, float endInRad, float amount)
 {

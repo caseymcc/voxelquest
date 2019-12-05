@@ -31,21 +31,47 @@ class BaseObj;
 class GameState
 {
 public:
-    static GameState *singleton();
+//    static GameState *singleton();
 
-    void init();
+    static void init();
+
+    static void initGameItems();
 
     static int &totPointCount() { return GameState::TOT_POINT_COUNT; }
-    static bool &wsBufferInvalid() { return singleton()->m_wsBufferInvalid; }
-    static bool &forceGetPD() { return singleton()->m_forceGetPD; }
+//    static bool &wsBufferInvalid() { return m_wsBufferInvalid; }
+//    static bool &forceGetPD() { return m_forceGetPD; }
     //    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
+
+    static void moveCamera(FIVector4 *pModXYZ);
+    static void setCameraToElevation();
 
     static void stopAllThreads();
 
+    static void display(bool doFrameRender=true);
+    static void frameUpdate(bool doFrameRender=true);
+    static void checkFluid(GameFluid* gf);
+    static void syncObjects();
+
+    static void funcNT2();
+    static void startNT2();
+    static bool stopNT2();
+    static void funcNT();
+    static void startNT();
+    static bool stopNT();
+
     //static float cameraShake;
     //static Timer shakeTimer;
+    static int frameCount;
+    static int frameSkipCount;
+    static int currentTick;
 
+    static int fpsCountMax;
+    static int fpsCount;
+
+    static bool firstRun;
+    static bool updateMatFlag;
     static int tbTicks;
+    static bool allInit;
 
     //	static FIVector4 lookAtVec;
     static FIVector4 origin;
@@ -53,6 +79,7 @@ public:
     static bool markerFound;
     static FIVector4 worldMarker;
 
+    static float targetZoom;
     static float subjectZoom;
     static float targetSubjectZoom;
 
@@ -69,6 +96,7 @@ public:
 
     static long long ENT_COUNTER;
 
+    static bool timeMod;
     static double timeDelta;
     static double curTime;
     static float smoothTime;
@@ -95,11 +123,11 @@ public:
     static GameAI* gameAI;
     static GameGUI *ui;
 
-private:
-    GameState();
+//private:
+//    GameState();
 
-    bool m_wsBufferInvalid;
-    bool m_forceGetPD;
+    static bool wsBufferInvalid;
+    static bool forceGetPD;
 };
 
 #endif//_voxelquest_gamestate_h_

@@ -50,7 +50,7 @@ DDD(E_PAT_3X3DIAMOND) \
 DDD(E_PAT_5X5DIAMOND) \
 DDD(E_PAT_LENGTH)
 
-std::string E_PATTERN_TYPE_STRINGS[]={
+const std::string E_PATTERN_TYPE_STRINGS[]={
     E_PATTERN_TYPE(DO_DESCRIPTION)
 };
 
@@ -363,7 +363,7 @@ public:
 
     bool lightChanged;
 
-    bool fpsTest;
+//    bool fpsTest;
 
     FIVector4 holderLookAt;
     FIVector4 blockPos[2];

@@ -5,7 +5,13 @@
 #include <vector>
 #include <map>
 
-std::map<std::string, std::string> includeMap;
+#ifdef MATERIAL_NOEXTERN
+#define MATERIAL_EXTERN
+#else
+#define MATERIAL_EXTERN extern
+#endif
+
+MATERIAL_EXTERN std::map<std::string, std::string> includeMap;
 
 void getMaterialString();
 

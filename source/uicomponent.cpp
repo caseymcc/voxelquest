@@ -405,7 +405,7 @@ void UIComponent::updateLinkedValues(bool isRead)
         {
 
 
-            jvFileBase=fetchJSONData(dataFile, false);
+            jvFileBase=g_settings.fetchJSONData(dataFile, false);
             getJVNodeByString(jvFileBase, &jvNodeBase, dataRef+"."+dataKey);
 
             // if (isRead) {

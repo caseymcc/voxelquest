@@ -73,7 +73,10 @@ void glInfo::getInfo(unsigned int param)
     wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
     if(wglGetExtensionsStringARB && param)
     {
+#pragma warning(push)
+#pragma warning(disable:4312)
         str = (const char*)wglGetExtensionsStringARB((HDC)param);
+#pragma warning(pop)
         if(str.size() > 0)
         {
             char* str2 = new char[str.size() + 1];

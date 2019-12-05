@@ -63,11 +63,18 @@ enum E_PRIM_TYPE_EXT
 	E_EXT_LENGTH
 };
 
-std::vector <FIVector4> primTemplateStack;
-//int geomStep;
-FIVector4 geomOrigOffset;
-FIVector4 geomPoints[E_GEOM_POINTS_LENGTH];
-std::vector<ObjectStruct> tempPrimList;
+#ifdef GEOM_NOEXTERN
+#define GEOM_EXTERN
+#else
+#define GEOM_EXTERN extern
+#endif
+
+GEOM_EXTERN std::vector <FIVector4> primTemplateStack;
+GEOM_EXTERN int geomStep;
+GEOM_EXTERN FIVector4 geomOrigOffset;
+GEOM_EXTERN FIVector4 geomPoints[E_GEOM_POINTS_LENGTH];
+GEOM_EXTERN std::vector<ObjectStruct> tempPrimList;
+
 
 float &getGeoParam(int param);
 

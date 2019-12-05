@@ -32,6 +32,8 @@ public:
         return singleton()->pdPool[index];
     }
 
+    static int getAvailPD();
+
     PaddedData pdPool[MAX_PDPOOL_SIZE];
 
 private:

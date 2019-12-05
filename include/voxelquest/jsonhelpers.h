@@ -18,7 +18,7 @@ enum E_JSON_PARAM_VALS
     E_JSON_PARAMS(DO_ENUM)
 };
 
-JSONValue* fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
+//JSONValue* fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
 
 bool processJSONFromString(
     std::string* sourceBuffer,
@@ -51,7 +51,7 @@ void getJVNodeByString(
 	//, bool dd = false
 );
 
-std::vector<std::string> splitStrings;
+//std::vector<std::string> splitStrings;
 
 std::string makePretty(std::string sourceString, std::string remString);
 

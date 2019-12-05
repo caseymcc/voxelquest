@@ -2,6 +2,7 @@
 #include "voxelquest/spacebuffer.h"
 #include "voxelquest/helperfuncs.h"
 #include "voxelquest/jsonhelpers.h"
+#include "voxelquest/settings.h"
 
 #include <iostream>
 
@@ -1267,7 +1268,7 @@ void GameAI::getKB()
     tokenIndexToVar.clear();
     intToVToken.clear();
 
-    jvKB=fetchJSONData("kb.js", true);
+    jvKB=g_settings.fetchJSONData("kb.js", true);
 
     if(jvKB==NULL)
     {

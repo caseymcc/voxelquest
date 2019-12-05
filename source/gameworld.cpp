@@ -46,7 +46,7 @@ GameWorld::GameWorld()
 
     lightChanged=false;
 
-    fpsTest=false;
+//    fpsTest=false;
 
     mapFreqs.setFXYZW(
         1.0f,
@@ -1090,7 +1090,7 @@ void GameWorld::update()
 
 
 
-    if(fpsTest)
+    if(g_settings.fpsTest)
     {
 
     }
@@ -7082,7 +7082,7 @@ void GameWorld::updateMatVol()
 {
     matVolLock=true;
 
-    JSONValue* jv=fetchJSONData("materials.js", false);
+    JSONValue* jv=g_settings.fetchJSONData("materials.js", false);
     JSONValue* curJV=NULL;
     JSONValue* curK=NULL;
     JSONValue* curJ=NULL;

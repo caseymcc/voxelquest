@@ -49,7 +49,7 @@ enum E_WEAPON_POS
 
 
 
-std::string boneStrings[]={
+const std::string boneStrings[]={
 
 	"E_BONE_L_BEG", ///////////////
 	"E_BONE_L_SHOULDER",

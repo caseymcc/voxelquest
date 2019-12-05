@@ -4,6 +4,9 @@
 
 #include <algorithm>
 
+PlantRules GamePlant::allPlantRules[E_PT_LENGTH];
+GamePlant* GamePlant::gamePlants[E_PT_LENGTH/2];
+
 GamePlant::GamePlant()
 {
     trunkNode=NULL;
@@ -156,11 +159,6 @@ void GamePlant::initAllPlants(Singleton* _singleton)
     pr->curLength[6]=1.5f;
     pr->curLength[7]=1.0f;
     pr->curLength[8]=0.75f;
-
-
-
-
-
 
     for(i=0; i<E_PT_LENGTH; i++)
     {

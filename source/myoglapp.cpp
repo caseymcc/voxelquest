@@ -35,7 +35,7 @@ void MyOGLApp::registerGrid(int xres, int yres, float color0[4], float color1[4]
     std::cout<<"c\n";
 }
 
-struct	GLInstanceRendererInternalData* getInternalData()
+struct	GLInstanceRendererInternalData* MyOGLApp::getInternalData()
 {
     std::cout<<"d\n";
     return nullptr;

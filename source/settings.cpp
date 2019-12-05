@@ -1,4 +1,6 @@
+#define SETTINGS_NOEXTERN
 #include "voxelquest/settings.h"
+
 #include "voxelquest/gamestate.h"
 #include "voxelquest/gameaudio.h"
 #include "voxelquest/gameentmanager.h"
@@ -46,9 +48,12 @@ Settings::Settings()
     externalJSON["kb.js"].jv=NULL;
 
     gammaVal=0.5f;
+    ignoreFrameLimit=false;
+    smoothMove=true;
 
     fxVolume=0.0f;
-    masterVolume=0.0f;
+    masterVolume=0.5f;
+    ambientVolume=0.5f;
     guiVolume=0.0f;
 
 	cavesOn=false;
@@ -102,6 +107,7 @@ Settings::Settings()
     STEP_TIME_IN_SEC=getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)/1000000.0;
     iNumSteps=16;
 
+    fpsTest=true;
     TRACE_ON=false;
     ND_TRACE_OFF=false;
     TEMP_DEBUG=false;
