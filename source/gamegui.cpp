@@ -52,7 +52,7 @@ void GameGUI::loadGUI()
     JSONValue *guiRootJS=nullptr;
 
     if(
-        loadJSON("..\\data\\lastJSONBufferGUI.js", &guiRootJS)
+        loadJSON("data\\lastJSONBufferGUI.js", &guiRootJS)
         )
     {
         guiFromJSON(guiRootJS);
@@ -1222,8 +1222,6 @@ void GameGUI::runReport()
 
 void GameGUI::renderGUI()
 {
-
-
     int i;
 
     int j;
@@ -1269,29 +1267,19 @@ void GameGUI::renderGUI()
         {
             for(k=0; k<guiLayers[j].size(); k++)
             {
-
-
-
                 if(guiLayers[j][k]>=0)
                 {
-
                     curComp=compStack[guiLayers[j][k]].data;
                     curCont=&(curComp->uiCont);
 
                     if(curComp->visible  && curComp->enabled&&(curComp->layerId>=0))
                     {
-
                         for(m=0; m<maxLoop; m++)
                         {
-
                             shadowOffset=((1-m)*i)*2.0f;
-
-
                             // only shadow text
                             if(shadowOffset==0.0f)
                             {
-
-
                                 if(curCont->bg.fontId>-1)
                                 {
                                     renderQuad(
@@ -1300,8 +1288,6 @@ void GameGUI::renderGUI()
                                         shadowOffset
                                     );
                                 }
-
-
                             }
 
                             if(i==0)

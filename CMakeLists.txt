@@ -253,5 +253,5 @@ get_target_link_directories(vs_enviroment_dir ${voxelquest_libraries})
 
 create_target_launcher(voxelquest
     RUNTIME_LIBRARY_DIRS "${vs_enviroment_dir}" "${SFML_ROOT_DIRECTORY}/build/lib/Debug" "${SFML_ROOT_DIRECTORY}/extlibs/bin/x64"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/data"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
 )

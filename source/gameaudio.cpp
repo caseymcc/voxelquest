@@ -24,7 +24,7 @@ void GameAudio::init()
     for(int i=0; i<EML_LENGTH; i++)
     {
         music[i]=new GameMusic();
-        music[i]->init("..\\data\\music\\"+musicStrings[i]+".ogg");
+        music[i]->init("data\\music\\"+musicStrings[i]+".ogg");
         music[i]->setLoop(true);
     }
 }
@@ -34,7 +34,7 @@ void GameAudio::prepSound(std::string soundName)
 	if(soundMap.find(soundName)==soundMap.end())
 	{
 		soundMap.insert(std::pair<std::string, GameSound>(soundName, GameSound()));
-		soundMap[soundName].init("..\\data\\sounds\\"+soundName+".wav");
+		soundMap[soundName].init("data\\sounds\\"+soundName+".wav");
 	}
 }
 

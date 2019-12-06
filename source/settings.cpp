@@ -102,7 +102,7 @@ Settings::Settings()
 	roofHeightInCells=((float)cellsPerNodeXY)/4.0f;
 	wallRadInCells=((float)cellsPerNodeXY)/4.0f;
 
-	guiSaveLoc="..\\data\\saves\\save0\\compMap.txt";
+	guiSaveLoc="data\\saves\\save0\\compMap.txt";
 
     STEP_TIME_IN_SEC=getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)/1000000.0;
     iNumSteps=16;
@@ -189,7 +189,7 @@ JSONValue* Settings::fetchJSONData(std::string dataFile, bool doClean, JSONValue
         case -1:
             std::cout<<"load jv data "+dataFile<<"\n";
             loadRes=loadJSON(
-                "..\\data\\"+dataFile,
+                "data\\"+dataFile,
                 &((externalJSON[dataFile]).jv)
             );
 
@@ -332,7 +332,7 @@ void Settings::saveExternalJSON()
         if(iterator->second.jv!=NULL)
         {
             saveFileString(
-                "..\\data\\"+iterator->first,
+                "data\\"+iterator->first,
                 &(iterator->second.jv->Stringify())
             );
         }

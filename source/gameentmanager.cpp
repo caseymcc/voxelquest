@@ -3393,7 +3393,7 @@ void GameEntManager::loadPoseInfo(bool justRefresh)
     gamePoses.clear();
 
 
-    if(loadJSON("..\\data\\poseinfo.js", &poseRootJS))
+    if(loadJSON("data\\poseinfo.js", &poseRootJS))
     {
 
         templates=poseRootJS->Child("templates");

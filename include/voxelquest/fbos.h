@@ -36,10 +36,7 @@ public:
         bool isMultisample=false
     );
 
-
     void cpuToGPU();
-
-
 
     void getPixelAtF(FIVector4 *fv, int x, int y);
 
@@ -47,15 +44,11 @@ public:
 
     void setPixelAtC(int x, int y, int channel, unsigned char value);
 
-
     int getIndex(int xs, int ys);
 
     void setPixelAtWrapped(int xs, int ys, int channel, int val);
 
     int getPixelAtWrapped(int xs, int ys, int channel);
-
-
-
 
     int getPixelAtIndex(int ind, int channel);
     void setPixelAtIndex(int ind, int channel, int val);
@@ -65,7 +58,6 @@ public:
     int getPixelAtC(int x, int y, int channel);
 
     float getPixelAtLinear(float xf, float yf, int channel);
-
 
     int getMipVal(
         int x,
@@ -84,19 +76,14 @@ public:
 
     void updateMips();
 
-
-
     int getPixelAtIndex3DMip(int ind, int channel, int mval, int mipLev);
 
     void updateMips3D(int basePitch);
-
-
 
     void getPixelsFast();
 
     // assumed that remoteBuffer is allocated
     void getPixelsFastRemote(uint* remoteBuffer);
-
 
     void getPixels(bool _hasMipMap=false);
 

@@ -72,7 +72,6 @@ int FBOWrapper::init(
         break;
     }
 
-
     if(isMultisample)
     {
         glGenTextures(1, &color_tex);
@@ -146,19 +145,9 @@ int FBOWrapper::init(
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-
-
-
-
-
     GameState::TOT_GPU_MEM_USAGE+=((float)(w * h * bytesPerChannel*4))/(1024.0f * 1024.0f);
 
     return 1;
-
-
-
-
-
     //
     /*
     if (hasDepth) {
@@ -168,16 +157,12 @@ int FBOWrapper::init(
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
     }
     */
-
-
     //
-
 }
 
 
 void FBOWrapper::cpuToGPU()
 {
-
     if(pixelsChar==NULL)
     {
         doTrace("error: null pointer pixelsChar");
@@ -220,9 +205,6 @@ void FBOWrapper::cpuToGPU()
         doTrace("TODO: implement 32 bit");
         break;
     }
-
-
-
 }
 
 
@@ -371,7 +353,6 @@ void FBOWrapper::andPixelAtIndex(int ind, int channel, int val)
 
 int FBOWrapper::getPixelAtC(int x, int y, int channel)
 {
-
     if(!isFloat)
     {
         if((pixelsChar==NULL))
@@ -624,7 +605,6 @@ void FBOWrapper::updateMips()
 
                     }
                 }
-
             }
         }
     }
@@ -634,7 +614,6 @@ void FBOWrapper::updateMips()
 
 int FBOWrapper::getPixelAtIndex3DMip(int ind, int channel, int mval, int mipLev)
 {
-
     int newInd=ind*4+channel;
 
     switch(mval)

@@ -179,7 +179,7 @@ void Shader::init(std::string shaderName, bool doBake, std::map<std::string, std
     std::string tempFileLoc="";
     std::string globString;
 
-    std::string shaderRoot="../src/glsl/";
+    std::string shaderRoot="glsl/";
     std::string _shaderFile=shaderRoot+shaderFN+".c";
 
     const char* shaderFile=_shaderFile.c_str();

@@ -222,7 +222,7 @@ void GameOrg::loadOrgFromFile(std::string fileName, bool notThePose)
     setBinding(actorId, false);
 
     loadJSON(
-        "..\\data\\orgdata\\"+fileName+".js",
+        "data\\orgdata\\"+fileName+".js",
         &rootObj
     );
 
@@ -255,7 +255,7 @@ void GameOrg::saveOrgToFile(std::string fileName)
 
 
     saveFileString(
-        "..\\data\\orgdata\\"+fileName+".js",
+        "data\\orgdata\\"+fileName+".js",
         &(rootObj->Stringify())
     );
 

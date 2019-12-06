@@ -93,7 +93,7 @@ void Singleton::init(int _defaultWinW, int _defaultWinH, int _scaleFactor
     for(i=0; i<EML_LENGTH; i++)
     {
         music[i]=new GameMusic();
-        music[i]->init("..\\data\\music\\"+musicStrings[i]+".ogg");
+        music[i]->init("data\\music\\"+musicStrings[i]+".ogg");
         music[i]->setLoop(true);
     }
 
@@ -304,13 +304,13 @@ void Singleton::init(int _defaultWinW, int _defaultWinH, int _scaleFactor
     timeOfDay=1.0f;
     targetTimeOfDay=1.0f;
 
-    guiSaveLoc="..\\data\\saves\\save0\\compMap.txt";
+    guiSaveLoc="data\\saves\\save0\\compMap.txt";
 
-    //invItems = loadBMP("..\\data\\invitems.bmp");
-//    imageVoro=loadBMP("..\\data\\voro.bmp");
-    imageHM0=loadBMP("..\\data\\hm0.bmp");
-    imageHM1=loadBMP("..\\data\\hm1.bmp");
-    cloudImage=loadBMP("..\\data\\clouds.bmp");
+    //invItems = loadBMP("data\\invitems.bmp");
+//    imageVoro=loadBMP("data\\voro.bmp");
+    imageHM0=loadBMP("data\\hm0.bmp");
+    imageHM1=loadBMP("data\\hm1.bmp");
+    cloudImage=loadBMP("data\\clouds.bmp");
 
     //invItems->getTextureId(GL_NEAREST);
     imageVoro->getTextureId(GL_NEAREST);
@@ -6640,7 +6640,7 @@ JSONValue* Singleton::fetchJSONData(string dataFile, bool doClean, JSONValue* pa
         case -1:
             cout<<"load jv data "+dataFile<<"\n";
             loadRes=loadJSON(
-                "..\\data\\"+dataFile,
+                "data\\"+dataFile,
                 &((externalJSON[dataFile]).jv)
             );
 
@@ -6810,7 +6810,7 @@ void Singleton::loadGUI()
 
 
     if(
-        loadJSON("..\\data\\lastJSONBufferGUI.js", &guiRootJS)
+        loadJSON("data\\lastJSONBufferGUI.js", &guiRootJS)
         )
     {
         mainGUI->guiFromJSON(
@@ -6847,12 +6847,12 @@ void Singleton::loadGUI()
 
 // void loadAllData()
 // {
-// 	// if ( loadFile("..\\data\\lastJSONBuffer.js", &lastJSONBuffer) )
+// 	// if ( loadFile("data\\lastJSONBuffer.js", &lastJSONBuffer) )
 // 	// {
 // 	// 	processJSON(&lastJSONBuffer, &nullBuffer, &rootObjJS);
 // 	// }
 
-// 	// if ( loadFile("..\\data\\lastImageBuffer.txt", &lastImageBuffer) )
+// 	// if ( loadFile("data\\lastImageBuffer.txt", &lastImageBuffer) )
 // 	// {
 // 	// 	processB64(&lastImageBuffer, &nullBuffer);
 // 	// }
@@ -6863,8 +6863,8 @@ void Singleton::loadGUI()
 // {
 
 
-// 	// saveFile("..\\data\\lastJSONBuffer.js", &lastJSONBuffer);
-// 	// saveFile("..\\data\\lastImageBuffer.txt", &lastImageBuffer);
+// 	// saveFile("data\\lastJSONBuffer.js", &lastJSONBuffer);
+// 	// saveFile("data\\lastImageBuffer.txt", &lastImageBuffer);
 
 // 	// cout << "All Data Saved\n";
 // }

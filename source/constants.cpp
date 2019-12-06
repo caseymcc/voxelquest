@@ -14,7 +14,7 @@ void loadConstants()
 
     GameState::stopAllThreads();
 
-    if(loadJSON("..\\data\\constants.js", &constRootJS))
+    if(loadJSON("data\\constants.js", &constRootJS))
     {
 
         for(i=0; i<E_CONST_LENGTH; i++)

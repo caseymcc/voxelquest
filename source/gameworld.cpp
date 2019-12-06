@@ -75,10 +75,10 @@ GameWorld::GameWorld()
     explodeArr=new float[MAX_EXPLODES*4];
     paramArrMap=new float[4096];
 
-    imageVoro=loadBMP("..\\data\\voro.bmp");
-    imageHM0=loadBMP("..\\data\\hm0.bmp");
-    imageHM1=loadBMP("..\\data\\hm1.bmp");
-    cloudImage=loadBMP("..\\data\\clouds.bmp");
+    imageVoro=loadBMP("data\\voro.bmp");
+    imageHM0=loadBMP("data\\hm0.bmp");
+    imageHM1=loadBMP("data\\hm1.bmp");
+    cloudImage=loadBMP("data\\clouds.bmp");
 
     //invItems->getTextureId(GL_NEAREST);
     imageVoro->getTextureId(GL_NEAREST);

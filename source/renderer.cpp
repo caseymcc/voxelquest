@@ -559,7 +559,7 @@ void Renderer::doShaderRefresh(bool doBake)
     if(DO_SHADER_DUMP)
     {
         std::cout<<"SHADER_DUMP\n";
-        saveFileString("..\\data\\temp.txt", &globString);
+        saveFileString("data\\temp.txt", &globString);
     }
 
 
@@ -675,8 +675,6 @@ void Renderer::idrawCrossHairs(FIVector4 originVec, float radius)
 
 void Renderer::drawLine(FIVector4 *p0, FIVector4 *p1)
 {
-
-
     glBegin(GL_LINES);
     glMultiTexCoord3f(GL_TEXTURE0, 0.0f, 0.0f, 0.0f);
     glVertex3f(p0->getFX(), p0->getFY(), p0->getFZ());
