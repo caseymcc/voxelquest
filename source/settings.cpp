@@ -107,7 +107,7 @@ Settings::Settings()
     STEP_TIME_IN_SEC=getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)/1000000.0;
     iNumSteps=16;
 
-    fpsTest=true;
+    fpsTest=false;
     TRACE_ON=false;
     ND_TRACE_OFF=false;
     TEMP_DEBUG=false;

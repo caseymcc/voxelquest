@@ -52,6 +52,11 @@ VBOWrapper Renderer::fsQuad;
 TBOWrapper Renderer::limbTBO;
 TBOWrapper Renderer::primTBO;
 
+unsigned int Renderer::fboVertexArray;
+unsigned int Renderer::fboVertexBuffer;
+unsigned int Renderer::fboIndexBuffer;
+unsigned int Renderer::fboIndexSize;
+
 float Renderer::clipDist[2];
 bool Renderer::perspectiveOn=false;
 bool Renderer::lastPersp=false;
@@ -115,10 +120,49 @@ void Renderer::init(int width, int height)
 {
     setWH(width, height);
 
-    fsqDL=glGenLists(1);
-    glNewList(fsqDL, GL_COMPILE);
-    drawFSQuadOffset(0.0f, 0.0f, 1.0f);
-    glEndList();
+//    fsqDL=glGenLists(1);
+//    glNewList(fsqDL, GL_COMPILE);
+//    drawFSQuadOffset(0.0f, 0.0f, 1.0f);
+//    glEndList();
+    
+//    std::vector<GLfloat> vertexes=
+//    {
+//        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+//         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+//         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+//        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+//    };
+//
+//    std::vector<GLuint> indexes=
+//    {
+//        0, 1, 2, 0, 2, 3
+//    };
+//    fboIndexSize=(unsigned int)indexes.size();
+//
+////generate and set buffers
+//    glGenBuffers(1, &fboVertexBuffer);
+//    glGenBuffers(1, &fboIndexBuffer);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, fboVertexBuffer);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertexes.size(), vertexes.data(), GL_STATIC_DRAW);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fboIndexBuffer);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*indexes.size(), indexes.data(), GL_STATIC_DRAW);
+//
+////create vertex array
+//    glGenVertexArrays(1, &fboVertexArray);
+//
+//    glBindVertexArray(fboVertexArray);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, fboVertexBuffer);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fboIndexBuffer);
+//
+//    glEnableVertexAttribArray(0); // Attrib '0' is the vertex positions
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 0);
+//    glEnableVertexAttribArray(1); // Attrib '2' is the vertex texCoord.
+//    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
+//
+//    glBindVertexArray(0);
+////finish vertex array
 
     clipDist[0]=1.0f;
     clipDist[1]=512.0f;
@@ -134,6 +178,8 @@ void Renderer::init(int width, int height)
     bufferDimHalf.setIXY(width/2, height/2);
     bufferModDim.copyIntMult(&bufferDim, 1);
     bufferRenderDim.copyIntDiv(&bufferDimTarg, RENDER_SCALE_FACTOR);
+
+    shaderStrings.push_back("RenderFBOShader");
 
     if(USE_SPHERE_MAP)
     {
@@ -194,6 +240,7 @@ void Renderer::init(int width, int height)
     std::sort(shaderStrings.begin(), shaderStrings.end(), compareStruct);
 
     shaderTextureIds.push_back("Texture0");
+    shaderTextureIds.push_back("Texture0");
     shaderTextureIds.push_back("Texture1");
     shaderTextureIds.push_back("Texture2");
     shaderTextureIds.push_back("Texture3");
@@ -214,6 +261,31 @@ void Renderer::init(int width, int height)
     {
         shaderMap.insert(std::pair<std::string, Shader*>(shaderStrings[i], new Shader(nullptr)));
     }
+
+
+    // data for a fullscreen quad (this time with texture coords)
+    GLfloat vertexDataQuad[]={
+        //  X     Y     Z           U     V     
+           1.0f, 1.0f, 0.0f, 1.0f,       1.0f, 1.0f, 0.0f, 0.0f, // vertex 0
+          -1.0f, 1.0f, 0.0f, 1.0f,       0.0f, 1.0f, 0.0f, 0.0f, // vertex 1
+           1.0f,-1.0f, 0.0f, 1.0f,       1.0f, 0.0f, 0.0f, 0.0f, // vertex 2
+          -1.0f,-1.0f, 0.0f, 1.0f,       0.0f, 0.0f, 0.0f, 0.0f  // vertex 3
+    }; // 4 vertices with 8 components (floats) each
+    GLuint indexDataQuad[]={
+        0,1,2, // first triangle
+        2,1,3  // second triangle
+    };
+
+    for(int i=0; i<32; i++)
+        fsQuad.vi->vertexVec.push_back(vertexDataQuad[i]);
+    for(int i=0; i<6; i++)
+        fsQuad.vi->indexVec.push_back(indexDataQuad[i]);
+
+    fsQuad.init(2, (int)GL_STATIC_DRAW);
+    fsQuad.updateNew();
+
+    primTBO.init(true, primTBOData, NULL, MAX_PRIM_DATA_IN_BYTES);
+    limbTBO.init(true, limbTBOData, NULL, MAX_LIMB_DATA_IN_BYTES);
 
     doShaderRefresh(false);
 }
@@ -675,6 +747,7 @@ void Renderer::idrawCrossHairs(FIVector4 originVec, float radius)
 
 void Renderer::drawLine(FIVector4 *p0, FIVector4 *p1)
 {
+    assert(false);
     glBegin(GL_LINES);
     glMultiTexCoord3f(GL_TEXTURE0, 0.0f, 0.0f, 0.0f);
     glVertex3f(p0->getFX(), p0->getFY(), p0->getFZ());
@@ -778,6 +851,8 @@ void Renderer::drawBox(
         break;
     }
 
+    assert(false);
+
     glBegin(GL_QUADS);
 
 
@@ -865,6 +940,8 @@ void Renderer::drawQuadWithCoords(
     //glColor4f(1, 1, 1, 1);
     //glNormal3f(0, 0, 1);
 
+    assert(false);
+
     glBegin(GL_QUADS);
 
     glTexCoord2f(tx1, ty1);
@@ -894,6 +971,8 @@ void Renderer::drawQuadBounds(
     //glColor4f(1, 1, 1, 1);
     //glNormal3f(0, 0, 1);
 
+    assert(false);
+
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0f, 0.0f);
@@ -914,7 +993,11 @@ void Renderer::drawQuadBounds(
 
 void Renderer::drawFSQuad()
 {
-    glCallList(fsqDL);
+//    glCallList(fsqDL);
+//    glBindBuffer(GL_ARRAY_BUFFER, fboVertexBuffer);
+//    glBindVertexArray(fboVertexArray);
+//    glDrawElements(GL_TRIANGLES, fboIndexSize, GL_UNSIGNED_INT, 0);
+    fsQuad.draw();
 }
 
 
@@ -924,28 +1007,34 @@ void Renderer::drawFSQuadOffset(
     float zm
 )
 {
-    float fx0=(xOff-1.0f) * zm;
-    float fy0=(yOff-1.0f) * zm;
-    float fx1=(xOff+1.0f) * zm;
-    float fy1=(yOff+1.0f) * zm;
-
-    glBegin(GL_QUADS);
-    //glColor4f(1, 1, 1, 1);
-    //glNormal3f(0, 0, 1);
-
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(fx0, fy0, 0.0f);
-
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(fx1, fy0, 0.0f);
-
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(fx1, fy1, 0.0f);
-
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(fx0, fy1, 0.0f);
-
-    glEnd();
+//    float fx0=(xOff-1.0f) * zm;
+//    float fy0=(yOff-1.0f) * zm;
+//    float fx1=(xOff+1.0f) * zm;
+//    float fy1=(yOff+1.0f) * zm;
+//
+//    glBegin(GL_QUADS);
+//    //glColor4f(1, 1, 1, 1);
+//    //glNormal3f(0, 0, 1);
+//
+//    glTexCoord2f(0.0f, 0.0f);
+//    glVertex3f(fx0, fy0, 0.0f);
+//
+//    glTexCoord2f(1.0f, 0.0f);
+//    glVertex3f(fx1, fy0, 0.0f);
+//
+//    glTexCoord2f(1.0f, 1.0f);
+//    glVertex3f(fx1, fy1, 0.0f);
+//
+//    glTexCoord2f(0.0f, 1.0f);
+//    glVertex3f(fx0, fy1, 0.0f);
+//
+//    glEnd();
+    
+    glBindBuffer(GL_ARRAY_BUFFER, fboVertexBuffer);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fboIndexBuffer);
+    
+    glBindVertexArray(fboVertexArray);
+    glDrawElements(GL_TRIANGLES, fboIndexSize, GL_UNSIGNED_INT, 0);
 }
 
 void Renderer::bindFBO(std::string fboName, int swapFlag, int doClear)
@@ -1182,7 +1271,7 @@ void Renderer::drawFBO(std::string fboName, int ind, float zm, int swapFlag)
 
 void Renderer::drawFBOOffsetDirect(FBOSet *fbos, int ind, float xOff, float yOff, float zm)
 {
-
+    bindShader("RenderFBOShader");
     glBindTexture(GL_TEXTURE_2D, fbos->fbos[ind].color_tex);
     //glClearColor(0.2,0.2,0.2,0.0);
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1427,11 +1516,11 @@ void Renderer::setMatrices(int w, int h)
 
         glViewport(0, 0, w, h);
 
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
+//        glMatrixMode(GL_MODELVIEW);
+//        glLoadIdentity();
+//
+//        glMatrixMode(GL_PROJECTION);
+//        glLoadIdentity();
 
         // glMatrixMode(GL_PROJECTION);
         // glLoadIdentity();

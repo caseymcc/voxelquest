@@ -5,6 +5,7 @@
 #include "voxelquest/object.h"
 
 const static int MAX_PRIM_DATA_IN_BYTES=8*1024*1024;
+const static int MAX_LIMB_DATA_IN_BYTES=65536;
 
 enum E_GEOM_PARAMS
 {
@@ -72,6 +73,7 @@ enum E_PRIM_TYPE_EXT
 #endif
 
 GEOM_EXTERN float primTBOData[MAX_PRIM_DATA_IN_BYTES];
+GEOM_EXTERN float limbTBOData[MAX_LIMB_DATA_IN_BYTES];
 GEOM_EXTERN std::vector <FIVector4> primTemplateStack;
 GEOM_EXTERN int geomStep;
 GEOM_EXTERN FIVector4 geomOrigOffset;

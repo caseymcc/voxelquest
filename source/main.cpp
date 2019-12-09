@@ -56,9 +56,8 @@ int main(int argc, char* argv[])
 
         while(!glfwWindowShouldClose(window))
         {
-            GameState::display();
-
-            glfwSwapBuffers(window);
+            if(GameState::display())
+                glfwSwapBuffers(window);
             glfwPollEvents();
         }
     }

@@ -47,8 +47,8 @@ public:
 
     static void stopAllThreads();
 
-    static void display(bool doFrameRender=true);
-    static void frameUpdate(bool doFrameRender=true);
+    static bool display(bool doFrameRender=true);
+    static bool frameUpdate(bool doFrameRender=true);
     static void checkFluid(GameFluid* gf);
     static void syncObjects();
 

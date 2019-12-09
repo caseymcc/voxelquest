@@ -196,6 +196,11 @@ public:
     static TBOWrapper limbTBO;
     static TBOWrapper primTBO;
 
+    static unsigned int fboVertexArray;
+    static unsigned int fboVertexBuffer;
+    static unsigned int fboIndexBuffer;
+    static unsigned int fboIndexSize;
+
     static float clipDist[2];
     static bool perspectiveOn;
     static bool lastPersp;

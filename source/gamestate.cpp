@@ -256,8 +256,9 @@ void GameState::stopAllThreads()
 	glFinish();
 }
 
-void GameState::display(bool doFrameRender)
+bool GameState::display(bool doFrameRender)
 {
+    bool needSwap=false;
     bool noTravel=false;
     double milVox=(((double)(TOT_POINT_COUNT))/1000000.0);
     float maxPhysTime=getConst(E_CONST_STEP_TIME_IN_MICRO_SEC)*getConst(E_CONST_PHYS_STEPS_PER_FRAME);
@@ -420,7 +421,9 @@ void GameState::display(bool doFrameRender)
             else
             {
                 //if (doFrameRender) {
-                frameUpdate(doFrameRender);
+                if(frameUpdate(doFrameRender))
+                    needSwap=true;
+
                 gw->lastDepthInvalidMove=gw->depthInvalidMove;
                 gw->depthInvalidMove=false;
                 gw->depthInvalidRotate=false;
@@ -457,10 +460,13 @@ void GameState::display(bool doFrameRender)
         //toggleFullScreen();
     }
     firstRun=false;
+
+    return needSwap;
 }
 
-void GameState::frameUpdate(bool doFrameRender)
+bool GameState::frameUpdate(bool doFrameRender)
 {
+    bool needSwap=false;
     float temp;
     float temp2;
 
@@ -524,7 +530,10 @@ void GameState::frameUpdate(bool doFrameRender)
         guiValid=true;
 
     if(guiValid && ui->anyMenuVisible())
+    {
         ui->updateGUI();
+        needSwap=true;
+    }
 
     if((gw->mapLockOn)||(gw->mapInvalid))
     {
@@ -628,6 +637,7 @@ void GameState::frameUpdate(bool doFrameRender)
                         gem->cycleTurn();
                     tbTicks++;
                 }
+                needSwap=true;
             }
             
         }
@@ -635,6 +645,7 @@ void GameState::frameUpdate(bool doFrameRender)
 
     g_settings.TRACE_ON=false;
     frameCount++;
+    return needSwap;
 }
 
 void GameState::moveCamera(FIVector4 *pModXYZ)

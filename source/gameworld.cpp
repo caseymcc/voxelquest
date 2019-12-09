@@ -4089,7 +4089,7 @@ void GameWorld::initMap()
         {
             tempVal=(int)paramArrMap[p1];
             paramArrMap[p1]=paramArrMap[p2];
-            paramArrMap[p2]=(float)tempVal;
+            paramArrMap[p2]=(float)tempVal; 
         }
     }
 

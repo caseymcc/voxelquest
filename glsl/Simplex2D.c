@@ -1,21 +1,32 @@
-
+#version 330
 ////////////////  Simplex2D  ////////////////
 
 
 
-varying vec2 TexCoord0;
+//varying vec2 TexCoord0;
 uniform vec2 resolution;
 uniform float curTime;
 
 $
+out vec2 texCoord;
+
+layout(location=0) in vec3 vertexPos;
+layout(location=1) in vec2 vertexTex;
 
 void main() {
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+    texCoord=vertexTex;
+    gl_Position=vec4(vertexPos, 1.0);
 }
+
+//void main() {
+//    TexCoord0 = gl_MultiTexCoord0.xy;
+//    gl_Position = gl_Vertex;
+//}
 
 $
 
+in vec2 texCoord;
+out vec4 color;
 
 //
 // Description : Array and textureless GLSL 2D simplex noise function.
@@ -244,9 +255,11 @@ float caclNoiseSL(vec3 uvw) {
 
 void main() {
     
-    vec3 v_texCoord3D = vec3(TexCoord0.x,TexCoord0.y,0.5);
-    //float newTime = curTime/5000.0;
-    vec3 uvw = vec3(TexCoord0.xy,curTime);
+//    vec3 v_texCoord3D = vec3(TexCoord0.x,TexCoord0.y,0.5);
+//    //float newTime = curTime/5000.0;
+//    vec3 uvw = vec3(TexCoord0.xy,curTime);
+    vec3 v_texCoord3D=vec3(texCoord.x, texCoord.y, 0.5);
+    vec3 uvw=vec3(texCoord.xy, curTime);
 
     
     float n = 0.0;
@@ -277,7 +290,8 @@ void main() {
     res.rgb = (res.rgb + 1.0)/2.0;
     
     
-    gl_FragData[0] = res;//vec4(lerpAmount);//res;
+//    gl_FragData[0] = res;//vec4(lerpAmount);//res;
+    color=res;
 }
 
 /*
