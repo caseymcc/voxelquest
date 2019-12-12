@@ -1,5 +1,6 @@
 #include "voxelquest/gamestate.h"
 #include "voxelquest/renderer.h"
+#include "voxelquest/glmhelpers.h"
 
 #include <glbinding/gl/gl.h>
 #include <glbinding/glbinding.h>
@@ -14,6 +15,7 @@ void display(bool doFrameRender=false);
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseMovementWithButton(int x, int y);
 void mouseMovementWithoutButton(int x, int y);
+void mouseMove(GLFWwindow* window, double xpos, double ypos);
 void mouseClick(GLFWwindow *window, int button, int action, int modifiers);
 void reshape(GLFWwindow* window, int w, int h);
 
@@ -49,7 +51,7 @@ int main(int argc, char* argv[])
         glfwSetFramebufferSizeCallback(window, reshape);
         glfwSetKeyCallback(window, keyboard);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        //        glfwSetCursorPosCallback(window, mouseMovementWithoutButton);
+        glfwSetCursorPosCallback(window, mouseMove);
         glfwSetMouseButtonCallback(window, mouseClick);
 
         GameState::init(winW, winH);
@@ -65,8 +67,14 @@ int main(int argc, char* argv[])
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(action==GLFW_RELEASE)
+    if(key==GLFW_KEY_D)
     {
+        if(action==GLFW_RELEASE)
+            g_settings.toggleSetting(E_BS_DEBUG_VIEW);
+    }
+
+ //   if(action==GLFW_RELEASE)
+ //   {
 //        if(key==GLFW_KEY_LEFT_SHIFT)
 //            shiftPressed=false;
 //        else if(key==GLFW_KEY_LEFT_CONTROL)
@@ -75,18 +83,18 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 //            altPressed=false;
         //            else
         //                doAction(progActionsDown[((int)programState)*256+key]);
-    }
-    else
-    {
+//    }
+//    else
+//    {
 //        if(key==GLFW_KEY_LEFT_SHIFT)
 //            shiftPressed=true;
 //        else if(key==GLFW_KEY_LEFT_CONTROL)
 //            ctrlPressed=true;
 //        else if(key==GLFW_KEY_LEFT_ALT)
 //            altPressed=true;
-        //            else
-        //                doAction(progActionsU[((int)programState)*256+key]);
-    }
+//        //            else
+//        //                doAction(progActionsU[((int)programState)*256+key]);
+//    }
 }
 
 void mouseMovementWithButton(int x, int y)
@@ -97,6 +105,64 @@ void mouseMovementWithoutButton(int x, int y)
 {
 
 }
+
+glm::vec3 calcDirection(float yaw, float pitch)
+{
+    glm::vec3 direction;
+    float r=cos(pitch);
+
+    direction.x=r*cos(yaw);
+    direction.y=r*sin(yaw);
+    direction.z=sin(pitch);
+    direction=glm::normalize(direction);
+
+    return direction;
+}
+
+void mouseMove(GLFWwindow* window, double xpos, double ypos)
+{
+    static bool firstMouse=true;
+    static float lastX;
+    static float lastY;
+    static float yaw=0.0f;
+    static float pitch=0.0f;
+
+    if(firstMouse)
+    {
+        lastX=xpos;
+        lastY=ypos;
+        firstMouse=false;
+    }
+
+    float xoffset=lastX-(float)xpos;
+    float yoffset=lastY-(float)ypos;
+
+    lastX=(float)xpos;
+    lastY=(float)ypos;
+
+    float sensitivity=0.1;
+
+    xoffset*=sensitivity;
+    yoffset*=sensitivity;
+
+    yaw+=xoffset;
+    pitch+=yoffset;
+
+    if(yaw>360.0f)
+        yaw-=360.0f;
+    if(yaw<0)
+        yaw+=360.0f;
+
+    if(pitch>89.0f)
+        pitch=89.0f;
+    if(pitch<-89.0f)
+        pitch=-89.0f;
+
+    glm::vec3 direction=calcDirection(glm::radians(yaw), glm::radians(pitch));
+
+    Renderer::lookAtVec=toFIVector4(direction);
+}
+
 void mouseClick(GLFWwindow *window, int button, int action, int modifiers)
 {
 }

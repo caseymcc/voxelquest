@@ -2,6 +2,7 @@
 #include "voxelquest/vectors.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 inline glm::vec3 toVec3(const Vector3 &vec)
 {
@@ -84,4 +85,14 @@ inline Matrix4 toMatrix4(const glm::mat4 &mat)
         mat[2][0], mat[2][1], mat[2][2], mat[2][3],
         mat[3][0], mat[3][1], mat[3][2], mat[3][3]
     );
+}
+
+inline void toFloatArray(float *matArray, const glm::mat4 &mat)
+{
+    const float *matData=(const float*)glm::value_ptr(mat);
+
+    for(size_t index=0; index<16; ++index)
+    {
+        matArray[index]=matData[index];
+    }
 }

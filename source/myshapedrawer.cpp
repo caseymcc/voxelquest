@@ -14,6 +14,7 @@
 #include <BulletCollision/CollisionShapes/btConvexPolyhedron.h>
 
 #include <glbinding/gl/gl.h>
+#include <cassert>
 
 using namespace gl;
 
@@ -93,6 +94,7 @@ void MyShapeDrawer::drawSphere(btScalar radius, int lats, int longs)
         btScalar zr1=radius*cos(lat1);
 
         // TODO: reimplement with tris
+        assert(false);
 
         glBegin(GL_QUAD_STRIP);
         for(j=0; j<=longs; j++)
@@ -165,6 +167,7 @@ void MyShapeDrawer::renderSquareA(float x, float y, float z)
 
 void MyShapeDrawer::glDrawVector(const btVector3& v)
 {
+    assert(false);
     glVertex3d(v[0], v[1], v[2]); 
 }
 
@@ -266,6 +269,7 @@ void MyShapeDrawer::drawOrient(int uid)
     int oldUID=uid;
 
     //setId(0);
+    assert(false);
 
     Renderer::setShaderVec3("matVal", 255, 0, 0);
     glBegin(GL_LINES);
@@ -528,6 +532,8 @@ void MyShapeDrawer::drawOpenGL(
                 }
                 else
                 {
+                    assert(false);
+
                     glBegin(GL_TRIANGLES);
                     int si=36;
                     for(int i=0; i<si; i+=3)
@@ -650,7 +656,7 @@ void MyShapeDrawer::drawOpenGL(
                         }
                         else
                         {
-
+                            assert(false);
                             glBegin(GL_TRIANGLES);
                             for(i=0; i<poly->m_faces.size(); i++)
                             {
@@ -696,6 +702,7 @@ void MyShapeDrawer::drawOpenGL(
                             }
                             else
                             {
+                                assert(false);
                                 glBegin(GL_TRIANGLES);
 
                                 for(int i=0; i<hull->numTriangles(); i++)

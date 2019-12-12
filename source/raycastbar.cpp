@@ -4,6 +4,8 @@
 #include <CommonInterfaces/CommonGUIHelperInterface.h>
 #include <CommonInterfaces/CommonRenderInterface.h>
 
+#include <cassert>
+
 btRaycastBar2::btRaycastBar2()
 {
     m_guiHelper=0;
@@ -151,6 +153,8 @@ void btRaycastBar2::draw()
     }
 
 #if 0
+    assert(false);
+
     glDisable(GL_LIGHTING);
     glColor3f(0.0, 1.0, 0.0);
     glBegin(GL_LINES);

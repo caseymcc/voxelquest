@@ -490,6 +490,8 @@ void Shader::init(std::string shaderName, bool doBake, std::map<std::string, std
             glLinkProgram(shader_id);
             validateProgram(shader_id);
 
+            std::cout<<"Shader created: "<<shaderName<<" "<<shader_id<<", "<<shader_vp<<", "<<shader_fp<<"\n";
+
             delete[] vertCS;
             delete[] fragCS;
 

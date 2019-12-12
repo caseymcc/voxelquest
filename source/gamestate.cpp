@@ -630,16 +630,15 @@ bool GameState::frameUpdate(bool doFrameRender)
             {
                 gw->preUpdate();
                 gw->update();
-
-                if(g_settings.settings[E_BS_TURN_BASED])
-                {
-                    if(((tbTicks%iGetConst(E_CONST_TURNBASED_TICKS))==0)/* || (gem->getCurActor() != NULL)*/)
-                        gem->cycleTurn();
-                    tbTicks++;
-                }
+//
+//                if(g_settings.settings[E_BS_TURN_BASED])
+//                {
+//                    if(((tbTicks%iGetConst(E_CONST_TURNBASED_TICKS))==0)/* || (gem->getCurActor() != NULL)*/)
+//                        gem->cycleTurn();
+//                    tbTicks++;
+//                }
                 needSwap=true;
             }
-            
         }
     }
 

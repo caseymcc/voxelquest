@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cassert>
 
 std::string guiStringValues[E_GST_LENGTH];
 double guiFloatValues[E_GFT_LENGTH];
@@ -1260,6 +1261,8 @@ void GameGUI::renderGUI()
 
         Renderer::setShaderFloat("passNum", (float)i);
         Renderer::setShaderVec2("resolution", (float)Renderer::currentFBOResolutionX, (float)Renderer::currentFBOResolutionY);
+
+        assert(false);
 
         glBegin(GL_QUADS);
 

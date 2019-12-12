@@ -156,6 +156,8 @@ public:
    
 };
 
+typedef std::map<std::string, FBOSet> FBOMap;
+
 class FBOManager
 {
 public:
@@ -220,7 +222,8 @@ public:
 private:
     FBOManager(); //make it a singleton
 
-    std::map<std::string, FBOSet> fboMap;
+    
+    FBOMap fboMap;
 };
 
 #endif//_voxelquest__h_

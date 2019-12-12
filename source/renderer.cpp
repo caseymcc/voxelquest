@@ -120,6 +120,10 @@ void Renderer::init(int width, int height)
 {
     setWH(width, height);
 
+    glm::mat4 glmViewMatrix=toMat4(viewMatrix);
+
+    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+
 //    fsqDL=glGenLists(1);
 //    glNewList(fsqDL, GL_COMPILE);
 //    drawFSQuadOffset(0.0f, 0.0f, 1.0f);
@@ -239,7 +243,7 @@ void Renderer::init(int width, int height)
 
     std::sort(shaderStrings.begin(), shaderStrings.end(), compareStruct);
 
-    shaderTextureIds.push_back("Texture0");
+//    shaderTextureIds.push_back("Texture0");
     shaderTextureIds.push_back("Texture0");
     shaderTextureIds.push_back("Texture1");
     shaderTextureIds.push_back("Texture2");
@@ -1030,11 +1034,9 @@ void Renderer::drawFSQuadOffset(
 //
 //    glEnd();
     
-    glBindBuffer(GL_ARRAY_BUFFER, fboVertexBuffer);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fboIndexBuffer);
-    
-    glBindVertexArray(fboVertexArray);
-    glDrawElements(GL_TRIANGLES, fboIndexSize, GL_UNSIGNED_INT, 0);
+//    glBindVertexArray(fboVertexArray);
+//    glDrawElements(GL_TRIANGLES, fboIndexSize, GL_UNSIGNED_INT, 0);
+    fsQuad.draw();
 }
 
 void Renderer::bindFBO(std::string fboName, int swapFlag, int doClear)
@@ -1101,6 +1103,7 @@ void Renderer::sampleFBODirect(
         for(i=minOff; i<maxOff; i++)
         {
             setShaderTexture(i-minOff+offset, fbos->fbos[i].color_tex);
+//            std::cout<<"    bound "<<fbos->fbos[i].color_tex<<"\n";
         }
     }
 }
@@ -1133,6 +1136,7 @@ void Renderer::sampleFBO(
 
     if(fbos)
     {
+//        std::cout<<"Sample binding "<<fboName<<"\n";
         sampleFBODirect(fbos, offset, minOff, maxOff);
     }
     else
@@ -1405,73 +1409,77 @@ void Renderer::setMatrices(int w, int h)
     if(perspectiveOn)
     {
         glViewport(0, 0, (GLsizei)w, (GLsizei)h); //set the viewport to the current window specifications
-        //glMatrixMode(GL_PROJECTION); //set the matrix to projection
-        //glLoadIdentity();
-        //
-        //
-        //
-        //gluPerspective(
-        //    FOV,
-        //    (GLfloat)w/(GLfloat)h,
-        //    clipDist[0],
-        //    clipDist[1]
-        //); //set the perspective (angle of sight, width, height, , depth)
-        //
-        //
-        //// ComputeFOVProjection(
-        //// 	projMatrix.get(),
-        //// 	FOV,
-        //// 	w/h,
-        //// 	clipDist[0],
-        //// 	clipDist[1],
-        //// 	false
-        //// );
-        //
-        //glGetFloatv(GL_PROJECTION_MATRIX, projMatrix.get());
-        //
-        //glMatrixMode(GL_MODELVIEW); //set the matrix back to model
-        //
-        ////*180.0f/M_PI / 180 * M_PI
-        //
-        //glLoadIdentity();
-        //
-        //gluLookAt(
-        //    cameraGetPos()->getFX(),
-        //    cameraGetPos()->getFY(),
-        //    cameraGetPos()->getFZ(),
-        //    cameraGetPos()->getFX()+lookAtVec[0],
-        //    cameraGetPos()->getFY()+lookAtVec[1],
-        //    cameraGetPos()->getFZ()+lookAtVec[2],
-        //    0.0f,
-        //    0.0f,
-        //    1.0f
-        //);
-        //
-        //// glRotatef(getCamRot(1)*180.0f/M_PI,0.0f,1.0f,0.0f);
-        //// glRotatef(getCamRot(0)*180.0f/M_PI,0.0f,0.0f,1.0f);
-        //// glTranslated(
-        //// 	-cameraGetPos()->getFX(),
-        //// 	-cameraGetPos()->getFY(),
-        //// 	-cameraGetPos()->getFZ()
-        //// );
-        //
-        //
-        //
-        //glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix.get());
+//        glMatrixMode(GL_PROJECTION); //set the matrix to projection
+//        glLoadIdentity();
+//        
+//        gluPerspective(
+//            FOV,
+//            (GLfloat)w/(GLfloat)h,
+//            clipDist[0],
+//            clipDist[1]
+//        ); //set the perspective (angle of sight, width, height, , depth)
+//        
+//        
+//        // ComputeFOVProjection(
+//        // 	projMatrix.get(),
+//        // 	FOV,
+//        // 	w/h,
+//        // 	clipDist[0],
+//        // 	clipDist[1],
+//        // 	false
+//        // );
+//        
+//        glGetFloatv(GL_PROJECTION_MATRIX, projMatrix.get());
+//        
+//        glMatrixMode(GL_MODELVIEW); //set the matrix back to model
+//        
+//        //*180.0f/M_PI / 180 * M_PI
+//        
+//        glLoadIdentity();
+//        
+//        gluLookAt(
+//            cameraGetPos()->getFX(),
+//            cameraGetPos()->getFY(),
+//            cameraGetPos()->getFZ(),
+//            cameraGetPos()->getFX()+lookAtVec[0],
+//            cameraGetPos()->getFY()+lookAtVec[1],
+//            cameraGetPos()->getFZ()+lookAtVec[2],
+//            0.0f,
+//            0.0f,
+//            1.0f
+//        );
+//        
+//        // glRotatef(getCamRot(1)*180.0f/M_PI,0.0f,1.0f,0.0f);
+//        // glRotatef(getCamRot(0)*180.0f/M_PI,0.0f,0.0f,1.0f);
+//        // glTranslated(
+//        // 	-cameraGetPos()->getFX(),
+//        // 	-cameraGetPos()->getFY(),
+//        // 	-cameraGetPos()->getFZ()
+//        // );
+//        
+//        
+//        
+//        glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix.get());
+
+
         float fovRad=FOV*((float)M_PI/180.0f);
 
         glm::mat4 glmProjMatrix=glm::perspectiveFov(fovRad, (float)w, (float)h, (float)clipDist[0], (float)clipDist[1]);
         projMatrix=toMatrix4(glmProjMatrix);
 
+        glm::vec3 glmCameraPos=toVec3(*cameraGetPos());
         glm::vec3 glmLookAt(cameraGetPos()->getFX()+lookAtVec[0], cameraGetPos()->getFY()+lookAtVec[1], cameraGetPos()->getFZ()+lookAtVec[2]);
-        glm::mat4 glmLightView=glm::lookAt(toVec3(*cameraGetPos()), glmLookAt, glm::vec3(0.0f, 0.0f, 1.0f));
-        lightView=toMatrix4(glmLightView);
 
-//        ptr1=viewMatrix.get();
-//        ptr2=projMatrix.get();
+        glm::mat4 glmViewMatrix=glm::lookAt(glmCameraPos, glmLookAt, glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        viewMatrix=toMatrix4(glmViewMatrix);
+        toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
 
         pmMatrix=projMatrix*viewMatrix;
 
+//        ptr1=viewMatrix.get();
+//        ptr2=projMatrix.get();
+//
 //        for(i=0; i<16; i++)
 //        {
 //            viewMatrixD[i]=ptr1[i];
@@ -1481,8 +1489,8 @@ void Renderer::setMatrices(int w, int h)
 //        gluInvertMatrix(viewMatrixD, viewMatrixDI);
 //
 //        glGetIntegerv(GL_VIEWPORT, viewport);
-
-
+//
+//
 //        heightOfNearPlane=
 //            (
 //            ((float)abs(viewport[3]-viewport[1]))/

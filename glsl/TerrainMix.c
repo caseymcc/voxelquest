@@ -1,4 +1,5 @@
-#version 120
+#version 330
+//#version 120
 
 uniform sampler2D Texture0; // simplexFBO
 uniform sampler2D Texture1; // imageHM0
@@ -9,22 +10,26 @@ uniform int passNum;
 uniform vec3 paramArrMap[16];
 uniform vec2 minAndMax;
 
-varying vec2 TexCoord0;
-
 $
+out vec2 TexCoord0;
+
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
 void main() {
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+    TexCoord0 =vertexTex.xy;
+    gl_Position =vertexPos;
 }
 
 $
+in vec2 TexCoord0;
+out vec4 FragColor0;
 
 float firstPass() {
-    vec4 tex0 = texture2D( Texture0, (TexCoord0.xy + paramArrMap[8].xy) );
-    vec4 tex1 = texture2D( Texture1, (TexCoord0.xy + paramArrMap[9].xy) ); // *mapSampScale
-    vec4 tex2 = texture2D( Texture2, (TexCoord0.xy + paramArrMap[10].xy) ); // *mapSampScale
+    vec4 tex0 = texture( Texture0, (TexCoord0.xy + paramArrMap[8].xy) );
+    vec4 tex1 = texture( Texture1, (TexCoord0.xy + paramArrMap[9].xy) ); // *mapSampScale
+    vec4 tex2 = texture( Texture2, (TexCoord0.xy + paramArrMap[10].xy) ); // *mapSampScale
 
 
     float[6] sv;
@@ -114,7 +119,7 @@ void main() {
     
     
 
-    gl_FragData[0] = res;
+    FragColor0 = res;
 
 }
 

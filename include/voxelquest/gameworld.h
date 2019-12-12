@@ -189,6 +189,7 @@ public:
 
     void initMap();
 
+    void generateNoise();
 
     void drawMap();
 

@@ -1145,6 +1145,14 @@ void FBOManager::initFBOs()
     fboMap["simplexFBO"].init(1, newPitch, newPitch, 1, false, GL_LINEAR, GL_REPEAT);
     fboMap["swapFBO0"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
     fboMap["swapFBO1"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
+
+    std::cout<<"FBOS ********************************\n";
+    for(auto &item:fboMap)
+    {
+        std::cout<<"FBO: "<<item.first<<" "<<item.second.mFBO<<"\n";
+        for(int i=0; i<item.second.numBufs; ++i)
+            std::cout<<"    "<<i<<": "<<item.second.fbos[i].color_tex<<"\n";
+    }
 }
 // todo: optimize this
 FBOSet* FBOManager::getFBOByName(std::string &fboName)

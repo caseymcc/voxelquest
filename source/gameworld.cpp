@@ -1163,10 +1163,11 @@ void GameWorld::update()
         }
         else
         {
-            Renderer::bindShader("GeomShader");
-            Renderer::bindFBO("debugTargFBO");
-            Renderer::unbindFBO();
-            Renderer::unbindShader();
+//not doing anything
+//            Renderer::bindShader("GeomShader");
+//            Renderer::bindFBO("debugTargFBO");
+//            Renderer::unbindFBO();
+//            Renderer::unbindShader();
         }
 
         Renderer::perspectiveOn=false;
@@ -1293,12 +1294,12 @@ void GameWorld::update()
     doMedian();
 
     finalStep(postToScreen);
-
-    if(postToScreen)
-    {
-        drawMap();
-//        glutSwapBuffers();
-    }
+//
+//    if(postToScreen)
+//    {
+//        drawMap();
+////        glutSwapBuffers();
+//    }
 
 
     updateLock=false;
@@ -1558,6 +1559,8 @@ void GameWorld::drawVol(
     //curVW->genPosMin.copyFrom( &(GameState::gameFluid[E_FID_BIG]->volMinReadyInPixels) );
     //curVW->genPosMax.copyFrom( &(GameState::gameFluid[E_FID_BIG]->volMaxReadyInPixels) );
 
+//    std::cout<<"*****************************************************************************";
+//    std::cout<<"bind shader: TerGenShader\n";
     Renderer::bindShader("TerGenShader");
     Renderer::bindFBODirect(&(curVW->fboSet));
     Renderer::sampleFBO("hmFBOLinearBig", 2);
@@ -3995,7 +3998,7 @@ void GameWorld::initMap()
     int j;
     int k;
     int m;
-    int q;
+//    int q;
 
     int totSize=w*h;
     int *btStack=new int[totSize];
@@ -4037,7 +4040,7 @@ void GameWorld::initMap()
 //    int cx2;
 //    int cy2;
 
-    int histogram[256];
+//    int histogram[256];
 
     float delta;
     float bestDelta;
@@ -4093,76 +4096,9 @@ void GameWorld::initMap()
         }
     }
 
-    for(q=0; q<2; q++)
-    {
-        Renderer::bindShader("Simplex2D");
-        Renderer::bindFBO("simplexFBO");
-        Renderer::setShaderFloat("curTime", fGenRand() * 100.0f);
-        Renderer::drawFSQuad();
-        Renderer::unbindFBO();
-        Renderer::unbindShader();
-
-        Renderer::bindShader("TerrainMix");
-        Renderer::bindFBO("hmFBOLinear");
-        Renderer::sampleFBO("simplexFBO", 0);
-        Renderer::setShaderTexture(1, imageHM0->tid);
-        Renderer::setShaderTexture(2, imageHM1->tid);
-        Renderer::setShaderInt("passNum", q);
-        Renderer::setShaderVec2("minAndMax", ((float)minSL)/255.0f, ((float)maxSL)/255.0f);
-        Renderer::setShaderArrayfVec3("paramArrMap", paramArrMap, 16);
-        //Renderer::setShaderFloat("mapSampScale", 1.0f); //singleton->mapSampScale
-        Renderer::drawFSQuad();
-        Renderer::setShaderTexture(2, 0);
-        Renderer::setShaderTexture(1, 0);
-        Renderer::unsampleFBO("simplexFBO", 0);
-        Renderer::unbindFBO();
-        Renderer::unbindShader();
-
-        Renderer::copyFBO("hmFBOLinear", "hmFBO");
-
-        glFlush();
-        glFinish();
-
-        fbow->getPixels(true);
-        fbow->setAllPixels(densityChannel, 255);
-        fbow->setAllPixels(idChannel, 0);
-        fbow->setAllPixels(blockChannel, 0);
-
-        // determine sea level
-        for(i=0; i<256; i++)
-        {
-            histogram[i]=0;
-        }
-
-        minSL=255;
-        maxSL=0;
-        curSL=0;
-        avgSL=0;
-        //totFilled = 0;
-
-        for(i=0; i<totSize; i++)
-        {
-            curSL=fbow->getPixelAtIndex(i, hmChannel);
-
-            if(curSL<minSL)
-            {
-                minSL=curSL;
-            }
-            if(curSL>maxSL)
-            {
-                maxSL=curSL;
-            }
-
-            histogram[curSL]++;
-        }
-
-        avgSL=(minSL+maxSL)/2;
-    }
-
+    generateNoise();
+    
     seaLevel=100;
-
-    Renderer::copyFBO("hmFBOLinear", "hmFBOLinearBig");
-
     seaSlack=seaLevel-1;
     std::cout<<"Sea Level: "<<seaLevel<<"\n";
 
@@ -5238,6 +5174,86 @@ DONE_WITH_MAP:
 
 }
 
+void GameWorld::generateNoise()
+{
+    int histogram[256];
+    int minSL=0;
+    int maxSL=0;
+    int curSL=0;
+    int avgSL=0;
+    FBOWrapper *fbow=FBOManager::getFBOWrapper("hmFBO", 0);
+
+    int w=fbow->width;
+    int h=fbow->height;
+    int totSize=w*h;
+
+    for(int q=0; q<2; q++)
+    {
+        Renderer::bindShader("Simplex2D");
+        Renderer::bindFBO("simplexFBO");
+        Renderer::setShaderFloat("curTime", fGenRand() * 100.0f);
+        Renderer::drawFSQuad();
+        Renderer::unbindFBO();
+        Renderer::unbindShader();
+
+        Renderer::bindShader("TerrainMix");
+        Renderer::bindFBO("hmFBOLinear");
+        Renderer::sampleFBO("simplexFBO", 0);
+        Renderer::setShaderTexture(1, imageHM0->tid);
+        Renderer::setShaderTexture(2, imageHM1->tid);
+        Renderer::setShaderInt("passNum", q);
+        Renderer::setShaderVec2("minAndMax", ((float)minSL)/255.0f, ((float)maxSL)/255.0f);
+        Renderer::setShaderArrayfVec3("paramArrMap", paramArrMap, 16);
+        //Renderer::setShaderFloat("mapSampScale", 1.0f); //singleton->mapSampScale
+        Renderer::drawFSQuad();
+        Renderer::setShaderTexture(2, 0);
+        Renderer::setShaderTexture(1, 0);
+        Renderer::unsampleFBO("simplexFBO", 0);
+        Renderer::unbindFBO();
+        Renderer::unbindShader();
+
+        Renderer::copyFBO("hmFBOLinear", "hmFBO");
+
+        glFlush();
+        glFinish();
+
+        fbow->getPixels(true);
+        fbow->setAllPixels(densityChannel, 255);
+        fbow->setAllPixels(idChannel, 0);
+        fbow->setAllPixels(blockChannel, 0);
+
+        // determine sea level
+        for(int i=0; i<256; i++)
+        {
+            histogram[i]=0;
+        }
+
+        minSL=255;
+        maxSL=0;
+        curSL=0;
+        avgSL=0;
+        //totFilled = 0;
+
+        for(int i=0; i<totSize; i++)
+        {
+            curSL=fbow->getPixelAtIndex(i, hmChannel);
+
+            if(curSL<minSL)
+            {
+                minSL=curSL;
+            }
+            if(curSL>maxSL)
+            {
+                maxSL=curSL;
+            }
+
+            histogram[curSL]++;
+        }
+
+        avgSL=(minSL+maxSL)/2;
+    }
+    Renderer::copyFBO("hmFBOLinear", "hmFBOLinearBig");
+}
 
 void GameWorld::drawMap()
 {
