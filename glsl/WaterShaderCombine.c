@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 // old combine
 uniform sampler2D Texture0;
@@ -16,8 +16,6 @@ uniform sampler2D Texture5;
 //uniform sampler2D Texture6;
 
 
-varying vec2 TexCoord0;
-
 // uniform float clipDist;
 // uniform float curTime;
 // uniform vec3 cameraPos;
@@ -31,29 +29,33 @@ const float pi = 3.14159;
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;// = ;//TexCoord0 = gl_MultiTexCoord0;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
 
+in vec2 TexCoord0;
 
-
-
-
-
+layout(location=0) out vec4 FragColor0;
+layout(location=1) out vec4 FragColor1;
 
 void main() {
     vec4 oneVec = vec4(1.0);
 
-    vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-    vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
-    vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
-    vec4 tex3 = texture2D(Texture3, TexCoord0.xy);
-    vec4 tex4 = texture2D(Texture4, TexCoord0.xy);
-    vec4 tex5 = texture2D(Texture5, TexCoord0.xy);
+    vec4 tex0 = texture(Texture0, TexCoord0.xy);
+    vec4 tex1 = texture(Texture1, TexCoord0.xy);
+    vec4 tex2 = texture(Texture2, TexCoord0.xy);
+    vec4 tex3 = texture(Texture3, TexCoord0.xy);
+    vec4 tex4 = texture(Texture4, TexCoord0.xy);
+    vec4 tex5 = texture(Texture5, TexCoord0.xy);
     
     
     vec2 curTex = vec2(TEX_EARTH,0.0);
@@ -146,7 +148,7 @@ void main() {
     //                 fi = float(i);
     //                 flerp = fi/fNumSteps;
     //                 newTC = TexCoord0.xy + vec2(yOff,fi+yOff)/(bufferDim);
-    //                 samp = texture2D(Texture6, newTC);
+    //                 samp = texture(Texture6, newTC);
 
     //                 waveDif = samp.a;
 
@@ -170,8 +172,8 @@ void main() {
     //             //     fi2 = float(i2);
     //             //     flerp2 = fi2/fNumSteps2;
     //             //     newTC2 = TexCoord0.xy + vec2(0.0,fi2*tex2.w)/(bufferDim);
-    //             //     //samp2 = texture2D(Texture2, newTC2);
-    //             //     samp3 = texture2D(Texture3, newTC2);
+    //             //     //samp2 = texture(Texture2, newTC2);
+    //             //     samp3 = texture(Texture3, newTC2);
 
                     
 
@@ -186,8 +188,8 @@ void main() {
     //             //     fi2 = float(i2);
     //             //     flerp3 = fi2/fNumSteps2;
     //             //     newTC2 = TexCoord0.xy - vec2(0.0,fi2*tex2.w)/(bufferDim);
-    //             //     //samp2 = texture2D(Texture2, newTC2);
-    //             //     samp3 = texture2D(Texture3, newTC2);
+    //             //     //samp2 = texture(Texture2, newTC2);
+    //             //     samp3 = texture(Texture3, newTC2);
 
                     
 
@@ -302,8 +304,8 @@ void main() {
     //     res1 = tex5;
     // }
     
-    gl_FragData[0] = res0;
-    gl_FragData[1] = res1;
+    FragColor0 = res0;
+    FragColor1 = res1;
 
     
     

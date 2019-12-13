@@ -1,5 +1,4 @@
 #version 330
-//#version 120
 
 uniform sampler2D Texture0; // simplexFBO
 uniform sampler2D Texture1; // imageHM0
@@ -11,10 +10,11 @@ uniform vec3 paramArrMap[16];
 uniform vec2 minAndMax;
 
 $
-out vec2 TexCoord0;
 
 layout(location=0) in vec4 vertexPos;
 layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main() {
 
@@ -23,7 +23,9 @@ void main() {
 }
 
 $
+
 in vec2 TexCoord0;
+
 out vec4 FragColor0;
 
 float firstPass() {

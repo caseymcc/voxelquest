@@ -8,10 +8,10 @@ uniform vec2 resolution;
 uniform float curTime;
 
 $
-out vec2 texCoord;
-
 layout(location=0) in vec4 vertexPos;
 layout(location=1) in vec4 vertexTex;
+
+out vec2 texCoord;
 
 void main() {
     texCoord=vertexTex.xy;

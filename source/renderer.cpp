@@ -183,6 +183,17 @@ void Renderer::init(int width, int height)
     bufferModDim.copyIntMult(&bufferDim, 1);
     bufferRenderDim.copyIntDiv(&bufferDimTarg, RENDER_SCALE_FACTOR);
 
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // 4-byte pixel alignment
+//    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+//    glDisable(GL_LIGHTING);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+
+    orthographicProjection();
+
     shaderStrings.push_back("RenderFBOShader");
 
     if(USE_SPHERE_MAP)
@@ -197,12 +208,12 @@ void Renderer::init(int width, int height)
 
     shaderStrings.push_back("PrimShader_330_DOPRIM");
     shaderStrings.push_back("SolidCombineShader");
-    shaderStrings.push_back("CylBBShader");
+//    shaderStrings.push_back("CylBBShader");
     shaderStrings.push_back("FXAAShader");
     shaderStrings.push_back("TerGenShader");
     shaderStrings.push_back("GUIShader");
     shaderStrings.push_back("MedianShader");
-    shaderStrings.push_back("MergeShader");
+//    shaderStrings.push_back("MergeShader");
     shaderStrings.push_back("TopoShader");
     shaderStrings.push_back("PointShader");
     shaderStrings.push_back("NearestShader");
@@ -212,7 +223,7 @@ void Renderer::init(int width, int height)
     shaderStrings.push_back("DilateShader");
     shaderStrings.push_back("TerrainMix");
     shaderStrings.push_back("Simplex2D");
-    shaderStrings.push_back("WaveHeightShader");
+//    shaderStrings.push_back("WaveHeightShader");
     shaderStrings.push_back("WaterShader");
     shaderStrings.push_back("WaterShaderCombine");
     shaderStrings.push_back("CopyShader");
@@ -220,7 +231,7 @@ void Renderer::init(int width, int height)
     shaderStrings.push_back("CopyShader3");
     shaderStrings.push_back("NoiseShader");
     shaderStrings.push_back("MapBorderShader");
-    shaderStrings.push_back("BillboardShader");
+    //shaderStrings.push_back("BillboardShader");
     shaderStrings.push_back("PreLightingShader");
     shaderStrings.push_back("PostLightingShader");
     shaderStrings.push_back("BlurShader");
@@ -294,6 +305,34 @@ void Renderer::init(int width, int height)
     doShaderRefresh(false);
 }
 
+void Renderer::perspectiveProjection()
+{
+    float aspect=1.0f;
+
+    float fovRad=FOV*((float)M_PI/180.0f);
+
+    glm::mat4 glmProjMatrix=glm::frustum(-aspect, aspect, -1.0f, 1.0f, 4.0f, 15.0f); 
+    projMatrix=toMatrix4(glmProjMatrix);
+
+    glm::mat4 glmViewMatrix(1.0f);
+    viewMatrix=toMatrix4(glmViewMatrix);
+    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+
+    pmMatrix=projMatrix*viewMatrix;
+}
+
+void Renderer::orthographicProjection()
+{
+    glm::mat4 glmProjMatrix=glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f, 4.0f, 15.0f);;
+    projMatrix=toMatrix4(glmProjMatrix);
+
+    glm::mat4 glmViewMatrix(1.0f);
+    viewMatrix=toMatrix4(glmViewMatrix);
+    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+
+    pmMatrix=projMatrix*viewMatrix;
+}
+
 void Renderer::setWH(int w, int h)
 {
     baseW=w;
@@ -308,6 +347,7 @@ void Renderer::reshape(int w, int h)
 
 //    screenWidth=w;
 //    screenHeight=h;
+    orthographicProjection();
 
     setMatrices(baseW, baseH);
 }
@@ -1375,8 +1415,8 @@ void Renderer::getLSMatrix(FIVector4* lightPosParam, Matrix4 &lsMat, float ortho
     lightPosParam->addXYZRef(&lightVec, getConst(E_CONST_LIGHTDIS));
     lightLookAt.copyFrom(&newCamPos);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
 //    gluLookAt(
 //        lightLookAt[0],
 //        lightLookAt[1],

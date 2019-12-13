@@ -1,18 +1,23 @@
-#version 120
-
-
-varying vec2 TexCoord0;
-
+#version 330
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;// = ;//TexCoord0 = gl_MultiTexCoord0;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 vec3 randv(vec2 co) {
     return vec3(
@@ -34,8 +39,6 @@ void main() {
 	// rv.y *= float(rv.y>thresh);
 	// rv.z *= float(rv.z>thresh);
 	
-    gl_FragData[0] = vec4(rv,1.0);
-
-
+    FragColor0 = vec4(rv,1.0);
     
 }

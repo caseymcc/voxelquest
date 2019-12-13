@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 // old combine
 uniform sampler2D Texture0;
@@ -33,9 +33,6 @@ uniform sampler2D Texture12;
 // uniform sampler2D Texture13;
 // uniform sampler2D Texture14;
 
-varying vec2 TexCoord0;
-
-
 uniform mat4 modelviewInverse;
 uniform float seaLevel;
 uniform float FOV;
@@ -66,13 +63,22 @@ const int maxEntriesM1 = maxEntries-1;
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;// = ;//TexCoord0 = gl_MultiTexCoord0;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -120,7 +126,7 @@ vec2 pack16(float num) {
 
 vec3 unpackColor(vec2 num, float lightVal)
 {
-    return texture3D( Texture7, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
+    return texture( Texture7, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
 }
 
 const int rad = 4;
@@ -162,21 +168,21 @@ vec3 getRay() {
 
 void main() {
 
-    vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-    vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
+    vec4 tex0 = texture(Texture0, TexCoord0.xy);
+    vec4 tex1 = texture(Texture1, TexCoord0.xy);
 
-    vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
-    vec4 tex3 = texture2D(Texture3, TexCoord0.xy);
+    vec4 tex2 = texture(Texture2, TexCoord0.xy);
+    vec4 tex3 = texture(Texture3, TexCoord0.xy);
 
-    vec4 tex4 = texture2D(Texture4, TexCoord0.xy);
-    vec4 tex5 = texture2D(Texture5, TexCoord0.xy);
+    vec4 tex4 = texture(Texture4, TexCoord0.xy);
+    vec4 tex5 = texture(Texture5, TexCoord0.xy);
     
-    vec4 tex10 = texture2D(Texture10, TexCoord0.xy);
+    vec4 tex10 = texture(Texture10, TexCoord0.xy);
     
-    vec4 tex11 = texture2D(Texture11, TexCoord0.xy);
+    vec4 tex11 = texture(Texture11, TexCoord0.xy);
     
-    // vec4 tex11 = texture2D(Texture0, TexCoord0.xy);
-    // vec4 tex12 = texture2D(Texture1, TexCoord0.xy);
+    // vec4 tex11 = texture(Texture0, TexCoord0.xy);
+    // vec4 tex12 = texture(Texture1, TexCoord0.xy);
     
 
     //float tot = float(tex0.r + tex0.g + tex0.b + tex0.a > 0.0);    
@@ -201,7 +207,7 @@ void main() {
             
     //         offVec = vec2(fi,fj)/bufferDim;
             
-    //         samp += texture2D(Texture0, TexCoord0.xy+offVec);
+    //         samp += texture(Texture0, TexCoord0.xy+offVec);
             
     //         counter += 1.0;
     //     }
@@ -334,12 +340,12 @@ void main() {
     heightDifNoRef = clamp((baseHeightWater - baseHeight)*clipDist.y, 0.0, maxDis);
     newTC.xy = TexCoord0.xy + mix(0.06,0.01,clamp(camDis*16.0,0.0,1.0) )*(waterNorm.xy-waterNorm.z)*heightDifNoRef/maxDis;
     
-    tex0Ref = texture2D(Texture0, newTC.xy);
+    tex0Ref = texture(Texture0, newTC.xy);
     
-    //tex0Ref.w = max(tex0Ref.w,texture2D(Texture13, newTC.xy).w);
+    //tex0Ref.w = max(tex0Ref.w,texture(Texture13, newTC.xy).w);
     
-    tex1Ref = texture2D(Texture1, newTC.xy);
-    tex5Ref = texture2D(Texture5, newTC.xy);
+    tex1Ref = texture(Texture1, newTC.xy);
+    tex5Ref = texture(Texture5, newTC.xy);
     
     worldPositionRef = tex0Ref;
     baseHeightRef = worldPositionRef.w;
@@ -364,9 +370,9 @@ void main() {
     refMod.xy += refMod.z;
     //refMod *= 0.5;
 
-    // tex7Ref = texture2D(Texture7, newTC.xy);
-    // tex7Ref2 = texture2D(Texture7, newTC.xy + refMod.xy*0.1 + tex7Ref.xy - baseHeight*clipDist.y*0.1/bufferDim.xy );
-    // tex7Ref3 = texture2D(Texture7, newTC.xy + refMod.xy*0.1 + 1.0 - (tex7Ref.xy - baseHeight*clipDist.y*0.1/bufferDim.xy) );
+    // tex7Ref = texture(Texture7, newTC.xy);
+    // tex7Ref2 = texture(Texture7, newTC.xy + refMod.xy*0.1 + tex7Ref.xy - baseHeight*clipDist.y*0.1/bufferDim.xy );
+    // tex7Ref3 = texture(Texture7, newTC.xy + refMod.xy*0.1 + 1.0 - (tex7Ref.xy - baseHeight*clipDist.y*0.1/bufferDim.xy) );
 
 
     // bigger == deeper under water
@@ -450,7 +456,7 @@ void main() {
 
             //     finalCol += 
             //     pow(
-            //         texture2D(Texture6, resTC*vec2(1.0,1.0)-vec2(0.0,(curTime/20000.0))  ).rgb*0.85,
+            //         texture(Texture6, resTC*vec2(1.0,1.0)-vec2(0.0,(curTime/20000.0))  ).rgb*0.85,
             //         vec3(10.0)
             //     ) * 
             //     abs(sin(rand(TexCoord0.xy)*1000.0 + curTime/200.0))*(1.0-lerpValNorm)*mix(0.75,1.0,curTOD);
@@ -609,7 +615,7 @@ void main() {
     
     vec4 charTest;
     
-    // vec4 objSamp = texture2D(Texture13, TexCoord0.xy);
+    // vec4 objSamp = texture(Texture13, TexCoord0.xy);
     
     // if (matValsWater.a == TEX_WATER) {
         
@@ -617,7 +623,7 @@ void main() {
     //     if (
     //         (objSamp.w < baseHeightWater)
     //     ) {
-    //         charTest = texture2D(Texture14, mix(newTC.xy,TexCoord0,0.75) );
+    //         charTest = texture(Texture14, mix(newTC.xy,TexCoord0,0.75) );
     //         if (charTest.a == 0.0) {
                 
     //         }
@@ -632,7 +638,7 @@ void main() {
     // }
     // else {
     //     if (objSamp.w > baseHeight) {
-    //         finalCol = texture2D(Texture14, TexCoord0.xy).rgb;
+    //         finalCol = texture(Texture14, TexCoord0.xy).rgb;
             
     //         finalCol = mix(finalCol, transRendered.rgb*0.75 + tex5.rgb*0.25 + tex4.rgb*0.25, 0.25);
             
@@ -644,6 +650,6 @@ void main() {
     
     
     
-    gl_FragData[0] = vec4(finalCol.rgb,1.0);
+    FragColor0 = vec4(finalCol.rgb,1.0);
     
 }

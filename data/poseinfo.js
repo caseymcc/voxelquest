@@ -42,8 +42,8 @@
 			"E_PIK_EXTRASTEPS":1,
 			"E_PIK_RLBN":3,
 			"E_PIK_DOLOOP":0,
-			"E_PIK_LERPSPEED":0.02,
-			"E_PIK_TIMEINTERVAL":0.2
+			"E_PIK_LERPSPEED":0.01,
+			"E_PIK_TIMEINTERVAL":0.25
 		},
 		"attackKick":{
 			"E_PIK_POSETYPE":0,
@@ -52,7 +52,7 @@
 			"E_PIK_EXTRASTEPS":1,
 			"E_PIK_RLBN":3,
 			"E_PIK_DOLOOP":0,
-			"E_PIK_LERPSPEED":0.005,
+			"E_PIK_LERPSPEED":0.01,
 			"E_PIK_TIMEINTERVAL":0.25
 		},
 		"weapon":{
@@ -142,17 +142,13 @@
 			"template":"attackKick"
 		},
 		"E_PG_REVR":{
-			"template":"attackKick",
-			"E_PIK_LERPSPEED":0.005,
-			"E_PIK_TIMEINTERVAL":0.3
+			"template":"attackKick"
 		},
 		"E_PG_BKIK":{
 			"template":"attackKick"
 		},
 		"E_PG_FRNT":{
-			"template":"attackKick",
-			"E_PIK_LERPSPEED":0.02,
-			"E_PIK_TIMEINTERVAL":0.2
+			"template":"attackKick"
 		},
 		
 		

@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 // pages fbo
 uniform sampler2D Texture0;
@@ -59,13 +59,14 @@ vec2 dirModXY[4] = vec2[](
 	vec2(0.0, -1.0)
 );
 
-varying vec3 newLight;
-//varying vec4 v0;
-//varying vec4 v1;
-varying vec2 TexCoord0;
-varying mat4 myMat;
-
 $
+
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec3 newLight;
+out vec2 TexCoord0;
+out mat4 myMat;
 
 void main()
 {
@@ -75,12 +76,20 @@ void main()
 
 	newLight = normalize(rotMat*(baseLightVec));
 
-	TexCoord0 = gl_MultiTexCoord0.xy;
-	gl_Position = gl_Vertex;
+	TexCoord0 = vertexTex.xy;
+	gl_Position = vertexPos;
 }
 
 $
 
+in vec3 newLight;
+in vec2 TexCoord0;
+in mat4 myMat;
+
+layout(location=0) out vec4 FragColor0;
+layout(location=1) out vec4 FragColor1;
+layout(location=2) out vec4 FragColor2;
+layout(location=3) out vec4 FragColor3;
 
 vec3 getGlobLightCol()
 {
@@ -139,13 +148,13 @@ void main()
 	
 	
 
-	vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-	vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
+	vec4 tex0 = texture(Texture0, TexCoord0.xy);
+	vec4 tex1 = texture(Texture1, TexCoord0.xy);
 	
-	vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
-	vec4 tex3 = texture2D(Texture3, TexCoord0.xy);
+	vec4 tex2 = texture(Texture2, TexCoord0.xy);
+	vec4 tex3 = texture(Texture3, TexCoord0.xy);
 	
-	vec4 tex6 = texture2D(Texture6, TexCoord0.xy);
+	vec4 tex6 = texture(Texture6, TexCoord0.xy);
 	
 	vec4 worldPosition = tex0;
 	vec4 waterPosition = tex2;
@@ -189,7 +198,7 @@ void main()
 	
 	
 	
-	vec4 wpGeom = texture2D(Texture4, TexCoord0.xy);
+	vec4 wpGeom = texture(Texture4, TexCoord0.xy);
 	
 	if (wpGeom.w > worldPosition.w) {
 		worldPosition = wpGeom;
@@ -352,8 +361,8 @@ void main()
 
 				newTC = TexCoord0.xy + (offsetCoord) / (bufferDim);
 
-				samp1 = texture2D(Texture0, newTC );
-				samp2 = texture2D(Texture0, newTC );
+				samp1 = texture(Texture0, newTC );
+				samp2 = texture(Texture0, newTC );
 				
 				samp = mix(samp1,samp2,float(samp1.w > samp2.w));
 				
@@ -443,10 +452,10 @@ void main()
 					// ).xy;
 					sCurPos = mix(sStartPos, sEndPos, flerp);
 
-					samp = texture2D(Texture4, sCurPos.xy);
+					samp = texture(Texture4, sCurPos.xy);
 					curWP = mix(sWP.xyz, eWP.xyz, flerp);
 					rayDepth = (distance(cameraPos,samp.xyz)-distance(cameraPos,curWP.xyz));
-					//samp2 = texture2D(Texture4, sCurPos.xy);
+					//samp2 = texture(Texture4, sCurPos.xy);
 					if ( 
 						
 						(rayDepth < -0.1) &&
@@ -575,9 +584,9 @@ void main()
 	//resColor.rgb += (myVec+1.0)*0.5*0.1;
 	
 
-	gl_FragData[0] = resColor;
-	gl_FragData[1] = vec4(totLightColorWater,newAO);
-	gl_FragData[2] = vec4(specularSolid*0.25+newAO*0.5,specularWater,resComp,0.0);
-	gl_FragData[3] = vec4(0.0);
+	FragColor0 = resColor;
+	FragColor1 = vec4(totLightColorWater,newAO);
+	FragColor2 = vec4(specularSolid*0.25+newAO*0.5,specularWater,resComp,0.0);
+	FragColor3 = vec4(0.0);
 
 }

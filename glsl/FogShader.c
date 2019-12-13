@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 // pages fbo
 uniform sampler2D Texture0;
@@ -72,19 +72,22 @@ vec3 dirVecs[6] = vec3[](
 ^INCLUDE:MATERIALS^
 //const float TEX_WATER = 32.0/255.0;
 
-varying vec2 TexCoord0;
-
 $
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main() {
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+    TexCoord0 = vertexTex.xy;
+    gl_Position = vertexPos;
 }
-
 $
 
+in vec2 TexCoord0;
 
+layout(location=0) out vec4 FragColor0;
 
 
 vec2 pack16(float num)
@@ -106,7 +109,7 @@ vec2 pack16(float num)
 
 vec3 unpackColor(vec2 num, float lightVal)
 {
-    return texture3D( Texture7, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
+    return texture( Texture7, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
 }
 
 
@@ -274,7 +277,7 @@ vec4 Noise( in ivec2 x )
     vec2 coords = (vec2(x)+0.5)/bufferDim;
     
     
-    return texture2D( Texture8, coords ); //, -100.0
+    return texture( Texture8, coords ); //, -100.0
 }
 
 // vec4 Rand( in int x )
@@ -282,7 +285,7 @@ vec4 Noise( in ivec2 x )
 //     vec2 uv;
 //     uv.x = (float(x)+0.5)/256.0;
 //     uv.y = (floor(uv.x)+0.5)/256.0;
-//     return texture2D( Texture8, uv, -100.0 );
+//     return texture( Texture8, uv, -100.0 );
 // }
 
 float rand(vec2 co){
@@ -397,23 +400,23 @@ void main() {
     int i;
     vec4 oneVec = vec4(1.0);
 
-    vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-    vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
+    vec4 tex0 = texture(Texture0, TexCoord0.xy);
+    vec4 tex1 = texture(Texture1, TexCoord0.xy);
 
-    vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
-    vec4 tex3 = texture2D(Texture3, TexCoord0.xy);
+    vec4 tex2 = texture(Texture2, TexCoord0.xy);
+    vec4 tex3 = texture(Texture3, TexCoord0.xy);
     
     
-    //vec4 tex4 = texture2D(Texture4, TexCoord0.xy);    
-    //vec4 tex5 = texture2D(Texture5, TexCoord0.xy);
-    vec4 tex4 = texture2D(Texture4, TexCoord0.xy);
+    //vec4 tex4 = texture(Texture4, TexCoord0.xy);    
+    //vec4 tex5 = texture(Texture5, TexCoord0.xy);
+    vec4 tex4 = texture(Texture4, TexCoord0.xy);
     
-    vec4 tex9 = texture2D(Texture9, TexCoord0.xy);
-    vec4 tex10 = texture2D(Texture10, TexCoord0.xy);    
+    vec4 tex9 = texture(Texture9, TexCoord0.xy);
+    vec4 tex10 = texture(Texture10, TexCoord0.xy);    
     vec4 matValsGeom = tex10;
     bool valIsGeom = dot(matValsGeom.rgb,oneVec.rgb) != 0.0;
     
-    vec4 tex11 = texture2D(Texture11, TexCoord0.xy);
+    vec4 tex11 = texture(Texture11, TexCoord0.xy);
     
     
     vec4 worldPosition = tex0;
@@ -524,7 +527,7 @@ void main() {
     //     newTC = TexCoord0.xy + (offsetCoord) / (bufferDim);
 
         
-    //     samp = texture2D(Texture0, newTC );
+    //     samp = texture(Texture0, newTC );
         
     //     weightVal = 1.0-(curRad/curMax);
         
@@ -615,7 +618,7 @@ void main() {
     }
     for (i = 0; i < 4; i++) {
         newTC = TexCoord0.xy + dirVecs[i].xy*1.0/bufferDim;
-        samp = texture2D(Texture4, newTC );
+        samp = texture(Texture4, newTC );
         if (samp.w != tex4.w) {
             isOutline = true;
         }
@@ -636,7 +639,7 @@ void main() {
     
     // for (i = 0; i < 4; i++) {
     //     newTC = TexCoord0.xy + dirVecs[i].xy*1.0/bufferDim;
-    //     samp = texture2D(Texture0, newTC );
+    //     samp = texture(Texture0, newTC );
     //     if (distance(samp.xyz,tex0.xyz) > 0.1 ) {
     //         isOutline = true;
     //     }
@@ -812,8 +815,8 @@ void main() {
         pow(
             mix(
                 
-                texture2D(Texture8, TexCoord0.xy + moveVec2  ).rgb,
-                texture2D(Texture8, TexCoord0.xy - moveVec  ).rgb,
+                texture(Texture8, TexCoord0.xy + moveVec2  ).rgb,
+                texture(Texture8, TexCoord0.xy - moveVec  ).rgb,
                 abs(lookAtVec.z)
             )
             *0.85,
@@ -955,6 +958,6 @@ void main() {
         finalCol = tex11.rgb;
     }
 
-    gl_FragData[0] = vec4(finalCol,1.0);
+    FragColor0 = vec4(finalCol,1.0);
 
 }

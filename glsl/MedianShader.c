@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 uniform sampler2D Texture0;
 
@@ -9,14 +9,18 @@ uniform sampler2D Texture2;
 uniform vec3 cameraPos;
 uniform vec2 bufferDim;
 
-varying vec2 TexCoord0;
-
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
@@ -30,6 +34,10 @@ $
 #define mnmx5(a, b, c, d, e)    s2(a, b); s2(c, d); mn3(a, c, e); mx3(b, d, e);
 #define mnmx6(a, b, c, d, e, f) s2(a, d); s2(b, e); s2(c, f); mn3(a, b, c); mx3(d, e, f);
 
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
+
 void main() {
 
     vec2 sampSize = 1.0/bufferDim;
@@ -41,7 +49,7 @@ void main() {
         for(int dY = -1; dY <= 1; ++dY) {       
           vec2 offset = vec2(float(dX), float(dY));
 
-          v[(dX + 1) * 3 + (dY + 1)] = texture2D(Texture0, TexCoord0 + offset * sampSize).rgb;
+          v[(dX + 1) * 3 + (dY + 1)] = texture(Texture0, TexCoord0 + offset * sampSize).rgb;
         }
     }
 
@@ -53,8 +61,8 @@ void main() {
   mnmx4(v[2], v[3], v[4], v[7]);
   mnmx3(v[3], v[4], v[8]);
   
-  vec4 tex0 = texture2D(Texture0, TexCoord0);
-  vec4 tex1 = texture2D(Texture1, TexCoord0);
+  vec4 tex0 = texture(Texture0, TexCoord0);
+  vec4 tex1 = texture(Texture1, TexCoord0);
   
   
   float dval = pow(tex1.w,5.0);
@@ -84,10 +92,10 @@ void main() {
     );
   //}
   
-  gl_FragColor = vec4(finalRes,1.0);
+  FragColor0 = vec4(finalRes,1.0);
   
   //gl_FragColor = vec4(mixVal,mixVal,mixVal,1.0);
   
-  //gl_FragColor = texture2D(Texture0, TexCoord0);
+  //gl_FragColor = texture(Texture0, TexCoord0);
 
 }

@@ -759,7 +759,7 @@ void main() {
     vec4 finalRes = vec4(0.0);
     
     //float watVal = mapWaterMacro( pos );
-    float terVal = 0.0;
+    vec3 terVal = vec3(0.0);
     
     
     if (getVoro) {
@@ -767,12 +767,12 @@ void main() {
     }
     else {
       
-      terVal = getTerVal(pos, 0.0, getBlockHolders).x;
+      terVal = getTerVal(pos, 0.0, getBlockHolders);
       
       if (getBlockHolders) {
         
         finalRes = vec4(
-            terVal,
+            terVal.x,
             0.0, //terVal
             0.0,
             0.0
@@ -783,8 +783,11 @@ void main() {
       else {
         
         finalRes = vec4(
-            float(terVal < -1.0),
-            0.0, //terVal
+            float(terVal.x < -1.0),
+//            terVal.x,
+//            terVal.y,
+//            terVal.z
+            0.0,
             0.0,
             0.0
             // float(watVal<0.25),

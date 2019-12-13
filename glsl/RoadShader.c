@@ -1,7 +1,7 @@
-#version 120
+#version 330
 
 uniform sampler2D Texture0; //cityFBO
-varying vec2 TexCoord0;
+
 uniform float mapStep;
 uniform float texPitch;
 uniform float doDilate;
@@ -9,14 +9,22 @@ uniform float seaLevel;
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
 
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 // bvec4 getGrid(int val) {
 
 //     int testVal = val;
@@ -55,12 +63,12 @@ void main() {
     float v2 = 0.0;
     float v3 = 0.0;
 
-    vec4 baseTex = texture2D(Texture0, TexCoord0.xy);
+    vec4 baseTex = texture(Texture0, TexCoord0.xy);
     float tex1 = baseTex.b;
-    float tex1r = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) ).b;
-    float tex1l = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) ).b;
-    float tex1u = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) ).b;
-    float tex1d = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) ).b;
+    float tex1r = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) ).b;
+    float tex1l = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) ).b;
+    float tex1u = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) ).b;
+    float tex1d = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) ).b;
 
     float tot = 0.0;
 
@@ -88,16 +96,16 @@ void main() {
     finalRes.b = tot;
 
 
-    // vec4 tex1ul = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
-    // vec4 tex1ur = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
-    // vec4 tex1dl = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
-    // vec4 tex1dr = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
+    // vec4 tex1ul = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
+    // vec4 tex1ur = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
+    // vec4 tex1dl = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
+    // vec4 tex1dr = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
 
     
     
 
 
-    gl_FragData[0] = finalRes;
+    FragColor0 = finalRes;
 }
 
 

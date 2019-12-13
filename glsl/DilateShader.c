@@ -1,22 +1,29 @@
-#version 120
+#version 330
 
 uniform sampler2D Texture0; //cityFBO
 uniform sampler2D Texture1; //hmFBO
-varying vec2 TexCoord0;
+
 uniform float mapStep;
 uniform float texPitch;
 uniform float doDilate;
 uniform float seaLevel;
 
 $
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main() {
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+    TexCoord0 = vertexTex.xy;
+    gl_Position = vertexPos;
 }
-
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -38,39 +45,33 @@ void main() {
     float v3 = 0.0;
 
 
-    vec4 tex1 = texture2D(Texture0, TexCoord0.xy);
+    vec4 tex1 = texture(Texture0, TexCoord0.xy);
     
-    vec4 tex1u = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
-    vec4 tex1d = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
-    vec4 tex1l = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
-    vec4 tex1r = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
+    vec4 tex1u = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
+    vec4 tex1d = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
+    vec4 tex1l = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
+    vec4 tex1r = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
 
-    vec4 tex1ul = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
-    vec4 tex1ur = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
-    vec4 tex1dl = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
-    vec4 tex1dr = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
+    vec4 tex1ul = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
+    vec4 tex1ur = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
+    vec4 tex1dl = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
+    vec4 tex1dr = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
 
 
-    vec4 tex2 = texture2D(Texture1, TexCoord0.xy);
+    vec4 tex2 = texture(Texture1, TexCoord0.xy);
     
-    vec4 tex2u = texture2D(Texture1, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
-    vec4 tex2d = texture2D(Texture1, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
-    vec4 tex2l = texture2D(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
-    vec4 tex2r = texture2D(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
+    vec4 tex2u = texture(Texture1, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
+    vec4 tex2d = texture(Texture1, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
+    vec4 tex2l = texture(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
+    vec4 tex2r = texture(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
 
-    vec4 tex2ul = texture2D(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
-    vec4 tex2ur = texture2D(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
-    vec4 tex2dl = texture2D(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
-    vec4 tex2dr = texture2D(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
-
-    
+    vec4 tex2ul = texture(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
+    vec4 tex2ur = texture(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
+    vec4 tex2dl = texture(Texture1, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
+    vec4 tex2dr = texture(Texture1, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
 
     vec4 finalRes = tex1;
     
-
-
-    
-
     if (doDilate == 1.0) {
 
 
@@ -152,7 +153,7 @@ void main() {
     
 
 
-    gl_FragData[0] = finalRes;
+    FragColor0 = finalRes;
 }
 
 

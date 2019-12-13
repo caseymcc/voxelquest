@@ -1,7 +1,6 @@
-#version 120
+#version 330
 
 uniform sampler2D Texture0; // heightmap
-varying vec2 TexCoord0;
 
 uniform float mapStep;
 uniform float texPitch;
@@ -9,13 +8,23 @@ uniform float seaLevel;
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -23,8 +32,8 @@ float rand(vec2 co){
 
 void main() {
 
-    vec4 tex1 = texture2D(Texture0, TexCoord0.xy);
-    //vec4 tex0 = texture2D( Texture0, vec2(tex1.r, (5.0 + 0.5)/255.0 ) );
+    vec4 tex1 = texture(Texture0, TexCoord0.xy);
+    //vec4 tex0 = texture( Texture0, vec2(tex1.r, (5.0 + 0.5)/255.0 ) );
 
 
     //int iNumProv = int(numProvinces);
@@ -65,16 +74,16 @@ void main() {
 
     if (tex1.g == 0.0) {
 
-        tex1u = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
-        tex1d = texture2D(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
-        tex1l = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
-        tex1r = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
+        tex1u = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y + offsetAmount) );
+        tex1d = texture(Texture0, vec2(TexCoord0.x, TexCoord0.y - offsetAmount) );
+        tex1l = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y) );
+        tex1r = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y) );
 
         
-        tex1ul = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
-        tex1ur = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
-        tex1dl = texture2D(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
-        tex1dr = texture2D(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
+        tex1ul = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y + offsetAmount) );
+        tex1ur = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y + offsetAmount) );
+        tex1dl = texture(Texture0, vec2(TexCoord0.x - offsetAmount, TexCoord0.y - offsetAmount) );
+        tex1dr = texture(Texture0, vec2(TexCoord0.x + offsetAmount, TexCoord0.y - offsetAmount) );
         
     
         if (tex1u.g > 0.0) {
@@ -178,7 +187,7 @@ void main() {
           // If a pixel in the window is located at (x+dX, y+dY), put it at index (dX + R)(2R + 1) + (dY + R) of the
           // pixel array. This will fill the pixel array, with the top left pixel of the window at pixel[0] and the
           // bottom right pixel of the window at pixel[N-1].
-          v[(dX + 1) * 3 + (dY + 1)] = toVec(texture2D(Texture0, gl_TexCoord[0].xy + offset * offsetAmount));
+          v[(dX + 1) * 3 + (dY + 1)] = toVec(texture(Texture0, gl_TexCoord[0].xy + offset * offsetAmount));
         }
     }
     v[(0 + 1) * 3 + (0 + 1)] = tex1.g;
@@ -212,7 +221,7 @@ void main() {
 
 
 
-    gl_FragData[0] = tex1;
+    FragColor0 = tex1;
 
     /*
     for (i = 0; i < iNumProv; i++) {
@@ -304,7 +313,7 @@ void main() {
       // If a pixel in the window is located at (x+dX, y+dY), put it at index (dX + R)(2R + 1) + (dY + R) of the
       // pixel array. This will fill the pixel array, with the top left pixel of the window at pixel[0] and the
       // bottom right pixel of the window at pixel[N-1].
-      v[(dX + 1) * 3 + (dY + 1)] = toVec(texture2D(Texture0, gl_TexCoord[0].xy + offset * Tinvsize));
+      v[(dX + 1) * 3 + (dY + 1)] = toVec(texture(Texture0, gl_TexCoord[0].xy + offset * Tinvsize));
     }
   }
 

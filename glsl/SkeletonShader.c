@@ -1,8 +1,7 @@
-#version 120
+#version 330
 
 uniform sampler2D Texture0; //cityFBO
 //uniform sampler2D Texture1; //hmFBO
-varying vec2 TexCoord0;
 uniform float mapStep;
 uniform float texPitch;
 uniform float seaLevel;
@@ -10,13 +9,22 @@ uniform float seaLevel;
 
 $
 
-void main() {
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
 
-    TexCoord0 = gl_MultiTexCoord0.xy;
-    gl_Position = gl_Vertex;
+out vec2 TexCoord0;
+
+void main()
+{
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -30,8 +38,8 @@ void main() {
     float fi;
     float fj;
 
-    vec4 tex1 = texture2D(Texture0, TexCoord0.xy);
-    //vec4 tex2 = texture2D(Texture1, TexCoord0.xy);
+    vec4 tex1 = texture(Texture0, TexCoord0.xy);
+    //vec4 tex2 = texture(Texture1, TexCoord0.xy);
 
     float offsetAmount = 1.0/texPitch;
     float tp2 = texPitch/2.0;
@@ -73,8 +81,8 @@ void main() {
                 offsetCoord = vec2(fi,fj)*offsetAmount;//*4.0;
                 testCoord = baseCoord + offsetCoord;
 
-                res = texture2D(Texture0, testCoord ).b;
-                //res2 = texture2D(Texture1, testCoord ).r;
+                res = texture(Texture0, testCoord ).b;
+                //res2 = texture(Texture1, testCoord ).r;
 
                 if (res != 1.0) {
 
@@ -124,15 +132,15 @@ void main() {
 
 
 
-    // int no = 1-int(texture2D(Texture0, vec2(newTex.x, newTex.y + offsetAmount) ).b);
-    // int so = 1-int(texture2D(Texture0, vec2(newTex.x, newTex.y - offsetAmount) ).b);
-    // int we = 1-int(texture2D(Texture0, vec2(newTex.x - offsetAmount, newTex.y) ).b);
-    // int ea = 1-int(texture2D(Texture0, vec2(newTex.x + offsetAmount, newTex.y) ).b);
+    // int no = 1-int(texture(Texture0, vec2(newTex.x, newTex.y + offsetAmount) ).b);
+    // int so = 1-int(texture(Texture0, vec2(newTex.x, newTex.y - offsetAmount) ).b);
+    // int we = 1-int(texture(Texture0, vec2(newTex.x - offsetAmount, newTex.y) ).b);
+    // int ea = 1-int(texture(Texture0, vec2(newTex.x + offsetAmount, newTex.y) ).b);
 
-    // int nw = 1-int(texture2D(Texture0, vec2(newTex.x - offsetAmount, newTex.y + offsetAmount) ).b);
-    // int ne = 1-int(texture2D(Texture0, vec2(newTex.x + offsetAmount, newTex.y + offsetAmount) ).b);
-    // int sw = 1-int(texture2D(Texture0, vec2(newTex.x - offsetAmount, newTex.y - offsetAmount) ).b);
-    // int se = 1-int(texture2D(Texture0, vec2(newTex.x + offsetAmount, newTex.y - offsetAmount) ).b);
+    // int nw = 1-int(texture(Texture0, vec2(newTex.x - offsetAmount, newTex.y + offsetAmount) ).b);
+    // int ne = 1-int(texture(Texture0, vec2(newTex.x + offsetAmount, newTex.y + offsetAmount) ).b);
+    // int sw = 1-int(texture(Texture0, vec2(newTex.x - offsetAmount, newTex.y - offsetAmount) ).b);
+    // int se = 1-int(texture(Texture0, vec2(newTex.x + offsetAmount, newTex.y - offsetAmount) ).b);
     
 
     
@@ -274,7 +282,7 @@ void main() {
     
 
 
-    gl_FragData[0] = tex1;
+    FragColor0 = tex1;
 }
 
 

@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 // pages fbo
 uniform sampler2D Texture0;
@@ -76,20 +76,24 @@ vec2 dirModXY[4] = vec2[](
 );
 
 
-varying vec2 TexCoord0;
-
 $
+
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main()
 {
-
-	TexCoord0 = gl_MultiTexCoord0.xy;// = ;//TexCoord0 = gl_MultiTexCoord0;
-	gl_Position = gl_Vertex;
+    TexCoord0=vertexTex.xy;
+    gl_Position=vertexPos;
 }
 
 $
 
+in vec2 TexCoord0;
 
+layout(location=0) out vec4 FragColor0;
 
 int intMod(int lhs, int rhs)
 {
@@ -132,7 +136,7 @@ float randf(vec2 co)
 
 vec3 unpackColor(vec2 num, float lightVal)
 {
-	return texture3D( Texture10, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
+	return texture( Texture10, vec3(lightVal, num.r, num.g + 0.5/255.0) ).rgb;
 }
 
 vec3 rgb2hsv(vec3 c)
@@ -283,8 +287,8 @@ void main()
 
 	// 	testTC = TexCoord0.xy + vec2(0.0,float(i)) / (bufferDim);
 
-	// 	testTex = texture2D(Texture1, testTC);
-	// 	testTex2 = texture2D(Texture0, testTC);
+	// 	testTex = texture(Texture1, testTC);
+	// 	testTex2 = texture(Texture0, testTC);
 		
 	// 	if (getMat(testTex.w) == 6.0) {
 			
@@ -315,19 +319,19 @@ void main()
 	
 	vec4 oneVec = vec4(1.0);
 
-	vec4 tex0 = texture2D(Texture0, finalTC.xy);
-	vec4 tex1 = texture2D(Texture1, finalTC.xy);
+	vec4 tex0 = texture(Texture0, finalTC.xy);
+	vec4 tex1 = texture(Texture1, finalTC.xy);
 	
-	vec4 tex2 = texture2D(Texture2, finalTC.xy);
-	//vec4 tex3 = texture2D(Texture3, finalTC.xy);
+	vec4 tex2 = texture(Texture2, finalTC.xy);
+	//vec4 tex3 = texture(Texture3, finalTC.xy);
 	
-	vec4 texSpec = texture2D(Texture4, finalTC.xy);
+	vec4 texSpec = texture(Texture4, finalTC.xy);
 	
-	// vec4 tex4 = texture2D(Texture6, finalTC.xy);
-	// vec4 tex5 = texture2D(Texture7, finalTC.xy);
+	// vec4 tex4 = texture(Texture6, finalTC.xy);
+	// vec4 tex5 = texture(Texture7, finalTC.xy);
 
-	//vec4 tex8 = texture2D(Texture8, finalTC.xy);
-	//vec4 tex9 = texture2D(Texture9, finalTC.xy);
+	//vec4 tex8 = texture(Texture8, finalTC.xy);
+	//vec4 tex9 = texture(Texture9, finalTC.xy);
 
 	float tot = float(tex1.r + tex1.g + tex1.b + tex1.a > 0.0);
 
@@ -579,7 +583,7 @@ void main()
 	testTex = vec4(0.0);
 	for (i = 0; i < 4; i++) {
 
-		testTex = texture2D(Texture0, finalTC.xy + dirModXY[i].xy / (bufferDim) );
+		testTex = texture(Texture0, finalTC.xy + dirModXY[i].xy / (bufferDim) );
 
 		testHeight = distance(worldPosition.xyz,testTex.xyz);
 		if (
@@ -648,7 +652,7 @@ void main()
 	
 	//resColor = vec3(newAO);
 	
-	//resColor.rgb = texture2D(Texture9, finalTC.xy).rgb;
+	//resColor.rgb = texture(Texture9, finalTC.xy).rgb;
 
-	gl_FragData[0] = vec4(resColor.rgb,tot);
+	FragColor0 = vec4(resColor.rgb,tot);
 }

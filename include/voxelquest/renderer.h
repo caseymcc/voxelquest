@@ -24,6 +24,10 @@ class Renderer
 {
 public:
     static void init(int width, int height);
+
+    static void perspectiveProjection();
+    static void orthographicProjection();
+
     static void setWH(int w, int h);
     static void reshape(int w, int h);
 

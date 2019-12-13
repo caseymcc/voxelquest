@@ -72,6 +72,15 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         if(action==GLFW_RELEASE)
             g_settings.toggleSetting(E_BS_DEBUG_VIEW);
     }
+    else if(key==GLFW_KEY_E)
+    {
+        GameState::setCameraToElevation();
+    }
+    else if(key==GLFW_KEY_T)
+    {
+        if(action==GLFW_RELEASE)
+            g_settings.toggleSetting(E_BS_RENDER_VOXELS);
+    }
 
  //   if(action==GLFW_RELEASE)
  //   {
@@ -129,8 +138,8 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
 
     if(firstMouse)
     {
-        lastX=xpos;
-        lastY=ypos;
+        lastX=(float)xpos;
+        lastY=(float)ypos;
         firstMouse=false;
     }
 
@@ -140,7 +149,7 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
     lastX=(float)xpos;
     lastY=(float)ypos;
 
-    float sensitivity=0.1;
+    float sensitivity=0.1f;
 
     xoffset*=sensitivity;
     yoffset*=sensitivity;
