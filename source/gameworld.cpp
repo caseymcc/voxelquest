@@ -2775,10 +2775,8 @@ void GameWorld::rastChunk(
 
                         if((flags&RH_FLAG_DOCHECK)>0)
                         {
-
-
-
                             curChunk->checkHolders();
+                            continue;
                         }
 
 
@@ -5094,6 +5092,23 @@ void GameWorld::drawBasicPrims(bool doShadow)
     glDisable(GL_CULL_FACE);
 }
 
+
+void GameWorld::rasterHoldersCheck()
+{
+    Renderer::bindShader("VBOShader");
+    Renderer::bindFBO("rasterFBO", 0);
+
+    Renderer::setShaderFloat("heightOfNearPlane", Renderer::heightOfNearPlane);
+    Renderer::setShaderFloat("FOV", Renderer::FOV*(float)M_PI/180.0f);
+    Renderer::setShaderVec2("clipDist", Renderer::clipDist[0], Renderer::clipDist[1]);
+    Renderer::setShaderVec2("bufferDim", (float)Renderer::currentFBOResolutionX, (float)Renderer::currentFBOResolutionY);
+    Renderer::setShaderMatrix4x4("pmMatrix", Renderer::pmMatrix.get(), 1);
+
+    rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_DOCHECK);
+
+    Renderer::unbindFBO();
+    Renderer::unbindShader();
+}
 
 void GameWorld::rasterHolders(bool doShadow)
 {

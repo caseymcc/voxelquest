@@ -559,7 +559,7 @@ bool GameState::frameUpdate(bool doFrameRender)
 
             if(currentTick>2)
             {
-                Renderer::updateCamVals();
+//                Renderer::updateCamVals();
 
                 if(currentTick<4)
                 {
@@ -689,6 +689,7 @@ void GameState::checkFluid(GameFluid* gf)
 {
     gameLogic->loadNearestHolders(g_settings.settings[E_BS_UPDATE_HOLDERS]);
     gw->rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), 1);// RH_FLAG_DOCHECK);
+//    gw->rasterHoldersCheck();
 
     return;
 

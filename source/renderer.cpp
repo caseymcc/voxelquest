@@ -249,6 +249,7 @@ void Renderer::init(int width, int height)
     shaderStrings.push_back("BoxShader");
     shaderStrings.push_back("PolyShader");
     shaderStrings.push_back("PolyCombineShader");
+    shaderStrings.push_back("VBOShader");
 
     CompareStruct compareStruct;
 
@@ -303,6 +304,25 @@ void Renderer::init(int width, int height)
     limbTBO.init(true, limbTBOData, NULL, MAX_LIMB_DATA_IN_BYTES);
 
     doShaderRefresh(false);
+}
+
+void Renderer::setLookAt(const FIVector4 &lookAt)
+{
+    lookAtVec=lookAt;
+    updateView();
+}
+
+void Renderer::updateView()
+{
+    glm::vec3 glmCameraPos=toVec3(*cameraGetPos());
+    glm::vec3 glmLookAt(cameraGetPos()->getFX()+lookAtVec[0], cameraGetPos()->getFY()+lookAtVec[1], cameraGetPos()->getFZ()+lookAtVec[2]);
+
+    glm::mat4 glmViewMatrix=glm::lookAt(glmCameraPos, glmLookAt, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    viewMatrix=toMatrix4(glmViewMatrix);
+    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+
+    pmMatrix=projMatrix*viewMatrix;
 }
 
 void Renderer::perspectiveProjection()

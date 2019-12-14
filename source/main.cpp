@@ -19,6 +19,17 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos);
 void mouseClick(GLFWwindow *window, int button, int action, int modifiers);
 void reshape(GLFWwindow* window, int w, int h);
 
+void updatePosition();
+
+bool key_w=false;
+bool key_a=false;
+bool key_d=false;
+bool key_s=false;
+
+float lastFrame;
+float currentFrame;
+float deltaTime;
+
 int main(int argc, char* argv[])
 {
     srand((unsigned int)time(NULL));
@@ -58,6 +69,7 @@ int main(int argc, char* argv[])
 
         while(!glfwWindowShouldClose(window))
         {
+            updatePosition();
             if(GameState::display())
                 glfwSwapBuffers(window);
             glfwPollEvents();
@@ -67,19 +79,51 @@ int main(int argc, char* argv[])
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(key==GLFW_KEY_D)
+    if(key==GLFW_KEY_W)
     {
-        if(action==GLFW_RELEASE)
-            g_settings.toggleSetting(E_BS_DEBUG_VIEW);
+        if(action==GLFW_PRESS)
+            key_w=true;
+        else if(action==GLFW_RELEASE)
+            key_w=false;
     }
-    else if(key==GLFW_KEY_E)
+    else if(key==GLFW_KEY_S)
     {
-        GameState::setCameraToElevation();
+        if(action==GLFW_PRESS)
+            key_s=true;
+        else if(action==GLFW_RELEASE)
+            key_s=false;
     }
-    else if(key==GLFW_KEY_T)
+    else if(key==GLFW_KEY_A)
     {
-        if(action==GLFW_RELEASE)
-            g_settings.toggleSetting(E_BS_RENDER_VOXELS);
+        if(action==GLFW_PRESS)
+            key_a=true;
+        else if(action==GLFW_RELEASE)
+            key_a=false;
+    }
+    else if(key==GLFW_KEY_D)
+    {
+        if(action==GLFW_PRESS)
+            key_d=true;
+        else if(action==GLFW_RELEASE)
+            key_d=false;
+    }
+
+    if(mods &  GLFW_MOD_CONTROL)
+    {
+        if(key==GLFW_KEY_D)
+        {
+            if(action==GLFW_RELEASE)
+                g_settings.toggleSetting(E_BS_DEBUG_VIEW);
+        }
+        else if(key==GLFW_KEY_E)
+        {
+            GameState::setCameraToElevation();
+        }
+        else if(key==GLFW_KEY_T)
+        {
+            if(action==GLFW_RELEASE)
+                g_settings.toggleSetting(E_BS_RENDER_VOXELS);
+        }
     }
 
  //   if(action==GLFW_RELEASE)
@@ -149,7 +193,7 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
     lastX=(float)xpos;
     lastY=(float)ypos;
 
-    float sensitivity=0.1f;
+    float sensitivity=(2.0f*360.f)/Renderer::baseW;
 
     xoffset*=sensitivity;
     yoffset*=sensitivity;
@@ -169,7 +213,72 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
 
     glm::vec3 direction=calcDirection(glm::radians(yaw), glm::radians(pitch));
 
-    Renderer::lookAtVec=toFIVector4(direction);
+    Renderer::setLookAt(toFIVector4(direction));
+//    Renderer::lookAtVec=toFIVector4(direction);
+}
+
+void updatePosition()
+{
+    float movementSpeed=100;
+
+    currentFrame=(float)glfwGetTime();
+    deltaTime=currentFrame-lastFrame;
+    lastFrame=currentFrame;
+
+    glm::vec3 direction(0.0f, 0.0f, 0.0f);
+    bool move=false;
+
+    if(key_w)
+    {
+        direction+=glm::vec3(1.0f, 0.0f, 0.0f);
+        move=true;
+    }
+    if(key_s)
+    {
+        direction+=glm::vec3(-1.0f, 0.0f, 0.0f);
+        move=true;
+    }
+    if(key_a)
+    {
+        direction+=glm::vec3(0.0f, -1.0f, 0.0f);
+        move=true;
+    }
+    if(key_d)
+    {
+        direction+=glm::vec3(0.0f, 1.0f, 0.0f);
+        move=true;
+    }
+//    if(key_space)
+//    {
+//        direction+=glm::vec3(0.0f, 0.0f, 1.0f);
+//        move=true;
+//    }
+//    if(key_left_shift)
+//    {
+//        direction+=glm::vec3(0.0f, 0.0f, -1.0f);
+//        move=true;
+//    }
+
+    if(move)
+    {
+        glm::vec3 worldUp(0.0f, 0.0f, 1.0f);
+        glm::vec3 velocity=direction*movementSpeed*deltaTime;
+        glm::vec3 lookAt=toVec3(Renderer::lookAtVec);
+        glm::vec3 right=glm::normalize(glm::cross(lookAt, worldUp));
+
+        glm::vec3 delta=(lookAt*velocity.x)+(right*velocity.y)+(worldUp*velocity.z);
+
+//        Renderer::camLerpPos->copyFrom(&Renderer::cameraPos);
+        Renderer::cameraPos->addXYZ(delta.x, delta.y, delta.z);
+
+        Renderer::updateView();
+//        FIVector4 position;
+//
+//        position.copyFrom(Renderer::cameraPos);
+//        position.addXYZ(delta.x, delta.y, delta.z);
+//
+//        GameState::moveCamera(&position);
+    }
 }
 
 void mouseClick(GLFWwindow *window, int button, int action, int modifiers)

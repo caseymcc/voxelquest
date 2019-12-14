@@ -25,6 +25,9 @@ class Renderer
 public:
     static void init(int width, int height);
 
+    static void setLookAt(const FIVector4 &lookAt);
+    static void updateView();
+
     static void perspectiveProjection();
     static void orthographicProjection();
 

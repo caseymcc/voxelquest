@@ -199,6 +199,8 @@ public:
 
     void drawBasicPrims(bool doShadow);
 
+    void rasterHoldersCheck();
+
     void rasterHolders(bool doShadow);
 
 
