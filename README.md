@@ -1,3 +1,5 @@
+[![discord](https://img.shields.io/discord/495955797872869376.svg?logo=discord "Discord")](https://discord.gg/YJyrvgQ)
+
 # voxelquest
 
 This is a restructuring of the VoxelQuest (https://www.voxelquest.com/) source code. It is currently in flux and only parts of it compile at the moment, but it is getting very close.
@@ -6,3 +8,6 @@ If you do decide to play with it be aware that it is setup to use hunter (https:
 
 Current screenshot (at least something is rendering now)
 ![screenshot](https://github.com/caseymcc/voxelquest/raw/master/screenshot.png)
+
+
+
