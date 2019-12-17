@@ -1,3 +1,5 @@
+#version 330
+
 // result fbo
 uniform sampler2D Texture0;
 
@@ -10,26 +12,34 @@ uniform sampler2D Texture2;
 
 uniform bool testOn;
 
-varying vec2 TexCoord0;
+
 
 $
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main() {
 
-	TexCoord0 = gl_MultiTexCoord0.xy;
-	gl_Position = gl_Vertex;
+	TexCoord0 =vertexTex.xy;
+	gl_Position =vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 void main() {
 
 	vec4 oneVec = vec4(1.0);
 
-	vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-	vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
-	vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
-	//vec4 tex5 = texture2D(Texture5, TexCoord0.xy);
+	vec4 tex0 = texture(Texture0, TexCoord0.xy);
+	vec4 tex1 = texture(Texture1, TexCoord0.xy);
+	vec4 tex2 = texture(Texture2, TexCoord0.xy);
+	//vec4 tex5 = texture(Texture5, TexCoord0.xy);
 	
 	// vec4 matValsGeom = tex5;
 	// bool valIsGeom = (dot(matValsGeom.rgb,oneVec.rgb) != 0.0);
@@ -67,7 +77,7 @@ void main() {
 	
 	
 	
-	gl_FragData[0] = vec4(finalCol.rgb, 1.0);//finalCol
+    FragColor0 = vec4(finalCol.rgb, 1.0);//finalCol
 
 
 

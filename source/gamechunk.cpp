@@ -337,7 +337,7 @@ void GameChunk::fillVBO()
 
         vboWrapper[j].clearVecs(false);
 
-        GameState::wsBufferInvalid=true;
+        Renderer::wsBufferInvalid=true;
         GameState::forceGetPD=true;
     }
 

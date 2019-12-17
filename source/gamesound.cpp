@@ -7,6 +7,7 @@ GameSound::GameSound()
     curVolume=0.0;
 }
 
+#ifdef VOXELQUEST_USE_SFML
 void GameSound::init(std::string path)
 {
     if(!buffer.loadFromFile(path))
@@ -72,3 +73,28 @@ void GameSound::play(float volume)
     sound.play();
 
 }
+#else
+void GameSound::init(std::string path)
+{}
+
+void GameSound::setPitch(float val)
+{}
+
+void GameSound::setPositionAndMinDis(float x, float y, float z, float w)
+{}
+
+void GameSound::setLoop(bool val)
+{}
+
+void GameSound::stop()
+{}
+
+void GameSound::setVolumeSmooth(float volume, float decay)
+{}
+
+void GameSound::setVolume(float volume)
+{}
+
+void GameSound::play(float volume)
+{}
+#endif

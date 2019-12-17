@@ -1,3 +1,5 @@
+#version 330
+
 // pages fbo
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
@@ -16,19 +18,25 @@ uniform vec3 cameraPos;
 uniform vec3 lightVec;
 //uniform vec3 lightPosWS;
 
-varying vec2 TexCoord0;
-
 uniform int iNumSteps;
 
 $
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 TexCoord0;
 
 void main() {
 
-	TexCoord0 = gl_MultiTexCoord0.xy;
-	gl_Position = gl_Vertex;
+	TexCoord0 = vertexTex.xy;
+	gl_Position = vertexPos;
 }
 
 $
+
+in vec2 TexCoord0;
+
+layout(location=0) out vec4 FragColor0;
 
 int intMod(int lhs, int rhs) {
 	return lhs - ( (lhs / rhs) * rhs );
@@ -62,12 +70,12 @@ void main() {
 
 	float fNumSteps = float(iNumSteps);
 	
-	vec4 tex0 = texture2D(Texture0, TexCoord0.xy);
-	vec4 tex1 = texture2D(Texture1, TexCoord0.xy);
-	vec4 tex2 = texture2D(Texture2, TexCoord0.xy);
+	vec4 tex0 = texture(Texture0, TexCoord0.xy);
+	vec4 tex1 = texture(Texture1, TexCoord0.xy);
+	vec4 tex2 = texture(Texture2, TexCoord0.xy);
 	vec3 oneVec = vec3(1.0);
 	
-	vec4 worldPosition = tex0;//texture2D(Texture4, TexCoord0.xy);
+	vec4 worldPosition = tex0;//texture(Texture4, TexCoord0.xy);
 
 	
 
@@ -145,9 +153,9 @@ void main() {
 		offsetCoord.y = sin(curRot) * curRad;
 
 		newTC.xy = TexCoord0.xy + offsetCoord / (bufferDim);
-		samp0 = texture2D(Texture0, newTC.xy );
-		samp1 = texture2D(Texture1, newTC.xy );
-		samp2 = texture2D(Texture2, newTC.xy );
+		samp0 = texture(Texture0, newTC.xy );
+		samp1 = texture(Texture1, newTC.xy );
+		samp2 = texture(Texture2, newTC.xy );
 		
 
 		testNormOrig = samp1.xyz;//normalize( (samp1.rgb - 0.5) * 2.0 );
@@ -177,7 +185,7 @@ void main() {
 	newRes = clamp(newRes / (totRays / 16.0), 0.0, 1.0);
 	newRes = pow(newRes, vec3(4.0));
 	//newRes = min(newRes,normalize(newRes));
-	gl_FragData[0] = vec4(newRes, 1.0); //*divVal
+    FragColor0 = vec4(newRes, 1.0); //*divVal
 
 
 

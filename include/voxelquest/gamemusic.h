@@ -1,7 +1,11 @@
 #ifndef _voxelquest_gamemusic_h_
 #define _voxelquest_gamemusic_h_
 
+#include <string>
+
+#ifdef VOXELQUEST_USE_SFML
 #include "SFML/Audio.hpp"
+#endif
 
 class GameMusic
 {
@@ -20,8 +24,10 @@ public:
 
 private:
 
+#ifdef VOXELQUEST_USE_SFML
     //sf::SoundBuffer buffer;
     sf::Music sound;
+#endif
 
     float volume;
 };

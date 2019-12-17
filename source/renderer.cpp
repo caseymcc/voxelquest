@@ -111,6 +111,8 @@ FIVector4 Renderer::bufferDimHalf;
 FIVector4 Renderer::bufferModDim;
 FIVector4 Renderer::bufferRenderDim;
 
+bool Renderer::wsBufferInvalid=true;
+
 FIVector4 Renderer::rasterLowDim;
 //GLuint Renderer::volIdMat;
 
@@ -370,6 +372,45 @@ void Renderer::reshape(int w, int h)
     orthographicProjection();
 
     setMatrices(baseW, baseH);
+}
+
+void Renderer::moveCamera(FIVector4 *pModXYZ)
+{
+    if(
+        (pModXYZ->getFX()!=0.0)||
+        (pModXYZ->getFY()!=0.0)||
+        (pModXYZ->getFZ()!=0.0)
+        )
+    {
+
+        if(!g_settings.smoothMove)
+        {
+            GameState::gw->amountInvalidMove=pModXYZ->length();
+            GameState::gw->depthInvalidMove=GameState::gw->amountInvalidMove>0.01f;
+        }
+
+        wsBufferInvalid=true;
+    }
+    camLerpPos.copyFrom(cameraPos);
+    camLerpPos.addXYZRef(pModXYZ);
+}
+
+void Renderer::setCameraToElevation()
+{
+    float newHeight=GameState::gw->getHeightAtPixelPos(cameraGetPosNoShake()->getFX(), cameraGetPosNoShake()->getFY());
+
+    newHeight=std::max(newHeight, GameState::gw->getSeaHeightScaled()+64.0f)+getConst(E_CONST_CAM_HEIGHT_MOD);
+
+    float curHeight=cameraGetPosNoShake()->getFZ();
+
+    std::cout<<"curHeight "<<curHeight<<" newHeight "<<newHeight<<"\n";
+
+    FIVector4 modXYZ;
+
+    modXYZ.setFXYZ(0.0f, 0.0f, newHeight-curHeight);
+
+    moveCamera(&modXYZ);
+    cameraGetPosNoShake()->copyFrom(&camLerpPos);
 }
 
 void Renderer::updateCamVals()

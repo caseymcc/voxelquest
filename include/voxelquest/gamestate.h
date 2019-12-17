@@ -38,12 +38,6 @@ public:
     static void initGameItems(int w, int h);
 
     static int &totPointCount() { return GameState::TOT_POINT_COUNT; }
-//    static bool &wsBufferInvalid() { return m_wsBufferInvalid; }
-//    static bool &forceGetPD() { return m_forceGetPD; }
-    //    static int &forceShadowUpdate() { return singleton()->m_forceShadowUpdate; }
-
-    static void moveCamera(FIVector4 *pModXYZ);
-    static void setCameraToElevation();
 
     static void stopAllThreads();
 
@@ -126,7 +120,6 @@ public:
 //private:
 //    GameState();
 
-    static bool wsBufferInvalid;
     static bool forceGetPD;
 };
 

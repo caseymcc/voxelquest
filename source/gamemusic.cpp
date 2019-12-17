@@ -7,6 +7,7 @@ GameMusic::GameMusic()
 
 }
 
+#ifdef VOXELQUEST_USE_SFML
 void GameMusic::init(std::string path)
 {
     if(!sound.openFromFile(path))
@@ -39,3 +40,24 @@ void GameMusic::play(float _volume)
     setVolume(_volume);
     sound.play();
 }
+#else
+void GameMusic::init(std::string path)
+{
+}
+
+void GameMusic::setLoop(bool val)
+{
+}
+
+void GameMusic::stop()
+{
+}
+
+void GameMusic::setVolume(float _volume)
+{
+}
+
+void GameMusic::play(float _volume)
+{
+}
+#endif

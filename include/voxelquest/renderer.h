@@ -34,6 +34,8 @@ public:
     static void setWH(int w, int h);
     static void reshape(int w, int h);
 
+    static void moveCamera(FIVector4 *pModXYZ);
+    static void setCameraToElevation();
     static void updateCamVals();
     static void handleMovement();
     
@@ -263,6 +265,8 @@ public:
     static FIVector4 bufferRenderDim;
 
     static FIVector4 rasterLowDim;
+
+    static bool wsBufferInvalid;
 
     static bool LAST_COMPILE_ERROR;
 };

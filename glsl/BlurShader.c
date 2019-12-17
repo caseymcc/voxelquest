@@ -1,3 +1,4 @@
+#version 330
 // Adapted from:
 // http://callumhay.blogspot.com/2010/09/gaussian-blur-shader-glsl.html
 
@@ -18,25 +19,29 @@ uniform float numBlurPixelsPerSide;
 // direction vector
 uniform vec2 blurMultiplyVec;
 
-varying vec2 v_texCoord;
-varying float newBlurSize;
-
-
 const float pi = 3.14159265;
 
-
-
 $
+layout(location=0) in vec4 vertexPos;
+layout(location=1) in vec4 vertexTex;
+
+out vec2 v_texCoord;
+out float newBlurSize;
 
 void main()
 {
-    gl_Position = gl_Vertex;
-    v_texCoord = gl_MultiTexCoord0.xy;
+    gl_Position =vertexPos;
+    v_texCoord =vertexTex.xy;
 
     newBlurSize = blurSize;
 }
 
 $
+
+in vec2 v_texCoord;
+in float newBlurSize;
+
+layout(location=0) out vec4 FragColor0;
 
 void main() {
 
@@ -50,19 +55,19 @@ void main() {
   float coefficientSum = 0.0;
 
   // Take the central sample first...
-  avgValue += texture2D(Texture0, v_texCoord.xy) * incrementalGaussian.x;
+  avgValue += texture(Texture0, v_texCoord.xy) * incrementalGaussian.x;
   coefficientSum += incrementalGaussian.x;
   incrementalGaussian.xy *= incrementalGaussian.yz;
 
   // Go through the remaining 8 vertical samples (4 on each side of the center)
   for (float i = 1.0; i <= numBlurPixelsPerSide; i++) { 
-    avgValue += texture2D(Texture0, v_texCoord.xy - i * newBlurSize * 
+    avgValue += texture(Texture0, v_texCoord.xy - i * newBlurSize * 
                           blurMultiplyVec) * incrementalGaussian.x;         
-    avgValue += texture2D(Texture0, v_texCoord.xy + i * newBlurSize * 
+    avgValue += texture(Texture0, v_texCoord.xy + i * newBlurSize * 
                           blurMultiplyVec) * incrementalGaussian.x;         
     coefficientSum += 2.0 * incrementalGaussian.x;
     incrementalGaussian.xy *= incrementalGaussian.yz;
   }
 
-  gl_FragData[0] = avgValue / coefficientSum;
+  FragColor0 = avgValue / coefficientSum;
 }

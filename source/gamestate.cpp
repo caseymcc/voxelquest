@@ -38,7 +38,6 @@ bool GameState::allInit=false;
 int GameState::fpsCountMax=500;
 int GameState::fpsCount=0;
 
-bool GameState::wsBufferInvalid=true;
 bool GameState::forceGetPD=false;
 
 int GameState::tbTicks;
@@ -559,7 +558,7 @@ bool GameState::frameUpdate(bool doFrameRender)
 
             if(currentTick>2)
             {
-//                Renderer::updateCamVals();
+                Renderer::updateCamVals();
 
                 if(currentTick<4)
                 {
@@ -569,7 +568,7 @@ bool GameState::frameUpdate(bool doFrameRender)
 
                 if(currentTick==4)
                 {
-                    setCameraToElevation();
+                    Renderer::setCameraToElevation();
 
                     gamePhysics=new GamePhysics();
                     gamePhysics->init(nullptr);
@@ -645,44 +644,6 @@ bool GameState::frameUpdate(bool doFrameRender)
     g_settings.TRACE_ON=false;
     frameCount++;
     return needSwap;
-}
-
-void GameState::moveCamera(FIVector4 *pModXYZ)
-{
-    if(
-        (pModXYZ->getFX()!=0.0)||
-        (pModXYZ->getFY()!=0.0)||
-        (pModXYZ->getFZ()!=0.0)
-        )
-    {
-
-        if(!g_settings.smoothMove)
-        {
-            gw->amountInvalidMove=pModXYZ->length();
-            gw->depthInvalidMove=gw->amountInvalidMove>0.01f;
-        }
-
-        wsBufferInvalid=true;
-    }
-    Renderer::camLerpPos.addXYZRef(pModXYZ);
-}
-
-void GameState::setCameraToElevation()
-{
-    float newHeight=gw->getHeightAtPixelPos(Renderer::cameraGetPosNoShake()->getFX(), Renderer::cameraGetPosNoShake()->getFY());
-
-    newHeight=std::max(newHeight, gw->getSeaHeightScaled()+64.0f)+getConst(E_CONST_CAM_HEIGHT_MOD);
-
-    float curHeight=Renderer::cameraGetPosNoShake()->getFZ();
-
-    std::cout<<"curHeight "<<curHeight<<" newHeight "<<newHeight<<"\n";
-
-    FIVector4 modXYZ;
-
-    modXYZ.setFXYZ(0.0f, 0.0f, newHeight-curHeight);
-
-    moveCamera(&modXYZ);
-    Renderer::cameraGetPosNoShake()->copyFrom(&Renderer::camLerpPos);
 }
 
 void GameState::checkFluid(GameFluid* gf)

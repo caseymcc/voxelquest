@@ -117,7 +117,7 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         }
         else if(key==GLFW_KEY_E)
         {
-            GameState::setCameraToElevation();
+            Renderer::setCameraToElevation();
         }
         else if(key==GLFW_KEY_T)
         {
@@ -269,15 +269,16 @@ void updatePosition()
         glm::vec3 delta=(lookAt*velocity.x)+(right*velocity.y)+(worldUp*velocity.z);
 
 //        Renderer::camLerpPos->copyFrom(&Renderer::cameraPos);
-        Renderer::cameraPos->addXYZ(delta.x, delta.y, delta.z);
+//        Renderer::cameraPos->addXYZ(delta.x, delta.y, delta.z);
+
+        FIVector4 position;
+
+        position.copyFrom(Renderer::cameraPos);
+        position.addXYZ(delta.x, delta.y, delta.z);
+
+        Renderer::moveCamera(&position);
 
         Renderer::updateView();
-//        FIVector4 position;
-//
-//        position.copyFrom(Renderer::cameraPos);
-//        position.addXYZ(delta.x, delta.y, delta.z);
-//
-//        GameState::moveCamera(&position);
     }
 }
 

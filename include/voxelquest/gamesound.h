@@ -3,8 +3,10 @@
 
 #include <string>
 
+#ifdef VOXELQUEST_USE_SFML
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
+#endif
 
 class GameSound
 {
@@ -36,8 +38,10 @@ public:
 
 private:
 
+#ifdef VOXELQUEST_USE_SFML
 	sf::SoundBuffer buffer;
 	sf::Sound sound;
+#endif
 
 	float curVolume;
 };

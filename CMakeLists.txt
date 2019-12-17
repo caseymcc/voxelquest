@@ -9,6 +9,7 @@ HunterGate(
 
 project(voxelquest)
 
+option(VOXELQUEST_USE_SFML "Use SMFL for audio" OFF)
 option(SFML_ROOT_DIRECTORY "Directory for SMFL" "")
 
 hunter_add_package(CreateLaunchers)
@@ -34,6 +35,13 @@ find_package(PNG CONFIG REQUIRED)
 
 hunter_add_package(bullet)
 find_package(bullet CONFIG REQUIRED)
+
+#audio replacement
+#hunter_add_package(stb)
+#find_package(stb CONFIG REQUIRED)
+#
+#hunter_add_package(OpenAL)
+#find_package(OpenAL CONFIG REQUIRED)
 
 set(voxelquest_include
     include/voxelquest/baseobject.h
@@ -217,6 +225,73 @@ set(voxelquest_source
     include/OpenGLWindow/SimpleCamera.cpp
 )
 
+set(voxelquest_shaders
+    glsl/BasicLimbShader.c
+    glsl/BasicPrimShader.c
+    glsl/BillboardShader.c
+    glsl/BlitPointShader.c
+    glsl/BlitShader.c
+    glsl/BlurShader.c
+    glsl/BoxShader.c
+    glsl/Combine3Shader.c
+    glsl/CombineShader.c
+    glsl/CopyShader.c
+    glsl/CopyShader2.c
+    glsl/CopyShader3.c
+    glsl/CylBBShader.c
+    glsl/DilateShader.c
+    glsl/DownSampleShader.c
+    glsl/DownScaleShader.c
+    glsl/FogShader.c
+    glsl/FXAAShader.c
+    glsl/GeomShader.c
+    glsl/GridShader.c
+    glsl/GUIShader.c
+    glsl/HDRShader.c
+    glsl/HolderShader.c
+    glsl/HolderShaderOld.c
+    glsl/LightShader.c
+    glsl/MapBorderShader.c
+    glsl/MapLand.c
+    glsl/MedianShader.c
+    glsl/MergeShader.c
+    glsl/NearestShader.c
+    glsl/NoiseShader.c
+    glsl/OctShader.c
+    glsl/PointShader.c
+    glsl/PolyCombineShader.c
+    glsl/PolyShader.c
+    glsl/PostLightingShader.c
+    glsl/PreLightingShader.c
+    glsl/PrimShader.c
+    glsl/PrimShader2.c
+    glsl/PrimShader3.c
+    glsl/RadiosityCombineShader.c
+    glsl/RadiosityShader.c
+    glsl/RasterShader.c
+    glsl/RayFuncs.c
+    glsl/RenderFBOShader.c
+    glsl/RoadShader.c
+    glsl/SampleFuncs.c
+    glsl/ShadowMapShader.c
+    glsl/Simplex2D.c
+    glsl/SkeletonShader.c
+    glsl/SolidCombineShader.c
+    glsl/SphereShader.c
+    glsl/TerGenShader.c
+    glsl/TerHeightFunc.c
+    glsl/TerrainMix.c
+    glsl/TopoShader.c
+    glsl/VBOShader.c
+    glsl/WaterShader.c
+    glsl/WaterShaderCombine.c
+    glsl/WaveFuncs.c
+    glsl/WaveHeightShader.c
+    glsl/WorldSpaceShader.c
+)
+set_source_files_properties(${voxelquest_shaders} PROPERTIES HEADER_FILE_ONLY TRUE)
+source_group("shaders" FILES ${voxelquest_shaders})
+
 set(voxelquest_libraries
     glbinding::glbinding
     Boost::system 
@@ -233,17 +308,27 @@ set(voxelquest_libraries
     bullet::BulletSoftBody
     bullet::LinearMath
     glm
+#    stb::stb
+#    OpenAL::OpenAL
 )
 
 include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
 include_directories("${SFML_ROOT_DIRECTORY}/include")
-add_executable(voxelquest ${voxelquest_include} ${voxelquest_source})
+
+add_executable(voxelquest ${voxelquest_include} ${voxelquest_source} ${voxelquest_shaders})
+
 find_package(OpenGL REQUIRED)
 
 target_link_libraries(voxelquest 
     ${voxelquest_libraries}
-    "${SFML_ROOT_DIRECTORY}/build/lib/Debug/sfml-audio-d.lib"
 )
+
+if(VOXELQUEST_USE_SFML)
+    target_link_libraries(voxelquest 
+        "${SFML_ROOT_DIRECTORY}/build/lib/Debug/sfml-audio-d.lib"
+    )
+    target_compile_definitions(voxelquest PUBLIC VOXELQUEST_USE_SFML=1)
+endif()
 
 include(CreateLaunchers)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/targetInfo.cmake)
