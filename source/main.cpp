@@ -273,8 +273,8 @@ void updatePosition()
 
         FIVector4 position;
 
-        position.copyFrom(Renderer::cameraPos);
-        position.addXYZ(delta.x, delta.y, delta.z);
+//        position.copyFrom(Renderer::cameraPos);
+        position.setFXYZ(delta.x, delta.y, delta.z);
 
         Renderer::moveCamera(&position);
 
