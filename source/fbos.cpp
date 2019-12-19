@@ -1146,6 +1146,8 @@ void FBOManager::initFBOs()
     fboMap["swapFBO0"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
     fboMap["swapFBO1"].init(1, newPitch, newPitch, 1, false, GL_NEAREST, GL_REPEAT);
 
+    fboMap["mapFBO"].init(1, 256, 256, 1, false, GL_NEAREST, GL_REPEAT);
+
     std::cout<<"FBOS ********************************\n";
     for(auto &item:fboMap)
     {

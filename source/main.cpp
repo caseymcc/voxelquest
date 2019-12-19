@@ -2,16 +2,22 @@
 #include "voxelquest/renderer.h"
 #include "voxelquest/glmhelpers.h"
 
+#include "voxelquest/initGlew.h"
+#include "voxelquest/debugScreen.h"
+
 #include <glbinding/gl/gl.h>
 #include <glbinding/glbinding.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
+
 #include <iostream>
 
 using namespace gl;
 
-void display(bool doFrameRender=false);
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseMovementWithButton(int x, int y);
 void mouseMovementWithoutButton(int x, int y);
@@ -19,6 +25,7 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos);
 void mouseClick(GLFWwindow *window, int button, int action, int modifiers);
 void reshape(GLFWwindow* window, int w, int h);
 
+void setLookAt();
 void updatePosition();
 
 bool key_w=false;
@@ -30,11 +37,16 @@ float lastFrame;
 float currentFrame;
 float deltaTime;
 
+DebugScreen *debugScreen=nullptr;
+
+float yaw=180.0f;
+float pitch=0.0f;
+
 int main(int argc, char* argv[])
 {
     srand((unsigned int)time(NULL));
-    int winW=1024;
-    int winH=1024;
+    int winW=1920;
+    int winH=1080;
 
     int argCount=0;
     char** argStrs=NULL;
@@ -58,7 +70,9 @@ int main(int argc, char* argv[])
 
         glfwMakeContextCurrent(window);
         glbinding::initialize(glfwGetProcAddress);
+        initGlew();//hack for imgui
 
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetFramebufferSizeCallback(window, reshape);
         glfwSetKeyCallback(window, keyboard);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -66,12 +80,45 @@ int main(int argc, char* argv[])
         glfwSetMouseButtonCallback(window, mouseClick);
 
         GameState::init(winW, winH);
+        
+        setLookAt();
 
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io=ImGui::GetIO();
+
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+#ifdef __APPLE__    
+        ImGui_ImplOpenGL3_Init("#version 410");
+#else
+        ImGui_ImplOpenGL3_Init();
+#endif
+        ImGui::StyleColorsDark();
+
+        debugScreen=new DebugScreen();
+
+        debugScreen->initialize();
+        debugScreen->setSize(winW, winH);
+
+        debugScreen->startBuild();
+        debugScreen->update();
+        debugScreen->build();
         while(!glfwWindowShouldClose(window))
         {
             updatePosition();
-            if(GameState::display())
-                glfwSwapBuffers(window);
+            GameState::display();
+
+            debugScreen->draw();
+
+            //get everything started
+            glFlush();
+
+            //handle background updates while gpu rendering
+            debugScreen->startBuild();
+            debugScreen->update();
+            debugScreen->build();
+            
+            glfwSwapBuffers(window);
             glfwPollEvents();
         }
     }
@@ -79,33 +126,20 @@ int main(int argc, char* argv[])
 
 void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(key==GLFW_KEY_W)
+    if(key==GLFW_KEY_ESCAPE&&action==GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    else if((key==GLFW_KEY_GRAVE_ACCENT)&&(action==GLFW_RELEASE))
     {
-        if(action==GLFW_PRESS)
-            key_w=true;
-        else if(action==GLFW_RELEASE)
-            key_w=false;
-    }
-    else if(key==GLFW_KEY_S)
-    {
-        if(action==GLFW_PRESS)
-            key_s=true;
-        else if(action==GLFW_RELEASE)
-            key_s=false;
-    }
-    else if(key==GLFW_KEY_A)
-    {
-        if(action==GLFW_PRESS)
-            key_a=true;
-        else if(action==GLFW_RELEASE)
-            key_a=false;
-    }
-    else if(key==GLFW_KEY_D)
-    {
-        if(action==GLFW_PRESS)
-            key_d=true;
-        else if(action==GLFW_RELEASE)
-            key_d=false;
+        if(GameState::cursorCapture)
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            GameState::cursorCapture=false;
+        }
+        else
+        {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            GameState::cursorCapture=true;
+        }
     }
 
     if(mods &  GLFW_MOD_CONTROL)
@@ -117,14 +151,72 @@ void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
         }
         else if(key==GLFW_KEY_E)
         {
-            Renderer::setCameraToElevation();
+            if(action==GLFW_RELEASE)
+                Renderer::setCameraToElevation();
+        }
+        else if(key==GLFW_KEY_F)
+        {
+            if(action==GLFW_RELEASE)
+                g_settings.toggleSetting(E_BS_FOG);
+        }
+        else if(key==GLFW_KEY_H)
+        {
+            if(action==GLFW_RELEASE)
+                GameState::helpCommands=!GameState::helpCommands;
+        }
+        else if(key==GLFW_KEY_S)
+        {
+            if(action==GLFW_RELEASE)
+                GameState::showSettings=!GameState::showSettings;
+        }
+    }
+
+    if(!GameState::cursorCapture)
+        return;
+
+    if(!(mods &  GLFW_MOD_CONTROL))
+    {
+        if(key==GLFW_KEY_W)
+        {
+            if(action==GLFW_PRESS)
+                key_w=true;
+            else if(action==GLFW_RELEASE)
+                key_w=false;
+        }
+        else if(key==GLFW_KEY_S)
+        {
+            if(action==GLFW_PRESS)
+                key_s=true;
+            else if(action==GLFW_RELEASE)
+                key_s=false;
+        }
+        else if(key==GLFW_KEY_A)
+        {
+            if(action==GLFW_PRESS)
+                key_a=true;
+            else if(action==GLFW_RELEASE)
+                key_a=false;
+        }
+        else if(key==GLFW_KEY_D)
+        {
+            if(action==GLFW_PRESS)
+                key_d=true;
+            else if(action==GLFW_RELEASE)
+                key_d=false;
         }
         else if(key==GLFW_KEY_T)
         {
             if(action==GLFW_RELEASE)
                 g_settings.toggleSetting(E_BS_RENDER_VOXELS);
         }
+        else if(key==GLFW_KEY_M)
+        {
+            if(action==GLFW_RELEASE)
+                GameState::showMap=!GameState::showMap;
+        }
     }
+
+    
 
  //   if(action==GLFW_RELEASE)
  //   {
@@ -174,12 +266,12 @@ glm::vec3 calcDirection(float yaw, float pitch)
 
 void mouseMove(GLFWwindow* window, double xpos, double ypos)
 {
+    if(!GameState::cursorCapture)
+        return;
+
     static bool firstMouse=true;
     static float lastX;
     static float lastY;
-    static float yaw=0.0f;
-    static float pitch=0.0f;
-
     if(firstMouse)
     {
         lastX=(float)xpos;
@@ -193,7 +285,7 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
     lastX=(float)xpos;
     lastY=(float)ypos;
 
-    float sensitivity=(2.0f*360.f)/Renderer::baseW;
+    float sensitivity=(360.f)/Renderer::baseW;
 
     xoffset*=sensitivity;
     yoffset*=sensitivity;
@@ -211,10 +303,15 @@ void mouseMove(GLFWwindow* window, double xpos, double ypos)
     if(pitch<-89.0f)
         pitch=-89.0f;
 
+    setLookAt();
+//    Renderer::lookAtVec=toFIVector4(direction);
+}
+
+void setLookAt()
+{
     glm::vec3 direction=calcDirection(glm::radians(yaw), glm::radians(pitch));
 
     Renderer::setLookAt(toFIVector4(direction));
-//    Renderer::lookAtVec=toFIVector4(direction);
 }
 
 void updatePosition()

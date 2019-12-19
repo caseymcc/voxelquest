@@ -21,6 +21,9 @@ find_package(glbinding CONFIG REQUIRED)
 hunter_add_package(glfw)
 find_package(glfw3 REQUIRED)
 
+hunter_add_package(imgui)
+find_package(imgui CONFIG REQUIRED)
+
 hunter_add_package(glm)
 find_package(glm CONFIG REQUIRED)
 
@@ -43,187 +46,185 @@ find_package(bullet CONFIG REQUIRED)
 #hunter_add_package(OpenAL)
 #find_package(OpenAL CONFIG REQUIRED)
 
-set(voxelquest_include
-    include/voxelquest/baseobject.h
-    include/voxelquest/benchmarkdemo.h
-    include/voxelquest/bullethelpers.h
-    include/voxelquest/cache.h
-    include/voxelquest/classdefs.h
-    include/voxelquest/constants.h
-    include/voxelquest/dynbuffer.h
-    include/voxelquest/entenums.h
-    include/voxelquest/enums.h
-    include/voxelquest/fbos.h
-    include/voxelquest/fileio.h
-    include/voxelquest/fontwrapper.h
-#    include/voxelquest/gameactor.h #does not appear to be used
-#    include/voxelquest/gameactorjoint.h #does not appear to be used
-    include/voxelquest/gameai.h
+set(voxelquest_audio
     include/voxelquest/gameaudio.h
-    include/voxelquest/gameblock.h
-#    include/voxelquest/gamecamera.h #does not appear to be used
-    include/voxelquest/gamechunk.h
-    include/voxelquest/gameent.h
-    include/voxelquest/gameentmanager.h
-#    include/voxelquest/gameentnode.h #does not appear to be used
-    include/voxelquest/gamefluid.h
-#    include/voxelquest/gamegeom.h #does not appear to be used
-    include/voxelquest/gamegui.h
-    include/voxelquest/gamelogic.h
+    source/gameaudio.cpp
     include/voxelquest/gamemusic.h
-    include/voxelquest/gamenetwork.h
-    include/voxelquest/gameoctree.h
-    include/voxelquest/gameorg.h
-    include/voxelquest/gameorgnode.h
-#    include/voxelquest/gamepage.h #does not appear to be used
-    include/voxelquest/gamepageholder.h
-    include/voxelquest/gamephysics.h
-    include/voxelquest/gamephysrig.h
-    include/voxelquest/gameplant.h
-    include/voxelquest/gameplantnode.h
-#    include/voxelquest/gameragdoll.h #does not appear to be used
-    include/voxelquest/gamesim.h
+    source/gamemusic.cpp
     include/voxelquest/gamesound.h
-    include/voxelquest/gamestate.h
-    include/voxelquest/gamevoxelwrap.h
-    include/voxelquest/gameworld.h
-    include/voxelquest/geom.h
-    include/voxelquest/geompage.h
-    include/voxelquest/glinfo.h
-    include/voxelquest/helperfuncs.h
-    include/voxelquest/hpclock.h
+    source/gamesound.cpp
+)
+source_group("audio" FILES ${voxelquest_audio})
+
+set(voxelquest_entity
+    include/voxelquest/gameent.h
+    source/gameent.cpp
+    include/voxelquest/gameentmanager.h
+    source/gameentmanager.cpp
+    include/voxelquest/gameplant.h
+    source/gameplant.cpp
+    include/voxelquest/gameplantnode.h
+    source/gameplantnode.cpp
+)
+source_group("entity" FILES ${voxelquest_entity})
+
+set(voxelquest_fileio
+    include/voxelquest/fileio.h
+    source/fileio.cpp
     include/voxelquest/imageloader.h
-#    include/voxelquest/includes.h #removed
-    include/voxelquest/ivec.h
+    source/imageloader.cpp
     include/voxelquest/json.h
-	include/voxelquest/jsonhelpers.h
-    include/voxelquest/mat.h
-    include/voxelquest/materials.h
-    include/voxelquest/memorypool.h
-    include/voxelquest/mydebugdrawer.h
-    include/voxelquest/myglhelper.h
-	include/voxelquest/myoglapp.h
-    include/voxelquest/myshapedrawer.h
-#    include/voxelquest/network.h #does not appear to be used
-    include/voxelquest/object.h
-	include/voxelquest/oglrenderer.h
-    include/voxelquest/path.h
-#    include/voxelquest/pooledresource.h #does not appear to be used
-#    include/voxelquest/poolmanager.h #does not appear to be used
-#    include/voxelquest/poolpagemanager.h #does not appear to be used
-    include/voxelquest/raycastbar.h
-	include/voxelquest/renderer.h
-#    include/voxelquest/rhfactory.h #does not appear to be used
-    include/voxelquest/rig.h
-    include/voxelquest/settings.h
-    include/voxelquest/shader.h
-    include/voxelquest/simplex.h
-#    include/voxelquest/singleton.h #removed
-	include/voxelquest/stylesheet.h
+    source/json.cpp
+    include/voxelquest/jsonhelpers.h
+    source/jsonhelpers.cpp
     include/voxelquest/spacebuffer.h
+)
+source_group("fileio" FILES ${voxelquest_fileio})
+
+set(voxelquest_math
+    include/voxelquest/bullethelpers.h
+    source/bullethelpers.cpp
+    include/voxelquest/ivec.h
+    source/ivec.cpp
+    include/voxelquest/mat.h
+    source/mat.cpp
+    include/voxelquest/vectors.h
+    source/vectors.cpp
+)
+source_group("math" FILES ${voxelquest_math})
+
+set(voxelquest_rendering
+    include/voxelquest/dynbuffer.h
+    source/dynbuffer.cpp
+    include/voxelquest/fbos.h
+    source/fbos.cpp
+    include/voxelquest/glinfo.h
+    source/glinfo.cpp
+    include/voxelquest/materials.h
+    source/materials.cpp
+    include/voxelquest/myglhelper.h
+    source/myglhelper.cpp
+    include/voxelquest/myoglapp.h
+    source/myoglapp.cpp
+    include/voxelquest/myshapedrawer.h
+    source/myshapedrawer.cpp
+    include/voxelquest/oglrenderer.h
+    source/oglrenderer.cpp
+    include/voxelquest/raycastbar.h
+    source/raycastbar.cpp
+    include/voxelquest/renderer.h
+    source/renderer.cpp
+    include/voxelquest/shader.h
+    source/shader.cpp
     include/voxelquest/tbos.h
+    source/tbos.cpp
     include/voxelquest/texenums.h
     include/voxelquest/texture3d.h
-    include/voxelquest/threadpoolwrapper.h
-    include/voxelquest/threadwrapper.h
-    include/voxelquest/timer.h
-    include/voxelquest/types.h
-    include/voxelquest/uicomponent.h
-	include/voxelquest/uniformbuffer.h
-    include/voxelquest/vbos.h
-    include/voxelquest/vectors.h
-    include/voxelquest/volumewrapper.h
-    include/voxelquest/voxelbuffer.h
-#    include/voxelquest/wsrequesthandler.h #does not appear to be used
-#    include/voxelquest/wsserver.h #does not appear to be used
-)
-
-set(voxelquest_source
-    source/baseobject.cpp
-    source/benchmarkdemo.cpp
-    source/bullethelpers.cpp
-    source/cache.cpp
-    source/constants.cpp
-    source/dynbuffer.cpp
-    source/fbos.cpp
-    source/fileio.cpp
-    source/fontwrapper.cpp
-#    source/gameactor.cpp #does not appear to be used
-    source/gameai.cpp
-	source/gameaudio.cpp
-    source/gameblock.cpp
-#    source/gamecamera.cpp #does not appear to be used
-    source/gamechunk.cpp
-    source/gameent.cpp
-    source/gameentmanager.cpp
-#    source/gameentnode.cpp #does not appear to be used
-    source/gamefluid.cpp
-#    source/gamegeom.cpp #does not appear to be used
-    source/gamegui.cpp
-    source/gamelogic.cpp
-    source/gamemusic.cpp
-    source/gamenetwork.cpp
-    source/gameoctree.cpp
-    source/gameorg.cpp
-    source/gameorgnode.cpp
-#    source/gamepage.cpp #does not appear to be used
-    source/gamepageholder.cpp
-    source/gamephysics.cpp
-    source/gamephysrig.cpp
-    source/gameplant.cpp
-    source/gameplantnode.cpp
-#    source/gameragdoll.cpp #does not appear to be used
-    source/gamesound.cpp
-    source/gamestate.cpp
-    source/gamevoxelwrap.cpp
-    source/gameworld.cpp
-    source/geom.cpp
-    source/glinfo.cpp
-    source/helperfuncs.cpp
-    source/hpclock.cpp
-    source/imageloader.cpp
-#    source/includes.cpp #removed
-    source/ivec.cpp
-    source/json.cpp
-	source/jsonhelpers.cpp
-    source/main.cpp
-    source/mat.cpp
-    source/materials.cpp
-    source/memorypool.cpp
-    source/mydebugdrawer.cpp
-    source/myglhelper.cpp
-    source/myoglapp.cpp
-    source/myshapedrawer.cpp
-#    source/network.cpp #does not appear to be used
-    source/object.cpp
-	source/oglrenderer.cpp
-#    source/pooledresource.cpp #does not appear to be used
-#    source/poolmanager.cpp #does not appear to be used
-#    source/poolpagemanager.cpp #does not appear to be used
-    source/raycastbar.cpp
-	source/renderer.cpp
-#    source/rhfactory.cpp #does not appear to be used
-	source/settings.cpp
-    source/shader.cpp
-    source/simplex.cpp
-#    source/singleton.cpp #removed
-	source/stylesheet.cpp
-    source/tbos.cpp
     source/texture3d.cpp
-    source/threadpoolwrapper.cpp
-    source/threadwrapper.cpp
-    source/timer.cpp
-	source/uniformbuffer.cpp
-    source/uicomponent.cpp
+    include/voxelquest/uniformbuffer.h
+    source/uniformbuffer.cpp
+    include/voxelquest/vbos.h
     source/vbos.cpp
-    source/vectors.cpp
-    source/volumewrapper.cpp
-    source/voxelbuffer.cpp
-#    source/wsrequesthandler.cpp #does not appear to be used
-#    source/wsserver.cpp #does not appear to be used
-
     include/OpenGLWindow/SimpleCamera.cpp
 )
+source_group("rendering" FILES ${voxelquest_rendering})
+
+set(voxelquest_ui
+    include/voxelquest/debugScreen.h
+    source/debugScreen.cpp
+    include/voxelquest/gamegui.h
+    source/gamegui.cpp
+    include/voxelquest/initGlew.h
+    source/initGlew.cpp
+    include/voxelquest/stylesheet.h
+    source/stylesheet.cpp
+    include/voxelquest/uicomponent.h
+    source/uicomponent.cpp
+)
+source_group("ui" FILES ${voxelquest_ui})
+
+set(voxelquest_utils
+    include/voxelquest/helperfuncs.h
+    source/helperfuncs.cpp
+    include/voxelquest/hpclock.h
+    source/hpclock.cpp
+    include/voxelquest/timer.h
+    source/timer.cpp
+)
+source_group("utils" FILES ${voxelquest_utils})
+
+set(voxelquest_source
+    include/voxelquest/baseobject.h
+    source/baseobject.cpp
+    include/voxelquest/benchmarkdemo.h
+    source/benchmarkdemo.cpp
+    include/voxelquest/cache.h
+    source/cache.cpp
+    include/voxelquest/classdefs.h
+    include/voxelquest/constants.h
+    source/constants.cpp
+    include/voxelquest/entenums.h
+    include/voxelquest/enums.h
+    include/voxelquest/fontwrapper.h
+    source/fontwrapper.cpp
+    include/voxelquest/gameai.h
+    source/gameai.cpp
+    include/voxelquest/gameblock.h
+    source/gameblock.cpp
+    include/voxelquest/gamechunk.h
+    source/gamechunk.cpp
+    include/voxelquest/gamefluid.h
+    source/gamefluid.cpp
+    include/voxelquest/gamelogic.h
+    source/gamelogic.cpp
+    include/voxelquest/gamenetwork.h
+    source/gamenetwork.cpp
+    include/voxelquest/gameoctree.h
+    source/gameoctree.cpp
+    include/voxelquest/gameorg.h
+    source/gameorg.cpp
+    include/voxelquest/gameorgnode.h
+    source/gameorgnode.cpp
+    include/voxelquest/gamepageholder.h
+    source/gamepageholder.cpp
+    include/voxelquest/gamephysics.h
+    source/gamephysics.cpp
+    include/voxelquest/gamephysrig.h
+    source/gamephysrig.cpp
+    include/voxelquest/gamesim.h
+    include/voxelquest/gamestate.h
+    source/gamestate.cpp
+    include/voxelquest/gamevoxelwrap.h
+    source/gamevoxelwrap.cpp
+    include/voxelquest/gameworld.h
+    source/gameworld.cpp
+    include/voxelquest/geom.h
+    source/geom.cpp
+    include/voxelquest/geompage.h
+    source/main.cpp
+    include/voxelquest/memorypool.h
+    source/memorypool.cpp
+    include/voxelquest/mydebugdrawer.h
+    source/mydebugdrawer.cpp
+    include/voxelquest/object.h
+    source/object.cpp
+    include/voxelquest/path.h
+    include/voxelquest/rig.h
+    include/voxelquest/settings.h
+    source/settings.cpp
+    include/voxelquest/simplex.h
+    source/simplex.cpp
+    include/voxelquest/threadpoolwrapper.h
+    source/threadpoolwrapper.cpp
+    include/voxelquest/threadwrapper.h
+    source/threadwrapper.cpp
+    include/voxelquest/types.h
+    include/voxelquest/volumewrapper.h
+    source/volumewrapper.cpp
+    include/voxelquest/voxelbuffer.h
+    source/voxelbuffer.cpp
+)
+source_group("source" FILES ${voxelquest_source})
 
 set(voxelquest_shaders
     glsl/BasicLimbShader.c
@@ -289,8 +290,8 @@ set(voxelquest_shaders
     glsl/WaveHeightShader.c
     glsl/WorldSpaceShader.c
 )
-set_source_files_properties(${voxelquest_shaders} PROPERTIES HEADER_FILE_ONLY TRUE)
 source_group("shaders" FILES ${voxelquest_shaders})
+set_source_files_properties(${voxelquest_shaders} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 set(voxelquest_libraries
     glbinding::glbinding
@@ -308,6 +309,7 @@ set(voxelquest_libraries
     bullet::BulletSoftBody
     bullet::LinearMath
     glm
+    imgui::imgui
 #    stb::stb
 #    OpenAL::OpenAL
 )
@@ -315,7 +317,17 @@ set(voxelquest_libraries
 include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
 include_directories("${SFML_ROOT_DIRECTORY}/include")
 
-add_executable(voxelquest ${voxelquest_include} ${voxelquest_source} ${voxelquest_shaders})
+add_executable(voxelquest 
+    ${voxelquest_audio}
+    ${voxelquest_entity}
+    ${voxelquest_fileio}
+    ${voxelquest_math}
+    ${voxelquest_rendering}
+    ${voxelquest_ui}
+    ${voxelquest_utils}
+    ${voxelquest_source}
+    ${voxelquest_shaders}
+)
 
 find_package(OpenGL REQUIRED)
 

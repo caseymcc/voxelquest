@@ -174,6 +174,8 @@ public:
     bool TRACE_ON;
     bool ND_TRACE_OFF;
     bool TEMP_DEBUG;
+
+    int rasterChunkRadius;
 };
 
 #ifdef SETTINGS_NOEXTERN

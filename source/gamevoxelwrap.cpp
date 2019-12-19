@@ -1687,13 +1687,6 @@ void GameVoxelWrap::calcVoxel(ivec3* _pos, int octPtr, int VLIndex)
         }
     }
 
-
-
-
-
-
-
-
     float primRes;
     int bestInd=-1;
     float bestRes=999999.0f;

@@ -28,6 +28,7 @@ public:
     static void setLookAt(const FIVector4 &lookAt);
     static void updateView();
 
+    static void updateProjection();
     static void perspectiveProjection();
     static void orthographicProjection();
 

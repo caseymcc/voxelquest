@@ -53,6 +53,12 @@ public:
     static void startNT();
     static bool stopNT();
 
+    static bool cursorCapture;
+    static bool helpCommands;
+    static bool showMap;
+    static bool showSettings;
+    static bool orthoProjection;
+
     //static float cameraShake;
     //static Timer shakeTimer;
     static int frameCount;

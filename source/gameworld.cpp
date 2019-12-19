@@ -1110,9 +1110,18 @@ void GameWorld::preUpdate()
 
 void GameWorld::update()
 {
-
     updateLock=true;
 
+    updateWorld();
+    
+    if(GameState::showMap)
+        drawMap();
+
+    updateLock=false;
+}
+
+void GameWorld::updateWorld()
+{
     bool postToScreen=true;
 
     if(noiseGenerated)
@@ -1294,16 +1303,12 @@ void GameWorld::update()
     doMedian();
 
     finalStep(postToScreen);
-//
+
 //    if(postToScreen)
 //    {
 //        drawMap();
-////        glutSwapBuffers();
+//        glutSwapBuffers();
 //    }
-
-
-    updateLock=false;
-
 }
 
 
@@ -4663,20 +4668,18 @@ void GameWorld::drawMap()
 //    {
 //        return;
 //    }
-    if(GameState::ui->mapComp==NULL)
-    {
-        return;
-    }
-    if(GameState::ui->mapComp->visible)
-    {
-
-    }
-    else
-    {
-        return;
-    }
-
-
+//    if(GameState::ui->mapComp==NULL)
+//    {
+//        return;
+//    }
+//    if(GameState::ui->mapComp->visible)
+//    {
+//
+//    }
+//    else
+//    {
+//        return;
+//    }
     FBOWrapper *fbow=FBOManager::getFBOWrapper("hmFBOLinear", 0);
 
 
@@ -4685,6 +4688,7 @@ void GameWorld::drawMap()
     Renderer::bindShader("TopoShader");
 
     //Renderer::bindFBO("resultFBO0");
+    Renderer::bindFBO("mapFBO");
 
     //Renderer::sampleFBO("palFBO", 0);
     Renderer::setShaderTexture3D(0, volumeTex.id);
@@ -4712,8 +4716,9 @@ void GameWorld::drawMap()
     Renderer::setShaderFloat("cellsPerWorld", (float)cellsPerWorld);
 
 
-    GameState::ui->renderQuadDirect(GameState::ui->mapComp);
-
+//    GameState::ui->renderQuadDirect(GameState::ui->mapComp);
+//    Renderer::drawFBO("resultFBO", 0, 1.0f, 1-activeFBO);
+    Renderer::drawFSQuad();
 
     //singleton->drawQuadBounds
 
@@ -4729,7 +4734,7 @@ void GameWorld::drawMap()
     //Renderer::unsampleFBO("palFBO", 0);
     Renderer::setShaderTexture3D(0, 0);
 
-    //Renderer::unbindFBO();
+    Renderer::unbindFBO();
 
     Renderer::unbindShader();
 
@@ -5104,7 +5109,7 @@ void GameWorld::rasterHoldersCheck()
     Renderer::setShaderVec2("bufferDim", (float)Renderer::currentFBOResolutionX, (float)Renderer::currentFBOResolutionY);
     Renderer::setShaderMatrix4x4("pmMatrix", Renderer::pmMatrix.get(), 1);
 
-    rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_DOCHECK);
+    rastChunk(g_settings.rasterChunkRadius/*iGetConst(E_CONST_RASTER_CHUNK_RAD)*/, RH_FLAG_DOCHECK);
 
     Renderer::unbindFBO();
     Renderer::unbindShader();
@@ -5163,7 +5168,7 @@ void GameWorld::rasterHolders(bool doShadow)
         // Renderer::setShaderfVec3("maxBounds",&(maxShadowBounds));
         // Renderer::setShaderfVec3("lightVec",&(Renderer::lightVec));
 
-        rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), 0);
+        rastChunk(g_settings.rasterChunkRadius/*iGetConst(E_CONST_RASTER_CHUNK_RAD)*/, 0);
 
         Renderer::unbindFBO();
         Renderer::unbindShader();
@@ -5187,7 +5192,7 @@ void GameWorld::rasterHolders(bool doShadow)
         //Renderer::setShaderMatrix4x4("lightSpaceMatrix",lightSpaceMatrix.get(),1);
         Renderer::setShaderMatrix4x4("pmMatrix", Renderer::pmMatrix.get(), 1);
 
-        rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_CLIPTOVIEW);
+        rastChunk(g_settings.rasterChunkRadius/*iGetConst(E_CONST_RASTER_CHUNK_RAD)*/, RH_FLAG_CLIPTOVIEW);
 
         Renderer::unbindFBO();
         Renderer::unbindShader();
@@ -5720,7 +5725,7 @@ void GameWorld::renderDebug()
         Renderer::setShaderFloat("isWire", 1.0);
         Renderer::setShaderVec3("matVal", 255, 0, 0);
 
-        rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), RH_FLAG_DRAWLOADING);
+        rastChunk(g_settings.rasterChunkRadius/*iGetConst(E_CONST_RASTER_CHUNK_RAD)*/, RH_FLAG_DRAWLOADING);
 
         if(holderInFocus!=NULL)
         {

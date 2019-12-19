@@ -136,6 +136,8 @@ public:
 
     void update();
 
+    void updateWorld();
+
     void toggleVis(GameEnt* se);
 
     void ensureBlocks();

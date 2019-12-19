@@ -111,6 +111,8 @@ Settings::Settings()
     TRACE_ON=false;
     ND_TRACE_OFF=false;
     TEMP_DEBUG=false;
+
+    rasterChunkRadius=10;
 }
 
 void Settings::speakSetting(int settingName)

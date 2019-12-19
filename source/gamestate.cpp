@@ -28,6 +28,12 @@ HPClock bulletTimer;
 ThreadWrapper threadNetSend;
 ThreadWrapper threadNetRecv;
 
+bool GameState::cursorCapture=false;
+bool GameState::helpCommands=false;
+bool GameState::showMap=true;
+bool GameState::showSettings=false;
+bool GameState::orthoProjection=false;
+
 int GameState::frameCount=0;
 int GameState::frameSkipCount=0;
 int GameState::currentTick=0;
@@ -649,7 +655,7 @@ bool GameState::frameUpdate(bool doFrameRender)
 void GameState::checkFluid(GameFluid* gf)
 {
     gameLogic->loadNearestHolders(g_settings.settings[E_BS_UPDATE_HOLDERS]);
-    gw->rastChunk(iGetConst(E_CONST_RASTER_CHUNK_RAD), 1);// RH_FLAG_DOCHECK);
+    gw->rastChunk(g_settings.rasterChunkRadius/*iGetConst(E_CONST_RASTER_CHUNK_RAD)*/, 1);// RH_FLAG_DOCHECK);
 //    gw->rasterHoldersCheck();
 
     return;

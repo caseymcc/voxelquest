@@ -125,6 +125,7 @@ void Renderer::init(int width, int height)
     glm::mat4 glmViewMatrix=toMat4(viewMatrix);
 
     toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+    lookAtVec.setFXYZ(1.0f, 0.0f, 0.0f);
 
 //    fsqDL=glGenLists(1);
 //    glNewList(fsqDL, GL_COMPILE);
@@ -194,7 +195,8 @@ void Renderer::init(int width, int height)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
 
-    orthographicProjection();
+    updateProjection();
+//    orthographicProjection();
 
     shaderStrings.push_back("RenderFBOShader");
 
@@ -327,20 +329,30 @@ void Renderer::updateView()
     pmMatrix=projMatrix*viewMatrix;
 }
 
+void Renderer::updateProjection()
+{
+    if(GameState::orthoProjection)
+        orthographicProjection();
+    else
+        perspectiveProjection();
+}
+
 void Renderer::perspectiveProjection()
 {
     float aspect=1.0f;
 
     float fovRad=FOV*((float)M_PI/180.0f);
 
-    glm::mat4 glmProjMatrix=glm::frustum(-aspect, aspect, -1.0f, 1.0f, 4.0f, 15.0f); 
+//    glm::mat4 glmProjMatrix=glm::frustum(-aspect, aspect, -1.0f, 1.0f, 4.0f, 15.0f); 
+    glm::mat4 glmProjMatrix=glm::perspectiveFov(fovRad, (float)baseW, (float)baseH, (float)clipDist[0], (float)clipDist[1]);
     projMatrix=toMatrix4(glmProjMatrix);
 
-    glm::mat4 glmViewMatrix(1.0f);
-    viewMatrix=toMatrix4(glmViewMatrix);
-    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
-
-    pmMatrix=projMatrix*viewMatrix;
+//    glm::mat4 glmViewMatrix(1.0f);
+//    viewMatrix=toMatrix4(glmViewMatrix);
+//    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+//
+//    pmMatrix=projMatrix*viewMatrix;
+    updateView();
 }
 
 void Renderer::orthographicProjection()
@@ -348,11 +360,12 @@ void Renderer::orthographicProjection()
     glm::mat4 glmProjMatrix=glm::ortho(-0.5f, 0.5f, -0.5f, 0.5f, 4.0f, 15.0f);;
     projMatrix=toMatrix4(glmProjMatrix);
 
-    glm::mat4 glmViewMatrix(1.0f);
-    viewMatrix=toMatrix4(glmViewMatrix);
-    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
-
-    pmMatrix=projMatrix*viewMatrix;
+    updateView();
+//    glm::mat4 glmViewMatrix(1.0f);
+//    viewMatrix=toMatrix4(glmViewMatrix);
+//    toFloatArray(viewMatrixDI, glm::inverse(glmViewMatrix));
+//
+//    pmMatrix=projMatrix*viewMatrix;
 }
 
 void Renderer::setWH(int w, int h)
@@ -369,7 +382,8 @@ void Renderer::reshape(int w, int h)
 
 //    screenWidth=w;
 //    screenHeight=h;
-    orthographicProjection();
+//    orthographicProjection();
+    updateProjection();
 
     setMatrices(baseW, baseH);
 }

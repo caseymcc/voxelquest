@@ -40,7 +40,7 @@ void main() {
     //TexCoord0.y = TexCoord0.y;
     
     gl_Position = vposition;
-    gl_Position.xy = mix(blitCoords.xy, blitCoords.zw, vtexcoord.xy);//vposition;
+//    gl_Position.xy = mix(blitCoords.xy, blitCoords.zw, vtexcoord.xy);//vposition;
     
     
     //gl_Position = gl_Vertex;
