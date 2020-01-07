@@ -9,8 +9,9 @@ If you do decide to play with it be aware that it is setup to use hunter (https:
 (Optional SFML)
 For the moment, by default audion is disabled. If you want audio you will need to download the latest version of SFML and compile it. Call cmake with `-DVOXELQUEST_USE_SFML=ON -DSFML_ROOT_DIRECTORY={Root Directory of SFML}`. This build is expecting that you setup cmake to build SFML in the `build` directory using something like this: `cmake -H. -Bbuild` for the cmake option build directory.
 
-Current screenshot (at least something is rendering now)
+Current screenshots
 ![screenshot](https://github.com/caseymcc/voxelquest/raw/master/screenshot.png)
+![screenshot](https://github.com/caseymcc/voxelquest/raw/master/screenshot1.png)
 
 
 
