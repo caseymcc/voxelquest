@@ -27,8 +27,8 @@ find_package(imgui CONFIG REQUIRED)
 hunter_add_package(glm)
 find_package(glm CONFIG REQUIRED)
 
-hunter_add_package(Boost COMPONENTS system filesystem)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+#hunter_add_package(Boost COMPONENTS system filesystem)
+#find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 hunter_add_package(PocoCpp)
 find_package(Poco REQUIRED Foundation Util Net CONFIG)
@@ -45,6 +45,31 @@ find_package(bullet CONFIG REQUIRED)
 #
 #hunter_add_package(OpenAL)
 #find_package(OpenAL CONFIG REQUIRED)
+
+#set(VQ_NO_FILESYSTEM 0)
+#set(VQ_STD_FILESYSTEM 1)
+#set(VQ_EXPERIMENTAL_FILESYSTEM 2)
+#set(VQ_USE_FILESYSTEM ${VQ_NO_FILESYSTEM})
+#
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#    add_definitions(-DNOMINMAX)
+#    if(MSVC_VERSION GREATER_EQUAL 1900)
+#        set(VQ_USE_FILESYSTEM ${VQ_EXPERIMENTAL_FILESYSTEM})
+#        if(MSVC_VERSION GREATER 1900)
+#            set(VQ_USE_FILESYSTEM ${VQ_STD_FILESYSTEM})
+#        endif()
+#    endif()
+#elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+#elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#    set(VQ_USE_FILESYSTEM ${VQ_EXPERIMENTAL_FILESYSTEM})
+#
+#    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 4.6)
+#        if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
+#            set(VQ_USE_FILESYSTEM ${VQ_STD_FILESYSTEM})
+#        endif()
+#    endif()
+#endif()
+
 
 set(voxelquest_audio
     include/voxelquest/gameaudio.h
@@ -295,8 +320,8 @@ set_source_files_properties(${voxelquest_shaders} PROPERTIES HEADER_FILE_ONLY TR
 
 set(voxelquest_libraries
     glbinding::glbinding
-    Boost::system 
-    Boost::filesystem 
+#    Boost::system 
+#    Boost::filesystem 
     Poco::Foundation
     Poco::Util
     Poco::Net
@@ -334,6 +359,25 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(voxelquest 
     ${voxelquest_libraries}
 )
+
+#target_compile_definitions(voxelquest PRIVATE "-DVQ_USE_FILESYSTEM=${VQ_USE_FILESYSTEM}")
+#if(VQ_USE_FILESYSTEM EQUAL ${VQ_NO_FILESYSTEM})
+#    hunter_add_package(Boost COMPONENTS filesystem)
+#    find_package(Boost CONFIG REQUIRED filesystem)
+#
+#    target_link_libraries(voxelquest Boost::system Boost::filesystem)
+#else()
+#    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#        if(VQ_USE_FILESYSTEM GREATER 1)
+#            target_compile_options(voxelquest PUBLIC "/std:c++17")
+#        endif()
+#    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+#        target_compile_options(voxelquest PUBLIC "-lstdc++fs")
+#        target_link_libraries(voxelquest stdc++fs)
+#    endif()
+#endif()
+
+
 
 if(VOXELQUEST_USE_SFML)
     target_link_libraries(voxelquest 
