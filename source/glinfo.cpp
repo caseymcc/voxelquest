@@ -11,6 +11,7 @@ using namespace gl;
 
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
 PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB=0;
