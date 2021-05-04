@@ -44,7 +44,7 @@ int FBOWrapper::init(
 
     slot=GL_COLOR_ATTACHMENT0_EXT;
 
-    switch(_slot)
+    switch((int)_slot)
     {
     case 0:
         slot=GL_COLOR_ATTACHMENT0_EXT;
@@ -1157,12 +1157,12 @@ void FBOManager::initFBOs()
     }
 }
 // todo: optimize this
-FBOSet* FBOManager::getFBOByName(std::string &fboName)
+FBOSet* FBOManager::getFBOByName(std::string fboName)
 {
     return singleton()->_getFBOByName(fboName);
 }
 
-FBOSet* FBOManager::_getFBOByName(std::string &fboName)
+FBOSet* FBOManager::_getFBOByName(std::string fboName)
 {
 
     if(fboMap.find(fboName)==fboMap.end())

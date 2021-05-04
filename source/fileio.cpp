@@ -196,7 +196,7 @@ std::string loadFileString(std::string fnString)
     return buffer.str();
 }
 
-bool saveFileString(std::string fileName, std::string* source)
+bool saveFileString(std::string fileName, const std::string* source)
 {
     if(source==NULL)
     {

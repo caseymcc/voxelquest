@@ -107,8 +107,8 @@ public:
 
     void setSetting(int settingName, bool value, bool withVoice=true);
 
-    JSONValue* Settings::fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
-    void Settings::getSpecialData(int datEnum, std::string datString);
+    JSONValue* fetchJSONData(std::string dataFile, bool doClean, JSONValue* params=NULL);
+    void getSpecialData(int datEnum, std::string datString);
     void saveExternalJSON();
 
     bool settings[E_BS_LENGTH];

@@ -7,20 +7,21 @@ using namespace gl;
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
+
+typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
+PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB=0;
 #endif
 
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-
-typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
-PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB=0;
+#include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // extract openGL info
 // This function must be called after GL rendering context opened.
 ///////////////////////////////////////////////////////////////////////////////
-void glInfo::getInfo(unsigned int param)
+void GLInfo::getInfo(unsigned int param)
 {
     std::string str;
 
@@ -131,7 +132,7 @@ void glInfo::getInfo(unsigned int param)
 ///////////////////////////////////////////////////////////////////////////////
 // check if the video card support a certain extension
 ///////////////////////////////////////////////////////////////////////////////
-bool glInfo::isExtensionSupported(const std::string& ext)
+bool GLInfo::isExtensionSupported(const std::string& ext)
 {
     // search corresponding extension
     std::vector<std::string>::const_iterator iter = this->extensions.begin();
@@ -152,7 +153,7 @@ bool glInfo::isExtensionSupported(const std::string& ext)
 ///////////////////////////////////////////////////////////////////////////////
 // print OpenGL info to screen and save to a file
 ///////////////////////////////////////////////////////////////////////////////
-void glInfo::printSelf()
+void GLInfo::printSelf()
 {
     std::stringstream ss;
 

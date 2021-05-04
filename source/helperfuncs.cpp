@@ -5,6 +5,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
+#else
+#include <stdlib.h>
 #endif
 
 #include <sstream>
@@ -28,9 +30,16 @@ std::wstring s2ws(const std::string& s)
 {
     int len;
     int slength = (int)s.length() + 1;
+	wchar_t* buf;
+#ifdef _WIN32
     len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
-    wchar_t* buf = new wchar_t[len];
+    buf = new wchar_t[len];
     MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+#else
+	len=mbstowcs(nullptr, s.c_str(), slength);
+	buf = new wchar_t[len];
+	mbstowcs(buf, s.c_str(), slength);
+#endif
     std::wstring r(buf);
     delete[] buf;
     return r;

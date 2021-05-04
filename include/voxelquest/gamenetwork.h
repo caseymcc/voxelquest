@@ -12,6 +12,19 @@ class Singleton;
 #define WIN32_LEAN_AND_MEAN
 //#include "windows.h"
 #include "winsock2.h"
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <cstring>
+#include <unistd.h>
+
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SD_SEND SHUT_WR
+
+#define closesocket(value) close(value)
+#define ZeroMemory(ptr, value, size) memset(ptr, value, size);
 #endif
 
 struct NetworkAction
@@ -87,8 +100,12 @@ public:
 
     FIVector4 tempVecs[8];
 
+#ifdef _WIN32
     WSADATA wsaData;
     SOCKET ConnectSocket;
+#else
+    int ConnectSocket;
+#endif//_WIN32
 
     int recvPosInBytes;
     int sendPosInBytes;

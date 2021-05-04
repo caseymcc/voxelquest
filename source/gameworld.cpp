@@ -3503,7 +3503,13 @@ void GameWorld::initMap()
     mapWidth=(float)fbow->width;
     mapHeight=(float)fbow->height;
 
-    goto DONE_WITH_MAP;
+//    goto DONE_WITH_MAP;
+    {
+        mapInvalid=false;
+        std::cout<<"DONE WITH MAP\n";
+        mapLockOn=false;
+        return;
+    }
 
     std::cout<<"start place cities\n";
 
@@ -4560,11 +4566,9 @@ void GameWorld::initMap()
 
     //////////
 
-DONE_WITH_MAP:
+//DONE_WITH_MAP:
 
     mapInvalid=false;
-
-
 
     std::cout<<"DONE WITH MAP\n";
 

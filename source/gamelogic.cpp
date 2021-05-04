@@ -770,7 +770,13 @@ void GameLogic::fillAllGroups(
 		
 	int begGroupId = begHolder->getGroupId(begInd);
 	int endGroupId = endHolder->getGroupId(endInd);
-		
+	
+	int frontIndex = 0;
+	bool foundIt = false;
+	int lastIndex = -1;
+	int curGroupId = 0;
+	int groupIdTo = 0;
+
 	if ((begGroupId > -1) && (endGroupId > -1)) {
 			
 	}
@@ -779,14 +785,8 @@ void GameLogic::fillAllGroups(
 	}
 		
 	globEndGroupId = endGroupId;
-	int curGroupId = 0;
-	int groupIdTo = 0;
 		
 	ConnectingNodeStruct* testConNode;
-		
-	bool foundIt = false;
-		
-	int lastIndex = -1;
 		
 	foundIt = addGroupToStack(
 		NULL,
@@ -796,13 +796,12 @@ void GameLogic::fillAllGroups(
 		-1,
 		lastIndex
 	);
+
 	if (foundIt) {
 		goto FOUND_TARG_GROUP;
 	}
 		
 	bool notFound;
-		
-	int frontIndex = 0;
 		
 	while (
 		(frontIndex < pathSearchStack.size()) && //(pathSearchStack.size() > 0) &&

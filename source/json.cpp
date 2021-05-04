@@ -2,6 +2,7 @@
 #include "voxelquest/spacebuffer.h"
 
 #include <sstream>
+#include <cmath>
 
 static inline bool simplejson_wcsnlen(const char *s, size_t n)
 {
@@ -771,7 +772,7 @@ std::string JSONValue::Stringify(int curLev) const
 		
 		case JSONType_Number:
 		{
-			if (isinf(number_value) || isnan(number_value))
+			if (std::isinf(number_value) || std::isnan(number_value))
 				ret_string = "null";
 			else
 			{

@@ -1,4 +1,4 @@
-#include "ivec.h"
+#include "voxelquest/ivec.h"
 
 //ivec3 toIVEC(vec3 val) {
 //    return ivec3(val.x,val.y,val.z);

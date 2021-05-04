@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <assert.h>  
+#include <cstring>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -151,14 +152,17 @@ void DynBuffer::setVsync(bool enabled)
 //        wglGetSwapIntervalEXT=(PFNWGLGETSWAPINTERVALEXTPROC)wglGetProcAddress("wglGetSwapIntervalEXT");
 //        if(wglSwapIntervalEXT && wglGetSwapIntervalEXT)
 //        {
+#ifdef _WIN32
             if(enabled)
             {
+
                 wglSwapIntervalEXT(1);
             }
             else
             {
                 wglSwapIntervalEXT(0);
             }
+#endif//_WIN32
             // enable v-sync
 
             //std::cout << "Video card supports WGL_EXT_swap_control." << std::endl;

@@ -9,6 +9,7 @@ using namespace gl;
 
 #include <iostream>
 #include <cassert>
+#include <cstring>
 
 Shader::Shader(Singleton* _singleton)
 {

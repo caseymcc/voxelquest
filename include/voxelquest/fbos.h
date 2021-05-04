@@ -165,7 +165,7 @@ public:
 
     void initFBOs();
 
-    static FBOSet* getFBOByName(std::string &fboName);
+    static FBOSet* getFBOByName(std::string fboName);
 
 //    static void sampleFBO(
 //        std::string fboName,
@@ -217,7 +217,7 @@ public:
 
 //    void bindFBODirect(FBOSet *fbos, int doClear=1);
 
-    FBOSet* _getFBOByName(std::string &fboName);
+    FBOSet* _getFBOByName(std::string fboName);
 
 private:
     FBOManager(); //make it a singleton

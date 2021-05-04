@@ -97,7 +97,7 @@ private:
     int pboMode;
     int drawMode;
 
-    glInfo glInfo;
+    GLInfo glInfo;
     //Timer timer, t1, t2;
     //float copyTime, updateTime;
 };

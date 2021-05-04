@@ -21,7 +21,7 @@ bool saveFloatArray(std::string fileName, float* data, int dataSizeInFloats);
 
 std::string loadFileString(std::string fnString);
 
-bool saveFileString(std::string fileName, std::string* source);
+bool saveFileString(std::string fileName, const std::string* source);
 
 
 #endif//_voxelquest_fileio_h_

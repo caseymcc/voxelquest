@@ -4,6 +4,7 @@
 #include "voxelquest/fileio.h"
 
 #include <iostream>
+#include <string.h>
 
 std::vector<std::string> jsonPostStack;
 std::string jsonPostString;

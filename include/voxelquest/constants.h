@@ -346,13 +346,13 @@ const static int MAX_VG_FBOS=2;
 const static int MAX_VGT_FBOS=2;
 //int CUR_VGT_FBO=0;
 
-const static float M_PI=3.14159265359f;
+const static float VQ_M_PI=3.14159265359f;
 
 const static float TBDIR_ARR[]={
     0.0f,
-    M_PI*0.5f,
-    M_PI,
-    M_PI*1.5f
+    VQ_M_PI*0.5f,
+    VQ_M_PI,
+    VQ_M_PI*1.5f
 };
 
 

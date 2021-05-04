@@ -333,9 +333,11 @@ void Settings::saveExternalJSON()
 
         if(iterator->second.jv!=NULL)
         {
+            std::string value=iterator->second.jv->Stringify();
+
             saveFileString(
                 "data\\"+iterator->first,
-                &(iterator->second.jv->Stringify())
+                &(value)
             );
         }
 

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/cpp-pm/hunter/archive/v0.23.253.tar.gz"
-    SHA1 "88ea6d37c897a81a080eb9ae0f69d7807bbb3c73"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.23.300.tar.gz"
+    SHA1 "1151d539465d9cdbc880ee30f794864aec11c448"
     LOCAL
 )
 
@@ -11,6 +11,8 @@ project(voxelquest)
 
 option(VOXELQUEST_USE_SFML "Use SMFL for audio" OFF)
 option(SFML_ROOT_DIRECTORY "Directory for SMFL" "")
+
+set(OpenGL_GL_PREFERENCE "GLVND")
 
 hunter_add_package(CreateLaunchers)
 find_package(CreateLaunchers CONFIG REQUIRED)
@@ -386,13 +388,16 @@ if(VOXELQUEST_USE_SFML)
     target_compile_definitions(voxelquest PUBLIC VOXELQUEST_USE_SFML=1)
 endif()
 
-include(CreateLaunchers)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/targetInfo.cmake)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    #create launchers currently broke for linux
+    include(CreateLaunchers)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/targetInfo.cmake)
 
-set(vs_enviroment_dir)
-get_target_link_directories(vs_enviroment_dir ${voxelquest_libraries})
+    set(vs_enviroment_dir)
+    get_target_link_directories(vs_enviroment_dir ${voxelquest_libraries})
 
-create_target_launcher(voxelquest
-    RUNTIME_LIBRARY_DIRS "${vs_enviroment_dir}" "${SFML_ROOT_DIRECTORY}/build/lib/Debug" "${SFML_ROOT_DIRECTORY}/extlibs/bin/x64"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-)
+    create_target_launcher(voxelquest
+        RUNTIME_LIBRARY_DIRS "${vs_enviroment_dir}" "${SFML_ROOT_DIRECTORY}/build/lib/Debug" "${SFML_ROOT_DIRECTORY}/extlibs/bin/x64"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
+    )
+endif()

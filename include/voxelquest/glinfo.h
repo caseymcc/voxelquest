@@ -5,10 +5,10 @@
 #include <vector>
 
 // struct variable to store OpenGL info
-struct glInfo
+struct GLInfo
 {
     // ctor, init all members
-    glInfo() : redBits(0), greenBits(0), blueBits(0), alphaBits(0), depthBits(0),
+    GLInfo() : redBits(0), greenBits(0), blueBits(0), alphaBits(0), depthBits(0),
                stencilBits(0), maxTextureSize(0), maxLights(0), maxAttribStacks(0),
                maxModelViewStacks(0), maxClipPlanes(0), maxTextureStacks(0) {}
 

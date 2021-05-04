@@ -21,6 +21,7 @@
 #include <ostream>
 #include <iomanip>
 #include <algorithm>
+#include <math.h>
 
 inline float fract(float val)
 {

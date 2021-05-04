@@ -177,7 +177,7 @@ public:
         //, bool isBlockHolder
     );
 
-    void GameWorld::rastChunk(int rad, uint flags);
+    void rastChunk(int rad, uint flags);
 
     void renderGeom();
 
